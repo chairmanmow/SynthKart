@@ -1,0 +1,23 @@
+# Dependencies
+node_modules/
+
+# Build output (keep dist/outrun.js for deployment)
+dist/*.js
+!dist/outrun.js
+
+# Debug logs
+*.log
+debug.log
+
+# Editor
+.vscode/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Temp files
+*.tmp
+print('MAGENTA=' + MAGENTA)
