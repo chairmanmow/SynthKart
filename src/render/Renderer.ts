@@ -17,6 +17,10 @@ interface IRenderer {
   renderHud(hudData: HudData): void;
   endFrame(): void;
   shutdown(): void;
+  
+  // Optional theme support
+  setTheme?(themeName: string): void;
+  getAvailableThemes?(): string[];
 }
 
 class Renderer implements IRenderer {

@@ -59,7 +59,7 @@ interface ThemeColors {
 }
 
 interface ThemeBackgroundElement {
-  type: 'mountains' | 'skyscrapers' | 'dunes' | 'forest' | 'hills';
+  type: 'mountains' | 'skyscrapers' | 'dunes' | 'forest' | 'hills' | 'ocean';
   // Configuration varies by type
   config: {
     // Mountains/hills
@@ -76,7 +76,7 @@ interface ThemeBackgroundElement {
 }
 
 interface ThemeCelestialBody {
-  type: 'sun' | 'moon' | 'none';
+  type: 'sun' | 'moon' | 'dual_moons' | 'none';
   size: number;           // 1-5 scale
   positionX: number;      // 0=left, 0.5=center, 1=right
   positionY: number;      // 0=top of sky, 1=at horizon
@@ -88,13 +88,64 @@ interface ThemeStars {
   twinkle: boolean;       // Animated twinkle effect
 }
 
+interface ThemeSkyBackground {
+  type: 'grid' | 'stars' | 'gradient' | 'plain';  // What to render in sky background layer
+  // Grid-specific config
+  gridDensity?: number;   // For grid spacing
+  gridChar?: string;      // Character to use for grid lines
+  converging?: boolean;   // Converging lines to vanishing point
+  horizontal?: boolean;   // Horizontal scan lines
+  // Stars use the ThemeStars config
+}
+
+/**
+ * A weighted roadside object entry.
+ * Weight determines relative frequency (higher = more common).
+ */
+interface RoadsidePoolEntry {
+  sprite: string;         // Sprite name from ROADSIDE_SPRITES registry
+  weight: number;         // Relative weight (e.g., 3 = 3x as common as weight 1)
+  side?: 'left' | 'right' | 'both';  // Which side(s) it can appear on
+}
+
 interface ThemeRoadsideConfig {
-  // Which sprite types appear in this theme
-  spriteTypes: string[];  // e.g. ['tree', 'rock', 'bush'] or ['building', 'lamppost', 'sign']
+  // Object pool with weights for controlled distribution
+  // e.g., [{ sprite: 'building', weight: 3 }, { sprite: 'lamppost', weight: 2 }, { sprite: 'tree', weight: 1 }]
+  pool: RoadsidePoolEntry[];
   // Spacing between objects (world units)
   spacing: number;
   // Density multiplier (1 = normal, 2 = double, 0.5 = half)
   density: number;
+}
+
+/**
+ * Ground/terrain configuration for off-road areas.
+ * Defines how the terrain looks on either side of the road.
+ */
+interface ThemeGroundConfig {
+  // Type of ground pattern
+  type: 'solid' | 'grid' | 'dither' | 'grass' | 'sand';
+  
+  // Colors for ground (primary = main, secondary = pattern/accent)
+  primary: ColorPair;
+  secondary: ColorPair;
+  
+  // Pattern-specific config
+  pattern?: {
+    // Grid pattern: converging lines like synthwave holodeck
+    gridSpacing?: number;      // Spacing between horizontal grid lines
+    gridChar?: string;         // Character for grid intersections (default '+')
+    converging?: boolean;      // Lines converge to horizon vanishing point
+    radialLines?: number;      // Number of radial lines per side (default 8)
+    
+    // Dither pattern: checkerboard/noise for dirt/gravel
+    ditherDensity?: number;    // 0-1, how dense the pattern is
+    ditherChars?: string[];    // Characters to use ('.', ',', "'", etc)
+    
+    // Grass pattern: tufts of grass
+    grassDensity?: number;     // 0-1
+    grassChars?: string[];     // Characters like '"', 'v', ',', etc
+  };
 }
 
 interface Theme {
@@ -104,14 +155,20 @@ interface Theme {
   // Complete color palette
   colors: ThemeColors;
   
-  // Background scenery renderer
+  // Sky background layer (grid, stars, or plain)
+  sky: ThemeSkyBackground;
+  
+  // Background scenery renderer (mountains, buildings, etc)
   background: ThemeBackgroundElement;
   
   // Celestial body (sun/moon)
   celestial: ThemeCelestialBody;
   
-  // Star field
+  // Star field config (used when sky.type === 'stars')
   stars: ThemeStars;
+  
+  // Ground/terrain for off-road areas (optional - defaults to solid shoulder colors)
+  ground?: ThemeGroundConfig;
   
   // Roadside objects configuration
   roadside: ThemeRoadsideConfig;

@@ -38,6 +38,11 @@ var SynthwaveTheme = {
             }
         }
     },
+    sky: {
+        type: 'grid',
+        converging: true,
+        horizontal: true
+    },
     background: {
         type: 'mountains',
         config: {
@@ -58,8 +63,21 @@ var SynthwaveTheme = {
         density: 0,
         twinkle: false
     },
+    ground: {
+        type: 'grid',
+        primary: { fg: MAGENTA, bg: BG_BLACK },
+        secondary: { fg: CYAN, bg: BG_BLACK },
+        pattern: {
+            gridSpacing: 15,
+            radialLines: 10
+        }
+    },
     roadside: {
-        spriteTypes: ['tree', 'rock', 'bush'],
+        pool: [
+            { sprite: 'tree', weight: 3, side: 'both' },
+            { sprite: 'rock', weight: 2, side: 'both' },
+            { sprite: 'bush', weight: 2, side: 'both' }
+        ],
         spacing: 10,
         density: 1.0
     }

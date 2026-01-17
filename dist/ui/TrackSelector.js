@@ -4,6 +4,8 @@ function showTrackSelector() {
     var selectedIndex = 0;
     var pageSize = 5;
     var scrollOffset = 0;
+    var oldPauseStatus = bbs.sys_status & SS_PAUSEON;
+    bbs.sys_status &= ~SS_PAUSEON;
     console.clear();
     drawTrackSelectorScreen(tracks, selectedIndex, scrollOffset, pageSize);
     while (true) {
@@ -36,6 +38,8 @@ function showTrackSelector() {
             needsRedraw = true;
         }
         else if (key === '\r' || key === '\n' || key === ' ') {
+            if (oldPauseStatus)
+                bbs.sys_status |= SS_PAUSEON;
             return {
                 selected: true,
                 track: tracks[selectedIndex]
@@ -44,6 +48,8 @@ function showTrackSelector() {
         else if (key >= '1' && key <= '9') {
             var quickIndex = parseInt(key, 10) - 1;
             if (quickIndex < tracks.length) {
+                if (oldPauseStatus)
+                    bbs.sys_status |= SS_PAUSEON;
                 return {
                     selected: true,
                     track: tracks[quickIndex]
@@ -51,6 +57,8 @@ function showTrackSelector() {
             }
         }
         else if (key === 'Q' || key === KEY_ESC) {
+            if (oldPauseStatus)
+                bbs.sys_status |= SS_PAUSEON;
             return {
                 selected: false,
                 track: null

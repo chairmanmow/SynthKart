@@ -10,6 +10,7 @@ var FrameManager = (function () {
         this.skyGridFrame = null;
         this.mountainsFrame = null;
         this.sunFrame = null;
+        this.groundGridFrame = null;
         this.roadFrame = null;
         this.hudFrame = null;
         this.rootFrame = null;
@@ -29,9 +30,13 @@ var FrameManager = (function () {
         this.sunFrame.open();
         this.addLayer(this.sunFrame, 'sun', 3);
         var roadHeight = this.height - this.horizonY;
+        this.groundGridFrame = new Frame(1, this.horizonY + 1, this.width, roadHeight, BG_BLACK, this.rootFrame);
+        this.groundGridFrame.open();
+        this.addLayer(this.groundGridFrame, 'groundGrid', 4);
         this.roadFrame = new Frame(1, this.horizonY + 1, this.width, roadHeight, BG_BLACK, this.rootFrame);
+        this.roadFrame.transparent = true;
         this.roadFrame.open();
-        this.addLayer(this.roadFrame, 'road', 4);
+        this.addLayer(this.roadFrame, 'road', 5);
         this.hudFrame = new Frame(1, 1, this.width, this.height, BG_BLACK, this.rootFrame);
         this.hudFrame.transparent = true;
         this.hudFrame.open();
@@ -67,6 +72,9 @@ var FrameManager = (function () {
     };
     FrameManager.prototype.getRoadFrame = function () {
         return this.roadFrame;
+    };
+    FrameManager.prototype.getGroundGridFrame = function () {
+        return this.groundGridFrame;
     };
     FrameManager.prototype.getHudFrame = function () {
         return this.hudFrame;

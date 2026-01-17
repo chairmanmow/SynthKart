@@ -65,6 +65,13 @@ var SynthwaveTheme: Theme = {
     }
   },
   
+  // Sky background: synthwave grid (converging lines + horizontal scanlines)
+  sky: {
+    type: 'grid',
+    converging: true,
+    horizontal: true
+  },
+  
   background: {
     type: 'mountains',
     config: {
@@ -88,8 +95,23 @@ var SynthwaveTheme: Theme = {
     twinkle: false
   },
   
+  // Holodeck grid extending from road edges to horizon
+  ground: {
+    type: 'grid',
+    primary: { fg: MAGENTA, bg: BG_BLACK },    // Grid line color
+    secondary: { fg: CYAN, bg: BG_BLACK },     // Alternate/glow
+    pattern: {
+      gridSpacing: 15,      // World units between horizontal lines
+      radialLines: 10       // Radial lines per side (evenly spaced by angle)
+    }
+  },
+  
   roadside: {
-    spriteTypes: ['tree', 'rock', 'bush'],
+    pool: [
+      { sprite: 'tree', weight: 3, side: 'both' },
+      { sprite: 'rock', weight: 2, side: 'both' },
+      { sprite: 'bush', weight: 2, side: 'both' }
+    ],
     spacing: 10,
     density: 1.0
   }

@@ -150,6 +150,24 @@ interface SynchronetJS {
 declare var js: SynchronetJS;
 
 // ============================================================
+// BBS OBJECT
+// ============================================================
+
+interface SynchronetBBS {
+  sys_status: number;
+  // Add more bbs properties as needed
+}
+
+declare var bbs: SynchronetBBS;
+
+// ============================================================
+// SYSTEM STATUS CONSTANTS (from sbbsdefs.js)
+// ============================================================
+
+declare var SS_PAUSEON: number;
+declare var SS_PAUSEOFF: number;
+
+// ============================================================
 // UTILITY FUNCTIONS
 // ============================================================
 

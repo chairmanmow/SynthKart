@@ -67,7 +67,82 @@ class Collision {
     for (var i = 0; i < vehicles.length; i++) {
       this.resolveBoundary(vehicles[i], track);
     }
+  }
 
-    // Vehicle-vehicle collisions: TODO
+  /**
+   * Process vehicle-to-vehicle collisions.
+   * Called separately from track boundary collisions.
+   */
+  static processVehicleCollisions(vehicles: IVehicle[]): void {
+    // Check all pairs of vehicles
+    for (var i = 0; i < vehicles.length; i++) {
+      for (var j = i + 1; j < vehicles.length; j++) {
+        var a = vehicles[i];
+        var b = vehicles[j];
+        
+        // Skip if either is crashed/recovering
+        if (a.isCrashed || b.isCrashed) continue;
+        
+        // Skip if both are NPCs (let them overlap, player doesn't care)
+        if (a.isNPC && b.isNPC) continue;
+        
+        // Check collision using playerX and trackZ (road-relative coordinates)
+        // Collision box sized to match visual representation
+        var latDist = Math.abs(a.playerX - b.playerX);
+        var longDist = Math.abs(a.trackZ - b.trackZ);
+        
+        // Collision thresholds - cars are about 0.3 wide and 8-10 units long
+        var collisionLat = 0.4;    // Lateral collision threshold
+        var collisionLong = 10;    // Longitudinal collision threshold
+        
+        if (latDist < collisionLat && longDist < collisionLong) {
+          this.resolveVehicleCollision(a, b);
+        }
+      }
+    }
+  }
+
+  /**
+   * Resolve collision between two vehicles.
+   */
+  static resolveVehicleCollision(a: IVehicle, b: IVehicle): void {
+    // Determine which vehicle was "hit" (the slower/rear one takes more damage)
+    var aAhead = a.trackZ > b.trackZ;
+    var faster = aAhead ? a : b;
+    var slower = aAhead ? b : a;
+    
+    // Push vehicles apart laterally
+    var pushForce = 0.15;
+    if (a.playerX < b.playerX) {
+      a.playerX -= pushForce;
+      b.playerX += pushForce;
+    } else {
+      a.playerX += pushForce;
+      b.playerX -= pushForce;
+    }
+    
+    // Speed exchange - rear-ended vehicle gets pushed, rear-ender slows
+    var speedTransfer = 20;
+    
+    // If player hits NPC from behind, slow player and push NPC
+    if (!faster.isNPC && slower.isNPC) {
+      // Player hit NPC from behind
+      faster.speed = Math.max(0, faster.speed - speedTransfer * 1.5);
+      slower.speed = Math.min(VEHICLE_PHYSICS.MAX_SPEED, slower.speed + speedTransfer);
+      faster.flashTimer = 0.3;
+    } else if (faster.isNPC && !slower.isNPC) {
+      // NPC hit player from behind (shouldn't happen often with commuters)
+      slower.speed = Math.max(0, slower.speed - speedTransfer * 0.5);
+      faster.speed = Math.max(0, faster.speed - speedTransfer);
+      slower.flashTimer = 0.3;
+    } else {
+      // NPC-NPC or theoretical player-player
+      faster.speed = Math.max(0, faster.speed - speedTransfer);
+      slower.speed = Math.max(0, slower.speed - speedTransfer * 0.5);
+    }
+    
+    // Both vehicles flash briefly
+    if (a.flashTimer <= 0) a.flashTimer = 0.2;
+    if (b.flashTimer <= 0) b.flashTimer = 0.2;
   }
 }

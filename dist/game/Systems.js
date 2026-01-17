@@ -43,7 +43,7 @@ var RaceSystem = (function () {
                 vehicle.lap++;
                 debugLog.info("LAP COMPLETE! Vehicle " + vehicle.id + " now on lap " + vehicle.lap + "/" + state.track.laps);
                 debugLog.info("  lastZ=" + lastZ.toFixed(1) + " currentZ=" + currentZ.toFixed(1) + " roadLength=" + roadLength);
-                if (vehicle.lap > state.track.laps) {
+                if (!vehicle.isNPC && vehicle.lap > state.track.laps) {
                     state.finished = true;
                     state.racing = false;
                     debugLog.info("RACE FINISHED! Final time: " + state.time.toFixed(2));

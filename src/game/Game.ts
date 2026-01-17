@@ -70,6 +70,21 @@ class Game {
 
     // Initialize renderer
     this.renderer.init();
+    
+    // Set theme based on track's themeId
+    var themeMapping: { [key: string]: string } = {
+      'synthwave': 'synthwave',
+      'midnight_city': 'city_night',
+      'beach_paradise': 'sunset_beach',
+      'forest_night': 'twilight_forest',
+      'haunted_hollow': 'haunted_hollow',
+      'winter_wonderland': 'winter_wonderland',
+      'cactus_canyon': 'cactus_canyon'
+    };
+    var themeName = themeMapping[trackDef.themeId] || 'synthwave';
+    if (this.renderer.setTheme) {
+      this.renderer.setTheme(themeName);
+    }
 
     // Build the road from the track definition
     var road = buildRoadFromDefinition(trackDef);
@@ -88,6 +103,10 @@ class Game {
 
     // Create game state with road
     this.state = createInitialState(track, road, playerVehicle);
+
+    // Spawn NPC commuters (traffic)
+    var npcCount = trackDef.npcCount !== undefined ? trackDef.npcCount : 5;
+    this.spawnNPCs(npcCount, road);
 
     // Initialize systems
     this.physicsSystem.init(this.state);
@@ -222,6 +241,9 @@ class Game {
     // Update race progress
     this.raceSystem.update(this.state, dt);
 
+    // Apply NPC pacing - commuters drive faster when far, slower when close
+    this.applyNPCPacing();
+
     // Update items
     this.itemSystem.update(dt);
     this.itemSystem.checkPickups(this.state.vehicles);
@@ -231,6 +253,12 @@ class Game {
       this.itemSystem.useItem(this.state.playerVehicle);
     }
 
+    // Process vehicle-to-vehicle collisions
+    Collision.processVehicleCollisions(this.state.vehicles);
+
+    // Respawn NPCs that have fallen behind the player
+    this.checkNPCRespawn();
+
     // Update camera to follow player
     this.state.cameraX = this.state.playerVehicle.x;
 
@@ -239,6 +267,74 @@ class Game {
       // Race is complete - exit the game loop
       debugLog.info("Race complete! Exiting game loop. Final time: " + this.state.time.toFixed(2));
       this.running = false;
+    }
+  }
+
+  /**
+   * Check if any NPCs need to be respawned ahead.
+   */
+  private checkNPCRespawn(): void {
+    if (!this.state) return;
+    
+    var playerZ = this.state.playerVehicle.trackZ;
+    var respawnDistance = 150;  // Respawn if this far behind player
+    
+    for (var i = 0; i < this.state.vehicles.length; i++) {
+      var vehicle = this.state.vehicles[i];
+      if (vehicle.isNPC && vehicle.trackZ < playerZ - respawnDistance) {
+        this.respawnNPCAhead(vehicle);
+      }
+    }
+  }
+
+  /**
+   * Apply NPC pacing - commuters drive faster when far from player,
+   * slower when close. This creates a longer "approach phase" where
+   * the player can see and react to upcoming traffic.
+   */
+  private applyNPCPacing(): void {
+    if (!this.state) return;
+    
+    var playerZ = this.state.playerVehicle.trackZ;
+    var playerSpeed = this.state.playerVehicle.speed;
+    
+    for (var i = 0; i < this.state.vehicles.length; i++) {
+      var npc = this.state.vehicles[i];
+      if (!npc.isNPC) continue;
+      
+      var distance = npc.trackZ - playerZ;
+      
+      // Only apply pacing to NPCs ahead of player
+      if (distance <= 0) continue;
+      
+      // Pacing zones:
+      // Far (>150): Match 70-85% of player speed (slower approach)
+      // Medium (80-150): Transition zone
+      // Close (<80): Normal commuter speed (30-50% of max)
+      
+      var commuterBaseSpeed = VEHICLE_PHYSICS.MAX_SPEED * 0.4;  // Normal commuter speed
+      var pacingSpeed: number;
+      
+      if (distance > 150) {
+        // Far away: drive faster to stay visible longer
+        // Match a portion of player's speed so approach is gradual
+        pacingSpeed = Math.max(commuterBaseSpeed, playerSpeed * 0.75);
+      } else if (distance > 80) {
+        // Transition zone: blend from pacing speed to commuter speed
+        var t = (distance - 80) / 70;  // 0 at 80, 1 at 150
+        var fastSpeed = playerSpeed * 0.75;
+        pacingSpeed = commuterBaseSpeed + t * (fastSpeed - commuterBaseSpeed);
+      } else {
+        // Close: normal commuter behavior
+        pacingSpeed = commuterBaseSpeed;
+      }
+      
+      // Smoothly adjust NPC speed toward target (don't jerk)
+      var speedDiff = pacingSpeed - npc.speed;
+      npc.speed += speedDiff * 0.1;  // Gradual adjustment
+      
+      // Clamp to reasonable bounds
+      npc.speed = clamp(npc.speed, commuterBaseSpeed * 0.5, VEHICLE_PHYSICS.MAX_SPEED * 0.85);
     }
   }
 
@@ -290,6 +386,108 @@ class Game {
       this.timestep.reset();
     }
     logInfo("Game " + (this.paused ? "paused" : "resumed"));
+  }
+
+  /**
+   * Spawn NPC commuter vehicles.
+   */
+  private spawnNPCs(count: number, road: Road): void {
+    if (!this.state) return;
+    
+    var roadLength = road.totalLength;
+    
+    // Calculate spacing to spread NPCs evenly along the track
+    var minSpawn = 150;
+    var maxSpawn = Math.min(roadLength * 0.8, 800);  // Spawn up to 800 units ahead
+    var spawnRange = maxSpawn - minSpawn;
+    var spacing = spawnRange / (count + 1);  // Even spacing between NPCs
+    
+    for (var i = 0; i < count; i++) {
+      var npc = new Vehicle();
+      
+      // Use CommuterDriver for traffic
+      npc.driver = new CommuterDriver();
+      npc.isNPC = true;
+      
+      // Randomize vehicle type and color
+      var typeIndex = Math.floor(Math.random() * NPC_VEHICLE_TYPES.length);
+      npc.npcType = NPC_VEHICLE_TYPES[typeIndex];
+      npc.npcColorIndex = Math.floor(Math.random() * NPC_VEHICLE_COLORS.length);
+      
+      // Set color from palette for minimap display
+      var colorPalette = NPC_VEHICLE_COLORS[npc.npcColorIndex];
+      npc.color = colorPalette.body;
+      
+      // Distribute NPCs evenly along the track with some randomness
+      // Base position is evenly spaced, then add small random offset
+      var baseZ = minSpawn + spacing * (i + 1);
+      var jitter = spacing * 0.3 * (Math.random() - 0.5);  // +/- 15% of spacing
+      npc.trackZ = baseZ + jitter;
+      npc.z = npc.trackZ;
+      
+      // Random lateral position (stay on road, alternate left/right bias)
+      var laneOffset = (i % 2 === 0) ? -0.3 : 0.3;  // Alternate lanes
+      npc.playerX = laneOffset + (Math.random() - 0.5) * 0.4;  // Stay in lane with some variance
+      
+      this.state.vehicles.push(npc);
+    }
+    
+    debugLog.info("Spawned " + count + " NPC commuters");
+  }
+
+  /**
+   * Respawn an NPC ahead of the player when passed.
+   */
+  private respawnNPCAhead(npc: IVehicle): void {
+    if (!this.state) return;
+    
+    var playerZ = this.state.playerVehicle.trackZ;
+    var roadLength = this.state.road.totalLength;
+    
+    // Find where other NPCs are to avoid spawning too close
+    var minSeparation = 50;  // Minimum distance between NPCs
+    var attempts = 0;
+    var maxAttempts = 10;
+    var validPosition = false;
+    var newZ = 0;
+    
+    while (!validPosition && attempts < maxAttempts) {
+      // Respawn 300-600 units ahead of player (far enough to see approach from horizon)
+      var spawnDistance = 300 + Math.random() * 300;
+      newZ = (playerZ + spawnDistance) % roadLength;
+      
+      // Check if position is clear of other NPCs
+      validPosition = true;
+      for (var i = 0; i < this.state.vehicles.length; i++) {
+        var other = this.state.vehicles[i];
+        if (other === npc || !other.isNPC) continue;
+        
+        var dist = Math.abs(other.trackZ - newZ);
+        if (dist < minSeparation) {
+          validPosition = false;
+          break;
+        }
+      }
+      attempts++;
+    }
+    
+    npc.trackZ = newZ;
+    npc.z = npc.trackZ;
+    
+    // Alternate left/right lanes based on random chance
+    var laneChoice = Math.random();
+    if (laneChoice < 0.4) {
+      npc.playerX = -0.35 + (Math.random() - 0.5) * 0.2;  // Left lane
+    } else if (laneChoice < 0.8) {
+      npc.playerX = 0.35 + (Math.random() - 0.5) * 0.2;   // Right lane
+    } else {
+      npc.playerX = (Math.random() - 0.5) * 0.3;          // Center
+    }
+    
+    // Reset any crash state
+    npc.isCrashed = false;
+    npc.crashTimer = 0;
+    npc.flashTimer = 0;
   }
 
   /**

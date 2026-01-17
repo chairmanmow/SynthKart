@@ -32,6 +32,7 @@ class FrameManager {
   private skyGridFrame: Frame | null;
   private mountainsFrame: Frame | null;
   private sunFrame: Frame | null;
+  private groundGridFrame: Frame | null;  // Holodeck grid floor
   private roadFrame: Frame | null;
   private hudFrame: Frame | null;
   
@@ -50,6 +51,7 @@ class FrameManager {
     this.skyGridFrame = null;
     this.mountainsFrame = null;
     this.sunFrame = null;
+    this.groundGridFrame = null;
     this.roadFrame = null;
     this.hudFrame = null;
     this.rootFrame = null as any;  // Will be set in init()
@@ -80,11 +82,18 @@ class FrameManager {
     this.sunFrame.open();
     this.addLayer(this.sunFrame, 'sun', 3);
     
-    // Road layer (covers road area from horizon to bottom)
+    // Ground grid layer - holodeck floor effect (below road surface)
+    // Covers same area as road, but renders the grid pattern
     var roadHeight = this.height - this.horizonY;
+    this.groundGridFrame = new Frame(1, this.horizonY + 1, this.width, roadHeight, BG_BLACK, this.rootFrame);
+    this.groundGridFrame.open();
+    this.addLayer(this.groundGridFrame, 'groundGrid', 4);
+    
+    // Road layer (covers road area from horizon to bottom, transparent for off-road)
     this.roadFrame = new Frame(1, this.horizonY + 1, this.width, roadHeight, BG_BLACK, this.rootFrame);
+    this.roadFrame.transparent = true;  // Road is transparent so ground grid shows through off-road
     this.roadFrame.open();
-    this.addLayer(this.roadFrame, 'road', 4);
+    this.addLayer(this.roadFrame, 'road', 5);
     
     // HUD layer (transparent overlay, full screen)
     this.hudFrame = new Frame(1, 1, this.width, this.height, BG_BLACK, this.rootFrame);
@@ -157,6 +166,13 @@ class FrameManager {
    */
   getRoadFrame(): Frame | null {
     return this.roadFrame;
+  }
+  
+  /**
+   * Get the ground grid frame (holodeck floor).
+   */
+  getGroundGridFrame(): Frame | null {
+    return this.groundGridFrame;
   }
   
   /**

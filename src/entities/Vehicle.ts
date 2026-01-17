@@ -53,6 +53,15 @@ interface IVehicle extends IEntity {
 
   /** Flash timer for collision/reset visual feedback */
   flashTimer: number;
+  
+  /** Is this an NPC (commuter/AI) vehicle? */
+  isNPC: boolean;
+  
+  /** NPC vehicle type for sprite selection */
+  npcType: string;
+  
+  /** NPC color index for sprite color */
+  npcColorIndex: number;
 
   /** Update vehicle with road data */
   updatePhysics(road: Road, intent: DriverIntent, dt: number): void;
@@ -102,6 +111,9 @@ class Vehicle extends Entity implements IVehicle {
   isCrashed: boolean;
   crashTimer: number;
   flashTimer: number;
+  isNPC: boolean;
+  npcType: string;
+  npcColorIndex: number;
 
   constructor() {
     super();
@@ -120,6 +132,9 @@ class Vehicle extends Entity implements IVehicle {
     this.isCrashed = false;
     this.crashTimer = 0;
     this.flashTimer = 0;
+    this.isNPC = false;
+    this.npcType = 'sedan';
+    this.npcColorIndex = 0;
   }
 
   /**

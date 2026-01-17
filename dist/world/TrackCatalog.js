@@ -119,6 +119,96 @@ var TRACK_THEMES = {
             color: { fg: GREEN, bg: BG_BLACK },
             highlightColor: { fg: LIGHTGREEN, bg: BG_BLACK }
         }
+    },
+    'haunted_hollow': {
+        id: 'haunted_hollow',
+        name: 'Haunted Hollow',
+        sky: {
+            top: { fg: BLACK, bg: BG_BLACK },
+            horizon: { fg: MAGENTA, bg: BG_BLACK },
+            gridColor: { fg: DARKGRAY, bg: BG_BLACK }
+        },
+        sun: {
+            color: { fg: RED, bg: BG_BLACK },
+            glowColor: { fg: LIGHTRED, bg: BG_BLACK },
+            position: 0.5
+        },
+        road: {
+            surface: { fg: DARKGRAY, bg: BG_BLACK },
+            stripe: { fg: LIGHTRED, bg: BG_BLACK },
+            edge: { fg: DARKGRAY, bg: BG_BLACK },
+            grid: { fg: DARKGRAY, bg: BG_BLACK }
+        },
+        offroad: {
+            groundColor: { fg: DARKGRAY, bg: BG_BLACK },
+            sceneryTypes: ['deadtree', 'gravestone', 'pumpkin', 'skull', 'fence', 'candle'],
+            sceneryDensity: 0.3
+        },
+        background: {
+            type: 'cemetery',
+            color: { fg: BLACK, bg: BG_BLACK },
+            highlightColor: { fg: MAGENTA, bg: BG_BLACK }
+        }
+    },
+    'winter_wonderland': {
+        id: 'winter_wonderland',
+        name: 'Winter Wonderland',
+        sky: {
+            top: { fg: BLUE, bg: BG_BLACK },
+            horizon: { fg: WHITE, bg: BG_BLACK },
+            gridColor: { fg: LIGHTCYAN, bg: BG_BLACK }
+        },
+        sun: {
+            color: { fg: WHITE, bg: BG_LIGHTGRAY },
+            glowColor: { fg: YELLOW, bg: BG_BLACK },
+            position: 0.3
+        },
+        road: {
+            surface: { fg: LIGHTGRAY, bg: BG_BLACK },
+            stripe: { fg: LIGHTRED, bg: BG_BLACK },
+            edge: { fg: WHITE, bg: BG_BLACK },
+            grid: { fg: LIGHTCYAN, bg: BG_BLACK }
+        },
+        offroad: {
+            groundColor: { fg: WHITE, bg: BG_BLACK },
+            sceneryTypes: ['snowpine', 'snowman', 'icecrystal', 'candycane', 'snowdrift', 'signpost'],
+            sceneryDensity: 0.25
+        },
+        background: {
+            type: 'mountains',
+            color: { fg: WHITE, bg: BG_BLACK },
+            highlightColor: { fg: LIGHTCYAN, bg: BG_BLACK }
+        }
+    },
+    'cactus_canyon': {
+        id: 'cactus_canyon',
+        name: 'Cactus Canyon',
+        sky: {
+            top: { fg: BLUE, bg: BG_BLACK },
+            horizon: { fg: YELLOW, bg: BG_BLACK },
+            gridColor: { fg: BROWN, bg: BG_BLACK }
+        },
+        sun: {
+            color: { fg: YELLOW, bg: BG_BROWN },
+            glowColor: { fg: YELLOW, bg: BG_BLACK },
+            position: 0.6
+        },
+        road: {
+            surface: { fg: BROWN, bg: BG_BLACK },
+            stripe: { fg: YELLOW, bg: BG_BLACK },
+            edge: { fg: BROWN, bg: BG_BLACK },
+            grid: { fg: BROWN, bg: BG_BLACK }
+        },
+        offroad: {
+            groundColor: { fg: YELLOW, bg: BG_BLACK },
+            sceneryTypes: ['saguaro', 'barrel', 'tumbleweed', 'cowskull', 'desertrock', 'westernsign'],
+            sceneryDensity: 0.2
+        },
+        background: {
+            type: 'dunes',
+            color: { fg: BROWN, bg: BG_BLACK },
+            highlightColor: { fg: YELLOW, bg: BG_BLACK }
+        }
     }
 };
 var TRACK_CATALOG = [
@@ -130,6 +220,7 @@ var TRACK_CATALOG = [
         laps: 2,
         themeId: 'synthwave',
         estimatedLapTime: 30,
+        npcCount: 3,
         sections: [
             { type: 'straight', length: 15 },
             { type: 'ease_in', length: 5, targetCurve: 0.5 },
@@ -149,6 +240,7 @@ var TRACK_CATALOG = [
         laps: 3,
         themeId: 'synthwave',
         estimatedLapTime: 90,
+        npcCount: 6,
         sections: [
             { type: 'straight', length: 30 },
             { type: 'ease_in', length: 10, targetCurve: 0.4 },
@@ -171,6 +263,7 @@ var TRACK_CATALOG = [
         laps: 3,
         themeId: 'midnight_city',
         estimatedLapTime: 75,
+        npcCount: 8,
         sections: [
             { type: 'straight', length: 20 },
             { type: 'ease_in', length: 5, targetCurve: 0.7 },
@@ -196,6 +289,7 @@ var TRACK_CATALOG = [
         laps: 3,
         themeId: 'beach_paradise',
         estimatedLapTime: 60,
+        npcCount: 4,
         sections: [
             { type: 'straight', length: 25 },
             { type: 'ease_in', length: 8, targetCurve: 0.3 },
@@ -209,6 +303,88 @@ var TRACK_CATALOG = [
         ]
     },
     {
+        id: 'haunted_hollow',
+        name: 'Haunted Hollow',
+        description: 'Race through the cemetery under a blood moon',
+        difficulty: 4,
+        laps: 3,
+        themeId: 'haunted_hollow',
+        estimatedLapTime: 70,
+        npcCount: 3,
+        sections: [
+            { type: 'straight', length: 15 },
+            { type: 'ease_in', length: 5, targetCurve: -0.4 },
+            { type: 'curve', length: 12, curve: -0.4 },
+            { type: 'ease_out', length: 4 },
+            { type: 'straight', length: 10 },
+            { type: 'ease_in', length: 4, targetCurve: 0.7 },
+            { type: 'curve', length: 15, curve: 0.7 },
+            { type: 'ease_out', length: 4 },
+            { type: 'ease_in', length: 3, targetCurve: -0.5 },
+            { type: 'curve', length: 10, curve: -0.5 },
+            { type: 'ease_in', length: 3, targetCurve: 0.5 },
+            { type: 'curve', length: 10, curve: 0.5 },
+            { type: 'ease_out', length: 3 },
+            { type: 'ease_in', length: 3, targetCurve: -0.8 },
+            { type: 'curve', length: 8, curve: -0.8 },
+            { type: 'ease_out', length: 3 },
+            { type: 'straight', length: 12 }
+        ]
+    },
+    {
+        id: 'winter_wonderland',
+        name: 'Winter Wonderland',
+        description: 'Magical snowy race through a frosty forest',
+        difficulty: 2,
+        laps: 3,
+        themeId: 'winter_wonderland',
+        estimatedLapTime: 65,
+        npcCount: 4,
+        sections: [
+            { type: 'straight', length: 20 },
+            { type: 'ease_in', length: 6, targetCurve: 0.3 },
+            { type: 'curve', length: 18, curve: 0.3 },
+            { type: 'ease_out', length: 6 },
+            { type: 'straight', length: 15 },
+            { type: 'ease_in', length: 5, targetCurve: -0.4 },
+            { type: 'curve', length: 15, curve: -0.4 },
+            { type: 'ease_out', length: 5 },
+            { type: 'ease_in', length: 4, targetCurve: 0.35 },
+            { type: 'curve', length: 10, curve: 0.35 },
+            { type: 'ease_in', length: 4, targetCurve: -0.35 },
+            { type: 'curve', length: 10, curve: -0.35 },
+            { type: 'ease_out', length: 4 },
+            { type: 'straight', length: 18 }
+        ]
+    },
+    {
+        id: 'cactus_canyon',
+        name: 'Cactus Canyon',
+        description: 'Blazing desert race through the Southwest canyons',
+        difficulty: 3,
+        laps: 3,
+        themeId: 'cactus_canyon',
+        estimatedLapTime: 75,
+        npcCount: 5,
+        sections: [
+            { type: 'straight', length: 18 },
+            { type: 'ease_in', length: 5, targetCurve: 0.45 },
+            { type: 'curve', length: 20, curve: 0.45 },
+            { type: 'ease_out', length: 5 },
+            { type: 'straight', length: 15 },
+            { type: 'ease_in', length: 4, targetCurve: -0.7 },
+            { type: 'curve', length: 12, curve: -0.7 },
+            { type: 'ease_out', length: 4 },
+            { type: 'straight', length: 10 },
+            { type: 'ease_in', length: 4, targetCurve: 0.5 },
+            { type: 'curve', length: 12, curve: 0.5 },
+            { type: 'ease_in', length: 4, targetCurve: -0.5 },
+            { type: 'curve', length: 12, curve: -0.5 },
+            { type: 'ease_out', length: 4 },
+            { type: 'straight', length: 20 }
+        ]
+    },
+    {
         id: 'quick_test',
         name: 'Quick Test',
         description: 'Ultra-short track for quick testing',
@@ -216,12 +392,38 @@ var TRACK_CATALOG = [
         laps: 2,
         themeId: 'synthwave',
         estimatedLapTime: 15,
+        npcCount: 2,
         sections: [
             { type: 'straight', length: 10 },
             { type: 'ease_in', length: 3, targetCurve: 0.4 },
             { type: 'curve', length: 8, curve: 0.4 },
             { type: 'ease_out', length: 3 },
             { type: 'straight', length: 6 }
+        ]
+    },
+    {
+        id: 'twilight_grove',
+        name: 'Twilight Grove',
+        description: 'Winding forest road under dual moons and dancing fireflies',
+        difficulty: 3,
+        laps: 3,
+        themeId: 'forest_night',
+        estimatedLapTime: 55,
+        sections: [
+            { type: 'straight', length: 12 },
+            { type: 'ease_in', length: 5, targetCurve: -0.3 },
+            { type: 'curve', length: 10, curve: -0.3 },
+            { type: 'ease_out', length: 4 },
+            { type: 'straight', length: 8 },
+            { type: 'ease_in', length: 4, targetCurve: 0.6 },
+            { type: 'curve', length: 12, curve: 0.6 },
+            { type: 'ease_out', length: 4 },
+            { type: 'ease_in', length: 3, targetCurve: -0.4 },
+            { type: 'curve', length: 8, curve: -0.4 },
+            { type: 'ease_in', length: 3, targetCurve: 0.4 },
+            { type: 'curve', length: 8, curve: 0.4 },
+            { type: 'ease_out', length: 3 },
+            { type: 'straight', length: 10 }
         ]
     }
 ];

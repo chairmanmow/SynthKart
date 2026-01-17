@@ -23,13 +23,13 @@ var CityNightTheme: Theme = {
     skyGrid: { fg: BLUE, bg: BG_BLACK },
     skyGridGlow: { fg: LIGHTBLUE, bg: BG_BLACK },
     
-    // Moon - pale yellow/white
-    celestialCore: { fg: WHITE, bg: BG_BLACK },
-    celestialGlow: { fg: YELLOW, bg: BG_BLACK },
+    // Moon - glowing cyan/white crescent
+    celestialCore: { fg: WHITE, bg: BG_CYAN },           // Bright white on cyan
+    celestialGlow: { fg: LIGHTCYAN, bg: BG_BLACK },      // Cyan glow
     
-    // Stars - yellow/white twinkle
-    starBright: { fg: YELLOW, bg: BG_BLACK },
-    starDim: { fg: BROWN, bg: BG_BLACK },
+    // Stars - white/cyan twinkle
+    starBright: { fg: WHITE, bg: BG_BLACK },
+    starDim: { fg: CYAN, bg: BG_BLACK },
     
     // Skyscrapers - dark with lit windows
     sceneryPrimary: { fg: DARKGRAY, bg: BG_BLACK },      // Building walls
@@ -71,6 +71,13 @@ var CityNightTheme: Theme = {
     }
   },
   
+  // Sky background: stars instead of grid
+  sky: {
+    type: 'stars',
+    converging: false,
+    horizontal: false
+  },
+  
   background: {
     type: 'skyscrapers',
     config: {
@@ -84,18 +91,23 @@ var CityNightTheme: Theme = {
   celestial: {
     type: 'moon',
     size: 2,
-    positionX: 0.8,  // Upper right
-    positionY: 0.2   // High in sky
+    positionX: 0.85,  // Upper right
+    positionY: 0.3    // High in sky (but not too high - horizonY is only 8)
   },
   
   stars: {
     enabled: true,
-    density: 0.3,
+    density: 0.4,     // More stars
     twinkle: true
   },
   
   roadside: {
-    spriteTypes: ['building', 'lamppost', 'sign'],
+    pool: [
+      { sprite: 'building', weight: 4, side: 'both' },
+      { sprite: 'lamppost', weight: 3, side: 'both' },
+      { sprite: 'sign', weight: 2, side: 'right' },   // Signs only on right
+      { sprite: 'tree', weight: 1, side: 'both' }     // Occasional city trees
+    ],
     spacing: 12,
     density: 1.2
   }

@@ -23,6 +23,10 @@ function showTrackSelector(): TrackSelectionResult {
   var pageSize = 5;  // Tracks visible per page
   var scrollOffset = 0;
 
+  // Disable automatic pause on screen full (the "Hit a key" prompt)
+  var oldPauseStatus = bbs.sys_status & SS_PAUSEON;
+  bbs.sys_status &= ~SS_PAUSEON;
+
   // Initial draw
   console.clear();
   drawTrackSelectorScreen(tracks, selectedIndex, scrollOffset, pageSize);
@@ -60,6 +64,8 @@ function showTrackSelector(): TrackSelectionResult {
     }
     // Enter or space to select
     else if (key === '\r' || key === '\n' || key === ' ') {
+      // Restore pause status before returning
+      if (oldPauseStatus) bbs.sys_status |= SS_PAUSEON;
       return {
         selected: true,
         track: tracks[selectedIndex]
@@ -69,6 +75,8 @@ function showTrackSelector(): TrackSelectionResult {
     else if (key >= '1' && key <= '9') {
       var quickIndex = parseInt(key, 10) - 1;
       if (quickIndex < tracks.length) {
+        // Restore pause status before returning
+        if (oldPauseStatus) bbs.sys_status |= SS_PAUSEON;
         // Immediately select and start
         return {
           selected: true,
@@ -78,6 +86,8 @@ function showTrackSelector(): TrackSelectionResult {
     }
     // Q or Escape to go back
     else if (key === 'Q' || key === KEY_ESC) {
+      // Restore pause status before returning
+      if (oldPauseStatus) bbs.sys_status |= SS_PAUSEON;
       return {
         selected: false,
         track: null
