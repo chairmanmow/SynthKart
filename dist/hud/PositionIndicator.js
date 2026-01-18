@@ -18,7 +18,8 @@ var PositionIndicator = (function () {
         return data.position + data.suffix + " / " + data.totalRacers;
     };
     PositionIndicator.calculatePositions = function (vehicles) {
-        var sorted = vehicles.slice().sort(function (a, b) {
+        var racers = vehicles.filter(function (v) { return !v.isNPC; });
+        var sorted = racers.slice().sort(function (a, b) {
             if (a.lap !== b.lap)
                 return b.lap - a.lap;
             if (a.checkpoint !== b.checkpoint)

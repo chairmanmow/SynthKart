@@ -209,6 +209,246 @@ var TRACK_THEMES = {
             color: { fg: BROWN, bg: BG_BLACK },
             highlightColor: { fg: YELLOW, bg: BG_BLACK }
         }
+    },
+    'tropical_jungle': {
+        id: 'tropical_jungle',
+        name: 'Tropical Jungle',
+        sky: {
+            top: { fg: GREEN, bg: BG_BLACK },
+            horizon: { fg: LIGHTGREEN, bg: BG_BLACK },
+            gridColor: { fg: GREEN, bg: BG_BLACK }
+        },
+        sun: {
+            color: { fg: YELLOW, bg: BG_GREEN },
+            glowColor: { fg: LIGHTGREEN, bg: BG_BLACK },
+            position: 0.4
+        },
+        road: {
+            surface: { fg: BROWN, bg: BG_BLACK },
+            stripe: { fg: YELLOW, bg: BG_BLACK },
+            edge: { fg: GREEN, bg: BG_BLACK },
+            grid: { fg: BROWN, bg: BG_BLACK }
+        },
+        offroad: {
+            groundColor: { fg: GREEN, bg: BG_BLACK },
+            sceneryTypes: ['jungle_tree', 'fern', 'vine', 'flower', 'parrot', 'banana'],
+            sceneryDensity: 0.35
+        },
+        background: {
+            type: 'forest',
+            color: { fg: GREEN, bg: BG_BLACK },
+            highlightColor: { fg: LIGHTGREEN, bg: BG_BLACK }
+        }
+    },
+    'candy_land': {
+        id: 'candy_land',
+        name: 'Candy Land',
+        sky: {
+            top: { fg: LIGHTMAGENTA, bg: BG_BLACK },
+            horizon: { fg: LIGHTCYAN, bg: BG_BLACK },
+            gridColor: { fg: LIGHTMAGENTA, bg: BG_BLACK }
+        },
+        sun: {
+            color: { fg: YELLOW, bg: BG_MAGENTA },
+            glowColor: { fg: LIGHTMAGENTA, bg: BG_BLACK },
+            position: 0.5
+        },
+        road: {
+            surface: { fg: LIGHTMAGENTA, bg: BG_BLACK },
+            stripe: { fg: WHITE, bg: BG_BLACK },
+            edge: { fg: LIGHTCYAN, bg: BG_BLACK },
+            grid: { fg: MAGENTA, bg: BG_BLACK }
+        },
+        offroad: {
+            groundColor: { fg: LIGHTGREEN, bg: BG_BLACK },
+            sceneryTypes: ['lollipop', 'candy_cane', 'gummy_bear', 'cupcake', 'ice_cream', 'cotton_candy'],
+            sceneryDensity: 0.3
+        },
+        background: {
+            type: 'mountains',
+            color: { fg: LIGHTMAGENTA, bg: BG_BLACK },
+            highlightColor: { fg: LIGHTCYAN, bg: BG_BLACK }
+        }
+    },
+    'rainbow_road': {
+        id: 'rainbow_road',
+        name: 'Rainbow Road',
+        sky: {
+            top: { fg: BLUE, bg: BG_BLACK },
+            horizon: { fg: LIGHTBLUE, bg: BG_BLACK },
+            gridColor: { fg: LIGHTMAGENTA, bg: BG_BLACK }
+        },
+        sun: {
+            color: { fg: WHITE, bg: BG_BLUE },
+            glowColor: { fg: LIGHTCYAN, bg: BG_BLACK },
+            position: 0.5
+        },
+        road: {
+            surface: { fg: LIGHTRED, bg: BG_BLACK },
+            stripe: { fg: YELLOW, bg: BG_BLACK },
+            edge: { fg: LIGHTMAGENTA, bg: BG_BLACK },
+            grid: { fg: LIGHTCYAN, bg: BG_BLACK }
+        },
+        offroad: {
+            groundColor: { fg: BLUE, bg: BG_BLACK },
+            sceneryTypes: ['star', 'moon', 'planet', 'comet', 'nebula', 'satellite'],
+            sceneryDensity: 0.2
+        },
+        background: {
+            type: 'space',
+            color: { fg: BLUE, bg: BG_BLACK },
+            highlightColor: { fg: LIGHTMAGENTA, bg: BG_BLACK }
+        }
+    },
+    'dark_castle': {
+        id: 'dark_castle',
+        name: 'Dark Castle',
+        sky: {
+            top: { fg: BLACK, bg: BG_BLACK },
+            horizon: { fg: DARKGRAY, bg: BG_BLACK },
+            gridColor: { fg: DARKGRAY, bg: BG_BLACK }
+        },
+        sun: {
+            color: { fg: LIGHTGRAY, bg: BG_BLACK },
+            glowColor: { fg: DARKGRAY, bg: BG_BLACK },
+            position: 0.7
+        },
+        road: {
+            surface: { fg: DARKGRAY, bg: BG_BLACK },
+            stripe: { fg: LIGHTGRAY, bg: BG_BLACK },
+            edge: { fg: BROWN, bg: BG_BLACK },
+            grid: { fg: DARKGRAY, bg: BG_BLACK }
+        },
+        offroad: {
+            groundColor: { fg: DARKGRAY, bg: BG_BLACK },
+            sceneryTypes: ['tower', 'battlement', 'torch', 'banner', 'gargoyle', 'portcullis'],
+            sceneryDensity: 0.25
+        },
+        background: {
+            type: 'castle',
+            color: { fg: DARKGRAY, bg: BG_BLACK },
+            highlightColor: { fg: LIGHTGRAY, bg: BG_BLACK }
+        }
+    },
+    'villains_lair': {
+        id: 'villains_lair',
+        name: "Villain's Lair",
+        sky: {
+            top: { fg: RED, bg: BG_BLACK },
+            horizon: { fg: LIGHTRED, bg: BG_BLACK },
+            gridColor: { fg: RED, bg: BG_BLACK }
+        },
+        sun: {
+            color: { fg: LIGHTRED, bg: BG_RED },
+            glowColor: { fg: YELLOW, bg: BG_BLACK },
+            position: 0.5
+        },
+        road: {
+            surface: { fg: DARKGRAY, bg: BG_BLACK },
+            stripe: { fg: LIGHTRED, bg: BG_BLACK },
+            edge: { fg: RED, bg: BG_BLACK },
+            grid: { fg: RED, bg: BG_BLACK }
+        },
+        offroad: {
+            groundColor: { fg: RED, bg: BG_BLACK },
+            sceneryTypes: ['lava_rock', 'flame', 'skull_pile', 'chain', 'spike', 'cauldron'],
+            sceneryDensity: 0.28
+        },
+        background: {
+            type: 'volcano',
+            color: { fg: RED, bg: BG_BLACK },
+            highlightColor: { fg: YELLOW, bg: BG_BLACK }
+        }
+    },
+    'ancient_ruins': {
+        id: 'ancient_ruins',
+        name: 'Ancient Ruins',
+        sky: {
+            top: { fg: CYAN, bg: BG_BLACK },
+            horizon: { fg: YELLOW, bg: BG_BLACK },
+            gridColor: { fg: BROWN, bg: BG_BLACK }
+        },
+        sun: {
+            color: { fg: YELLOW, bg: BG_BROWN },
+            glowColor: { fg: YELLOW, bg: BG_BLACK },
+            position: 0.4
+        },
+        road: {
+            surface: { fg: BROWN, bg: BG_BLACK },
+            stripe: { fg: YELLOW, bg: BG_BLACK },
+            edge: { fg: LIGHTGRAY, bg: BG_BLACK },
+            grid: { fg: BROWN, bg: BG_BLACK }
+        },
+        offroad: {
+            groundColor: { fg: YELLOW, bg: BG_BLACK },
+            sceneryTypes: ['column', 'statue', 'obelisk', 'sphinx', 'hieroglyph', 'scarab'],
+            sceneryDensity: 0.22
+        },
+        background: {
+            type: 'pyramids',
+            color: { fg: YELLOW, bg: BG_BLACK },
+            highlightColor: { fg: BROWN, bg: BG_BLACK }
+        }
+    },
+    'thunder_stadium': {
+        id: 'thunder_stadium',
+        name: 'Thunder Stadium',
+        sky: {
+            top: { fg: BLACK, bg: BG_BLACK },
+            horizon: { fg: DARKGRAY, bg: BG_BLACK },
+            gridColor: { fg: YELLOW, bg: BG_BLACK }
+        },
+        sun: {
+            color: { fg: WHITE, bg: BG_BLACK },
+            glowColor: { fg: YELLOW, bg: BG_BLACK },
+            position: 0.5
+        },
+        road: {
+            surface: { fg: BROWN, bg: BG_BLACK },
+            stripe: { fg: WHITE, bg: BG_BLACK },
+            edge: { fg: YELLOW, bg: BG_BLACK },
+            grid: { fg: BROWN, bg: BG_BLACK }
+        },
+        offroad: {
+            groundColor: { fg: BROWN, bg: BG_BLACK },
+            sceneryTypes: ['grandstand', 'tire_stack', 'hay_bale', 'flag_marshal', 'pit_crew', 'banner'],
+            sceneryDensity: 0.35
+        },
+        background: {
+            type: 'stadium',
+            color: { fg: DARKGRAY, bg: BG_BLACK },
+            highlightColor: { fg: YELLOW, bg: BG_BLACK }
+        }
+    },
+    'glitch_circuit': {
+        id: 'glitch_circuit',
+        name: 'Glitch Circuit',
+        sky: {
+            top: { fg: BLACK, bg: BG_BLACK },
+            horizon: { fg: LIGHTGREEN, bg: BG_BLACK },
+            gridColor: { fg: GREEN, bg: BG_BLACK }
+        },
+        sun: {
+            color: { fg: WHITE, bg: BG_GREEN },
+            glowColor: { fg: LIGHTGREEN, bg: BG_BLACK },
+            position: 0.5
+        },
+        road: {
+            surface: { fg: DARKGRAY, bg: BG_BLACK },
+            stripe: { fg: LIGHTGREEN, bg: BG_BLACK },
+            edge: { fg: LIGHTCYAN, bg: BG_BLACK },
+            grid: { fg: GREEN, bg: BG_BLACK }
+        },
+        offroad: {
+            groundColor: { fg: GREEN, bg: BG_BLACK },
+            sceneryTypes: ['building', 'palm_tree', 'tree', 'gravestone', 'cactus', 'lollipop', 'crystal', 'torch', 'column'],
+            sceneryDensity: 0.30
+        },
+        background: {
+            type: 'mountains',
+            color: { fg: GREEN, bg: BG_BLACK },
+            highlightColor: { fg: LIGHTGREEN, bg: BG_BLACK }
+        }
     }
 };
 var TRACK_CATALOG = [
@@ -422,6 +662,231 @@ var TRACK_CATALOG = [
             { type: 'curve', length: 8, curve: -0.4 },
             { type: 'ease_in', length: 3, targetCurve: 0.4 },
             { type: 'curve', length: 8, curve: 0.4 },
+            { type: 'ease_out', length: 3 },
+            { type: 'straight', length: 10 }
+        ]
+    },
+    {
+        id: 'jungle_run',
+        name: 'Jungle Run',
+        description: 'Race through dense tropical rainforest with exotic wildlife',
+        difficulty: 3,
+        laps: 3,
+        themeId: 'tropical_jungle',
+        estimatedLapTime: 60,
+        npcCount: 5,
+        sections: [
+            { type: 'straight', length: 15 },
+            { type: 'ease_in', length: 5, targetCurve: 0.45 },
+            { type: 'curve', length: 15, curve: 0.45 },
+            { type: 'ease_out', length: 5 },
+            { type: 'straight', length: 12 },
+            { type: 'ease_in', length: 4, targetCurve: -0.6 },
+            { type: 'curve', length: 10, curve: -0.6 },
+            { type: 'ease_out', length: 4 },
+            { type: 'ease_in', length: 4, targetCurve: 0.4 },
+            { type: 'curve', length: 10, curve: 0.4 },
+            { type: 'ease_in', length: 4, targetCurve: -0.4 },
+            { type: 'curve', length: 10, curve: -0.4 },
+            { type: 'ease_out', length: 4 },
+            { type: 'straight', length: 18 }
+        ]
+    },
+    {
+        id: 'sugar_rush',
+        name: 'Sugar Rush',
+        description: 'Sweet racing through a land made entirely of candy!',
+        difficulty: 2,
+        laps: 3,
+        themeId: 'candy_land',
+        estimatedLapTime: 50,
+        npcCount: 4,
+        sections: [
+            { type: 'straight', length: 12 },
+            { type: 'ease_in', length: 4, targetCurve: 0.35 },
+            { type: 'curve', length: 12, curve: 0.35 },
+            { type: 'ease_out', length: 4 },
+            { type: 'straight', length: 10 },
+            { type: 'ease_in', length: 5, targetCurve: -0.5 },
+            { type: 'curve', length: 14, curve: -0.5 },
+            { type: 'ease_out', length: 5 },
+            { type: 'straight', length: 8 },
+            { type: 'ease_in', length: 3, targetCurve: 0.3 },
+            { type: 'curve', length: 8, curve: 0.3 },
+            { type: 'ease_in', length: 3, targetCurve: -0.3 },
+            { type: 'curve', length: 8, curve: -0.3 },
+            { type: 'ease_out', length: 3 },
+            { type: 'straight', length: 10 }
+        ]
+    },
+    {
+        id: 'celestial_circuit',
+        name: 'Celestial Circuit',
+        description: 'Cosmic racing through the stars on a rainbow of light',
+        difficulty: 4,
+        laps: 3,
+        themeId: 'rainbow_road',
+        estimatedLapTime: 70,
+        npcCount: 6,
+        sections: [
+            { type: 'straight', length: 20 },
+            { type: 'ease_in', length: 6, targetCurve: 0.55 },
+            { type: 'curve', length: 18, curve: 0.55 },
+            { type: 'ease_out', length: 6 },
+            { type: 'straight', length: 15 },
+            { type: 'ease_in', length: 4, targetCurve: -0.65 },
+            { type: 'curve', length: 12, curve: -0.65 },
+            { type: 'ease_out', length: 4 },
+            { type: 'straight', length: 10 },
+            { type: 'ease_in', length: 5, targetCurve: 0.5 },
+            { type: 'curve', length: 14, curve: 0.5 },
+            { type: 'ease_in', length: 5, targetCurve: -0.5 },
+            { type: 'curve', length: 14, curve: -0.5 },
+            { type: 'ease_out', length: 5 },
+            { type: 'straight', length: 18 }
+        ]
+    },
+    {
+        id: 'fortress_rally',
+        name: 'Fortress Rally',
+        description: 'Navigate the twisting roads of a medieval fortress',
+        difficulty: 4,
+        laps: 3,
+        themeId: 'dark_castle',
+        estimatedLapTime: 65,
+        npcCount: 5,
+        sections: [
+            { type: 'straight', length: 14 },
+            { type: 'ease_in', length: 5, targetCurve: 0.4 },
+            { type: 'curve', length: 16, curve: 0.4 },
+            { type: 'ease_out', length: 5 },
+            { type: 'straight', length: 10 },
+            { type: 'ease_in', length: 4, targetCurve: -0.7 },
+            { type: 'curve', length: 10, curve: -0.7 },
+            { type: 'ease_out', length: 4 },
+            { type: 'straight', length: 8 },
+            { type: 'ease_in', length: 4, targetCurve: 0.45 },
+            { type: 'curve', length: 12, curve: 0.45 },
+            { type: 'ease_in', length: 4, targetCurve: -0.45 },
+            { type: 'curve', length: 12, curve: -0.45 },
+            { type: 'ease_out', length: 4 },
+            { type: 'straight', length: 16 }
+        ]
+    },
+    {
+        id: 'inferno_speedway',
+        name: 'Inferno Speedway',
+        description: 'Blaze through a volcanic villain hideout at your peril',
+        difficulty: 5,
+        laps: 3,
+        themeId: 'villains_lair',
+        estimatedLapTime: 80,
+        npcCount: 7,
+        sections: [
+            { type: 'straight', length: 16 },
+            { type: 'ease_in', length: 6, targetCurve: 0.6 },
+            { type: 'curve', length: 20, curve: 0.6 },
+            { type: 'ease_out', length: 6 },
+            { type: 'straight', length: 14 },
+            { type: 'ease_in', length: 5, targetCurve: -0.75 },
+            { type: 'curve', length: 14, curve: -0.75 },
+            { type: 'ease_out', length: 5 },
+            { type: 'straight', length: 8 },
+            { type: 'ease_in', length: 5, targetCurve: 0.55 },
+            { type: 'curve', length: 15, curve: 0.55 },
+            { type: 'ease_in', length: 5, targetCurve: -0.55 },
+            { type: 'curve', length: 15, curve: -0.55 },
+            { type: 'ease_out', length: 5 },
+            { type: 'straight', length: 20 }
+        ]
+    },
+    {
+        id: 'pharaohs_tomb',
+        name: "Pharaoh's Tomb",
+        description: 'Unearth ancient secrets racing through pyramid ruins',
+        difficulty: 3,
+        laps: 3,
+        themeId: 'ancient_ruins',
+        estimatedLapTime: 58,
+        npcCount: 5,
+        sections: [
+            { type: 'straight', length: 14 },
+            { type: 'ease_in', length: 5, targetCurve: 0.4 },
+            { type: 'curve', length: 14, curve: 0.4 },
+            { type: 'ease_out', length: 5 },
+            { type: 'straight', length: 12 },
+            { type: 'ease_in', length: 4, targetCurve: -0.5 },
+            { type: 'curve', length: 12, curve: -0.5 },
+            { type: 'ease_out', length: 4 },
+            { type: 'straight', length: 10 },
+            { type: 'ease_in', length: 4, targetCurve: 0.35 },
+            { type: 'curve', length: 10, curve: 0.35 },
+            { type: 'ease_in', length: 4, targetCurve: -0.35 },
+            { type: 'curve', length: 10, curve: -0.35 },
+            { type: 'ease_out', length: 4 },
+            { type: 'straight', length: 16 }
+        ]
+    },
+    {
+        id: 'thunder_stadium',
+        name: 'Thunder Stadium',
+        description: 'Race on packed dirt under stadium lights with roaring crowds',
+        difficulty: 2,
+        laps: 4,
+        themeId: 'thunder_stadium',
+        estimatedLapTime: 42,
+        npcCount: 6,
+        sections: [
+            { type: 'straight', length: 18 },
+            { type: 'ease_in', length: 5, targetCurve: 0.45 },
+            { type: 'curve', length: 16, curve: 0.45 },
+            { type: 'ease_out', length: 5 },
+            { type: 'straight', length: 14 },
+            { type: 'ease_in', length: 4, targetCurve: 0.65 },
+            { type: 'curve', length: 12, curve: 0.65 },
+            { type: 'ease_out', length: 4 },
+            { type: 'straight', length: 8 },
+            { type: 'ease_in', length: 5, targetCurve: -0.5 },
+            { type: 'curve', length: 18, curve: -0.5 },
+            { type: 'ease_out', length: 5 },
+            { type: 'straight', length: 12 },
+            { type: 'ease_in', length: 4, targetCurve: -0.55 },
+            { type: 'curve', length: 14, curve: -0.55 },
+            { type: 'ease_out', length: 4 },
+            { type: 'straight', length: 10 }
+        ]
+    },
+    {
+        id: 'glitch_circuit',
+        name: 'Glitch Circuit',
+        description: 'Reality is corrupted. The simulation is breaking down.',
+        difficulty: 4,
+        laps: 3,
+        themeId: 'glitch_circuit',
+        estimatedLapTime: 55,
+        npcCount: 6,
+        sections: [
+            { type: 'straight', length: 12 },
+            { type: 'ease_in', length: 3, targetCurve: 0.6 },
+            { type: 'curve', length: 8, curve: 0.6 },
+            { type: 'ease_in', length: 2, targetCurve: -0.7 },
+            { type: 'curve', length: 10, curve: -0.7 },
+            { type: 'ease_out', length: 3 },
+            { type: 'straight', length: 8 },
+            { type: 'ease_in', length: 2, targetCurve: 0.5 },
+            { type: 'curve', length: 6, curve: 0.5 },
+            { type: 'ease_in', length: 2, targetCurve: -0.5 },
+            { type: 'curve', length: 6, curve: -0.5 },
+            { type: 'ease_in', length: 2, targetCurve: 0.45 },
+            { type: 'curve', length: 6, curve: 0.45 },
+            { type: 'ease_out', length: 3 },
+            { type: 'straight', length: 14 },
+            { type: 'ease_in', length: 4, targetCurve: -0.55 },
+            { type: 'curve', length: 20, curve: -0.55 },
+            { type: 'ease_out', length: 4 },
+            { type: 'straight', length: 16 },
+            { type: 'ease_in', length: 3, targetCurve: 0.4 },
+            { type: 'curve', length: 10, curve: 0.4 },
             { type: 'ease_out', length: 3 },
             { type: 'straight', length: 10 }
         ]

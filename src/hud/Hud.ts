@@ -60,6 +60,9 @@ class Hud {
       if (lapProgress < 0) lapProgress += 1.0;
     }
 
+    // Count only actual racers (not commuter NPCs)
+    var racers = vehicles.filter(function(v) { return !v.isNPC; });
+    
     return {
       speed: Math.round(vehicle.speed),
       speedMax: VEHICLE_PHYSICS.MAX_SPEED,
@@ -67,7 +70,7 @@ class Hud {
       totalLaps: track.laps,
       lapProgress: lapProgress,
       position: vehicle.racePosition,
-      totalRacers: vehicles.length,
+      totalRacers: racers.length,
       lapTime: currentTime - this.lapStartTime,
       bestLapTime: this.bestLapTime === Infinity ? 0 : this.bestLapTime,
       totalTime: currentTime - this.startTime,

@@ -6,8 +6,17 @@ var CommuterDriver = (function () {
         this.driftDirection = 0;
         this.driftTimer = 0;
         this.driftInterval = 2 + Math.random() * 3;
+        this.active = false;
+        this.activationRange = 400;
     }
     CommuterDriver.prototype.update = function (vehicle, _track, dt) {
+        if (!this.active) {
+            return {
+                accelerate: 0,
+                steer: 0,
+                useItem: false
+            };
+        }
         this.driftTimer += dt;
         if (this.driftTimer >= this.driftInterval) {
             this.driftTimer = 0;
@@ -36,6 +45,18 @@ var CommuterDriver = (function () {
     };
     CommuterDriver.prototype.getSpeedFactor = function () {
         return this.speedFactor;
+    };
+    CommuterDriver.prototype.isActive = function () {
+        return this.active;
+    };
+    CommuterDriver.prototype.activate = function () {
+        this.active = true;
+    };
+    CommuterDriver.prototype.deactivate = function () {
+        this.active = false;
+    };
+    CommuterDriver.prototype.getActivationRange = function () {
+        return this.activationRange;
     };
     return CommuterDriver;
 }());

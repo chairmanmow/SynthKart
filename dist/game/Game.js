@@ -35,7 +35,15 @@ var Game = (function () {
             'forest_night': 'twilight_forest',
             'haunted_hollow': 'haunted_hollow',
             'winter_wonderland': 'winter_wonderland',
-            'cactus_canyon': 'cactus_canyon'
+            'cactus_canyon': 'cactus_canyon',
+            'tropical_jungle': 'tropical_jungle',
+            'candy_land': 'candy_land',
+            'rainbow_road': 'rainbow_road',
+            'dark_castle': 'dark_castle',
+            'villains_lair': 'villains_lair',
+            'ancient_ruins': 'ancient_ruins',
+            'thunder_stadium': 'thunder_stadium',
+            'glitch_circuit': 'glitch_circuit'
         };
         var themeName = themeMapping[trackDef.themeId] || 'synthwave';
         if (this.renderer.setTheme) {
@@ -137,6 +145,7 @@ var Game = (function () {
         this.state.time += dt;
         this.physicsSystem.update(this.state, dt);
         this.raceSystem.update(this.state, dt);
+        this.activateDormantNPCs();
         this.applyNPCPacing();
         this.itemSystem.update(dt);
         this.itemSystem.checkPickups(this.state.vehicles);
@@ -151,15 +160,68 @@ var Game = (function () {
             this.running = false;
         }
     };
+    Game.prototype.activateDormantNPCs = function () {
+        if (!this.state)
+            return;
+        var playerZ = this.state.playerVehicle.trackZ;
+        var roadLength = this.state.road.totalLength;
+        for (var i = 0; i < this.state.vehicles.length; i++) {
+            var npc = this.state.vehicles[i];
+            if (!npc.isNPC)
+                continue;
+            var driver = npc.driver;
+            if (driver.isActive())
+                continue;
+            var dist = npc.trackZ - playerZ;
+            if (dist < 0)
+                dist += roadLength;
+            if (dist < driver.getActivationRange()) {
+                driver.activate();
+                debugLog.info("NPC activated at distance " + dist.toFixed(0));
+            }
+        }
+    };
     Game.prototype.checkNPCRespawn = function () {
         if (!this.state)
             return;
         var playerZ = this.state.playerVehicle.trackZ;
-        var respawnDistance = 150;
+        var roadLength = this.state.road.totalLength;
+        var respawnDistance = 100;
+        var npcs = [];
         for (var i = 0; i < this.state.vehicles.length; i++) {
-            var vehicle = this.state.vehicles[i];
-            if (vehicle.isNPC && vehicle.trackZ < playerZ - respawnDistance) {
-                this.respawnNPCAhead(vehicle);
+            if (this.state.vehicles[i].isNPC) {
+                npcs.push(this.state.vehicles[i]);
+            }
+        }
+        if (npcs.length === 0)
+            return;
+        var idealSpacing = roadLength / npcs.length;
+        var respawnCount = 0;
+        for (var j = 0; j < npcs.length; j++) {
+            var npc = npcs[j];
+            var distBehind = playerZ - npc.trackZ;
+            if (distBehind > respawnDistance) {
+                var slotOffset = idealSpacing * (respawnCount + 1);
+                var newZ = (playerZ + slotOffset) % roadLength;
+                npc.trackZ = newZ;
+                npc.z = newZ;
+                var driver = npc.driver;
+                driver.deactivate();
+                npc.speed = 0;
+                var laneChoice = Math.random();
+                if (laneChoice < 0.4) {
+                    npc.playerX = -0.35 + (Math.random() - 0.5) * 0.2;
+                }
+                else if (laneChoice < 0.8) {
+                    npc.playerX = 0.35 + (Math.random() - 0.5) * 0.2;
+                }
+                else {
+                    npc.playerX = (Math.random() - 0.5) * 0.3;
+                }
+                npc.isCrashed = false;
+                npc.crashTimer = 0;
+                npc.flashTimer = 0;
+                respawnCount++;
             }
         }
     };
@@ -167,30 +229,25 @@ var Game = (function () {
         if (!this.state)
             return;
         var playerZ = this.state.playerVehicle.trackZ;
-        var playerSpeed = this.state.playerVehicle.speed;
+        var roadLength = this.state.road.totalLength;
         for (var i = 0; i < this.state.vehicles.length; i++) {
             var npc = this.state.vehicles[i];
             if (!npc.isNPC)
                 continue;
-            var distance = npc.trackZ - playerZ;
-            if (distance <= 0)
+            var driver = npc.driver;
+            if (!driver.isActive())
                 continue;
-            var commuterBaseSpeed = VEHICLE_PHYSICS.MAX_SPEED * 0.4;
-            var pacingSpeed;
-            if (distance > 150) {
-                pacingSpeed = Math.max(commuterBaseSpeed, playerSpeed * 0.75);
-            }
-            else if (distance > 80) {
-                var t = (distance - 80) / 70;
-                var fastSpeed = playerSpeed * 0.75;
-                pacingSpeed = commuterBaseSpeed + t * (fastSpeed - commuterBaseSpeed);
+            var distance = npc.trackZ - playerZ;
+            if (distance < 0)
+                distance += roadLength;
+            var commuterBaseSpeed = VEHICLE_PHYSICS.MAX_SPEED * driver.getSpeedFactor();
+            if (distance < 100) {
+                var slowFactor = 0.7 + (distance / 100) * 0.3;
+                npc.speed = commuterBaseSpeed * slowFactor;
             }
             else {
-                pacingSpeed = commuterBaseSpeed;
+                npc.speed = commuterBaseSpeed;
             }
-            var speedDiff = pacingSpeed - npc.speed;
-            npc.speed += speedDiff * 0.1;
-            npc.speed = clamp(npc.speed, commuterBaseSpeed * 0.5, VEHICLE_PHYSICS.MAX_SPEED * 0.85);
         }
     };
     Game.prototype.render = function () {
@@ -223,10 +280,7 @@ var Game = (function () {
         if (!this.state)
             return;
         var roadLength = road.totalLength;
-        var minSpawn = 150;
-        var maxSpawn = Math.min(roadLength * 0.8, 800);
-        var spawnRange = maxSpawn - minSpawn;
-        var spacing = spawnRange / (count + 1);
+        var spacing = roadLength / count;
         for (var i = 0; i < count; i++) {
             var npc = new Vehicle();
             npc.driver = new CommuterDriver();
@@ -236,57 +290,15 @@ var Game = (function () {
             npc.npcColorIndex = Math.floor(Math.random() * NPC_VEHICLE_COLORS.length);
             var colorPalette = NPC_VEHICLE_COLORS[npc.npcColorIndex];
             npc.color = colorPalette.body;
-            var baseZ = minSpawn + spacing * (i + 1);
-            var jitter = spacing * 0.3 * (Math.random() - 0.5);
-            npc.trackZ = baseZ + jitter;
+            var baseZ = spacing * i;
+            var jitter = spacing * 0.2 * (Math.random() - 0.5);
+            npc.trackZ = (baseZ + jitter + roadLength) % roadLength;
             npc.z = npc.trackZ;
             var laneOffset = (i % 2 === 0) ? -0.3 : 0.3;
             npc.playerX = laneOffset + (Math.random() - 0.5) * 0.4;
             this.state.vehicles.push(npc);
         }
         debugLog.info("Spawned " + count + " NPC commuters");
-    };
-    Game.prototype.respawnNPCAhead = function (npc) {
-        if (!this.state)
-            return;
-        var playerZ = this.state.playerVehicle.trackZ;
-        var roadLength = this.state.road.totalLength;
-        var minSeparation = 50;
-        var attempts = 0;
-        var maxAttempts = 10;
-        var validPosition = false;
-        var newZ = 0;
-        while (!validPosition && attempts < maxAttempts) {
-            var spawnDistance = 300 + Math.random() * 300;
-            newZ = (playerZ + spawnDistance) % roadLength;
-            validPosition = true;
-            for (var i = 0; i < this.state.vehicles.length; i++) {
-                var other = this.state.vehicles[i];
-                if (other === npc || !other.isNPC)
-                    continue;
-                var dist = Math.abs(other.trackZ - newZ);
-                if (dist < minSeparation) {
-                    validPosition = false;
-                    break;
-                }
-            }
-            attempts++;
-        }
-        npc.trackZ = newZ;
-        npc.z = npc.trackZ;
-        var laneChoice = Math.random();
-        if (laneChoice < 0.4) {
-            npc.playerX = -0.35 + (Math.random() - 0.5) * 0.2;
-        }
-        else if (laneChoice < 0.8) {
-            npc.playerX = 0.35 + (Math.random() - 0.5) * 0.2;
-        }
-        else {
-            npc.playerX = (Math.random() - 0.5) * 0.3;
-        }
-        npc.isCrashed = false;
-        npc.crashTimer = 0;
-        npc.flashTimer = 0;
     };
     Game.prototype.isRunning = function () {
         return this.running;

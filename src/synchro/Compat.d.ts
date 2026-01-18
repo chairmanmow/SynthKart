@@ -38,7 +38,7 @@ declare var KEY_ESC: string;
 interface SynchronetConsole {
   print(text: string): void;
   writeln(text: string): void;
-  clear(): void;
+  clear(attribute?: number | string, autopause?: boolean): void;
   gotoxy(x: number, y: number): void;
   screen_columns: number;
   screen_rows: number;
@@ -51,6 +51,7 @@ interface SynchronetConsole {
   getstr(maxlen?: number, mode?: number): string;
   pause(): void;
   center(text: string): void;
+  line_counter: number;
 }
 
 declare var console: SynchronetConsole;

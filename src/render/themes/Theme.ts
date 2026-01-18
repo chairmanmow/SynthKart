@@ -59,7 +59,9 @@ interface ThemeColors {
 }
 
 interface ThemeBackgroundElement {
-  type: 'mountains' | 'skyscrapers' | 'dunes' | 'forest' | 'hills' | 'ocean';
+  type: 'mountains' | 'skyscrapers' | 'dunes' | 'forest' | 'hills' | 'ocean' | 
+        'jungle_canopy' | 'candy_hills' | 'nebula' | 'castle_fortress' | 
+        'volcanic' | 'pyramids' | 'stadium';
   // Configuration varies by type
   config: {
     // Mountains/hills
@@ -70,6 +72,22 @@ interface ThemeBackgroundElement {
     density?: number;
     hasWindows?: boolean;
     hasAntennas?: boolean;
+    // Jungle canopy
+    vineCount?: number;
+    hangingVines?: boolean;
+    // Candy hills
+    swirls?: boolean;
+    // Nebula
+    cloudCount?: number;
+    // Castle
+    towerCount?: number;
+    hasTorches?: boolean;
+    // Volcanic
+    lavaGlow?: boolean;
+    smokeLevel?: number;
+    // Pyramids
+    pyramidCount?: number;
+    hasSphinx?: boolean;
     // General
     parallaxSpeed?: number;
   };
@@ -124,7 +142,7 @@ interface ThemeRoadsideConfig {
  */
 interface ThemeGroundConfig {
   // Type of ground pattern
-  type: 'solid' | 'grid' | 'dither' | 'grass' | 'sand';
+  type: 'solid' | 'grid' | 'dither' | 'grass' | 'sand' | 'lava' | 'candy' | 'void' | 'cobblestone' | 'jungle' | 'dirt';
   
   // Colors for ground (primary = main, secondary = pattern/accent)
   primary: ColorPair;

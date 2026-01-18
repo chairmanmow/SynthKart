@@ -24,6 +24,12 @@ class CommuterDriver implements IDriver {
   /** How long before drift direction changes */
   private driftInterval: number;
   
+  /** Whether this commuter is active (driving) or dormant (waiting) */
+  private active: boolean;
+  
+  /** Distance at which commuter wakes up when player approaches */
+  private activationRange: number;
+  
   constructor(speedFactor?: number) {
     // Commuters drive at 30-50% of max speed
     this.speedFactor = speedFactor !== undefined ? speedFactor : 0.3 + Math.random() * 0.2;
@@ -31,12 +37,24 @@ class CommuterDriver implements IDriver {
     this.driftDirection = 0;
     this.driftTimer = 0;
     this.driftInterval = 2 + Math.random() * 3;  // Change direction every 2-5 seconds
+    this.active = false;  // Start dormant, activate when player approaches
+    this.activationRange = 400;  // Wake up when player is within 400 units
   }
   
   /**
    * Update commuter driver - returns simple forward motion with drift.
+   * Dormant commuters don't move until player approaches.
    */
   update(vehicle: IVehicle, _track: ITrack, dt: number): DriverIntent {
+    // If dormant, don't move at all
+    if (!this.active) {
+      return {
+        accelerate: 0,
+        steer: 0,
+        useItem: false
+      };
+    }
+    
     // Update drift timer
     this.driftTimer += dt;
     if (this.driftTimer >= this.driftInterval) {
@@ -71,6 +89,34 @@ class CommuterDriver implements IDriver {
    */
   getSpeedFactor(): number {
     return this.speedFactor;
+  }
+  
+  /**
+   * Check if this commuter is active (driving) or dormant (waiting).
+   */
+  isActive(): boolean {
+    return this.active;
+  }
+  
+  /**
+   * Activate this commuter - called when player comes within range.
+   */
+  activate(): void {
+    this.active = true;
+  }
+  
+  /**
+   * Deactivate this commuter - returns to dormant state.
+   */
+  deactivate(): void {
+    this.active = false;
+  }
+  
+  /**
+   * Get the activation range for this commuter.
+   */
+  getActivationRange(): number {
+    return this.activationRange;
   }
 }
 

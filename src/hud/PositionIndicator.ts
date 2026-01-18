@@ -41,8 +41,11 @@ class PositionIndicator {
    * Sorts by lap > checkpoint > track position.
    */
   static calculatePositions(vehicles: IVehicle[]): void {
+    // Only calculate positions for actual racers, not commuter NPCs
+    var racers = vehicles.filter(function(v) { return !v.isNPC; });
+    
     // Sort vehicles by race progress
-    var sorted = vehicles.slice().sort(function(a, b) {
+    var sorted = racers.slice().sort(function(a, b) {
       // First by lap (higher = better)
       if (a.lap !== b.lap) return b.lap - a.lap;
 

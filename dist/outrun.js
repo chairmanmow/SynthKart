@@ -575,8 +575,17 @@ var CommuterDriver = (function () {
         this.driftDirection = 0;
         this.driftTimer = 0;
         this.driftInterval = 2 + Math.random() * 3;
+        this.active = false;
+        this.activationRange = 400;
     }
     CommuterDriver.prototype.update = function (vehicle, _track, dt) {
+        if (!this.active) {
+            return {
+                accelerate: 0,
+                steer: 0,
+                useItem: false
+            };
+        }
         this.driftTimer += dt;
         if (this.driftTimer >= this.driftInterval) {
             this.driftTimer = 0;
@@ -605,6 +614,18 @@ var CommuterDriver = (function () {
     };
     CommuterDriver.prototype.getSpeedFactor = function () {
         return this.speedFactor;
+    };
+    CommuterDriver.prototype.isActive = function () {
+        return this.active;
+    };
+    CommuterDriver.prototype.activate = function () {
+        this.active = true;
+    };
+    CommuterDriver.prototype.deactivate = function () {
+        this.active = false;
+    };
+    CommuterDriver.prototype.getActivationRange = function () {
+        return this.activationRange;
     };
     return CommuterDriver;
 }());
@@ -1060,6 +1081,246 @@ var TRACK_THEMES = {
             color: { fg: BROWN, bg: BG_BLACK },
             highlightColor: { fg: YELLOW, bg: BG_BLACK }
         }
+    },
+    'tropical_jungle': {
+        id: 'tropical_jungle',
+        name: 'Tropical Jungle',
+        sky: {
+            top: { fg: GREEN, bg: BG_BLACK },
+            horizon: { fg: LIGHTGREEN, bg: BG_BLACK },
+            gridColor: { fg: GREEN, bg: BG_BLACK }
+        },
+        sun: {
+            color: { fg: YELLOW, bg: BG_GREEN },
+            glowColor: { fg: LIGHTGREEN, bg: BG_BLACK },
+            position: 0.4
+        },
+        road: {
+            surface: { fg: BROWN, bg: BG_BLACK },
+            stripe: { fg: YELLOW, bg: BG_BLACK },
+            edge: { fg: GREEN, bg: BG_BLACK },
+            grid: { fg: BROWN, bg: BG_BLACK }
+        },
+        offroad: {
+            groundColor: { fg: GREEN, bg: BG_BLACK },
+            sceneryTypes: ['jungle_tree', 'fern', 'vine', 'flower', 'parrot', 'banana'],
+            sceneryDensity: 0.35
+        },
+        background: {
+            type: 'forest',
+            color: { fg: GREEN, bg: BG_BLACK },
+            highlightColor: { fg: LIGHTGREEN, bg: BG_BLACK }
+        }
+    },
+    'candy_land': {
+        id: 'candy_land',
+        name: 'Candy Land',
+        sky: {
+            top: { fg: LIGHTMAGENTA, bg: BG_BLACK },
+            horizon: { fg: LIGHTCYAN, bg: BG_BLACK },
+            gridColor: { fg: LIGHTMAGENTA, bg: BG_BLACK }
+        },
+        sun: {
+            color: { fg: YELLOW, bg: BG_MAGENTA },
+            glowColor: { fg: LIGHTMAGENTA, bg: BG_BLACK },
+            position: 0.5
+        },
+        road: {
+            surface: { fg: LIGHTMAGENTA, bg: BG_BLACK },
+            stripe: { fg: WHITE, bg: BG_BLACK },
+            edge: { fg: LIGHTCYAN, bg: BG_BLACK },
+            grid: { fg: MAGENTA, bg: BG_BLACK }
+        },
+        offroad: {
+            groundColor: { fg: LIGHTGREEN, bg: BG_BLACK },
+            sceneryTypes: ['lollipop', 'candy_cane', 'gummy_bear', 'cupcake', 'ice_cream', 'cotton_candy'],
+            sceneryDensity: 0.3
+        },
+        background: {
+            type: 'mountains',
+            color: { fg: LIGHTMAGENTA, bg: BG_BLACK },
+            highlightColor: { fg: LIGHTCYAN, bg: BG_BLACK }
+        }
+    },
+    'rainbow_road': {
+        id: 'rainbow_road',
+        name: 'Rainbow Road',
+        sky: {
+            top: { fg: BLUE, bg: BG_BLACK },
+            horizon: { fg: LIGHTBLUE, bg: BG_BLACK },
+            gridColor: { fg: LIGHTMAGENTA, bg: BG_BLACK }
+        },
+        sun: {
+            color: { fg: WHITE, bg: BG_BLUE },
+            glowColor: { fg: LIGHTCYAN, bg: BG_BLACK },
+            position: 0.5
+        },
+        road: {
+            surface: { fg: LIGHTRED, bg: BG_BLACK },
+            stripe: { fg: YELLOW, bg: BG_BLACK },
+            edge: { fg: LIGHTMAGENTA, bg: BG_BLACK },
+            grid: { fg: LIGHTCYAN, bg: BG_BLACK }
+        },
+        offroad: {
+            groundColor: { fg: BLUE, bg: BG_BLACK },
+            sceneryTypes: ['star', 'moon', 'planet', 'comet', 'nebula', 'satellite'],
+            sceneryDensity: 0.2
+        },
+        background: {
+            type: 'space',
+            color: { fg: BLUE, bg: BG_BLACK },
+            highlightColor: { fg: LIGHTMAGENTA, bg: BG_BLACK }
+        }
+    },
+    'dark_castle': {
+        id: 'dark_castle',
+        name: 'Dark Castle',
+        sky: {
+            top: { fg: BLACK, bg: BG_BLACK },
+            horizon: { fg: DARKGRAY, bg: BG_BLACK },
+            gridColor: { fg: DARKGRAY, bg: BG_BLACK }
+        },
+        sun: {
+            color: { fg: LIGHTGRAY, bg: BG_BLACK },
+            glowColor: { fg: DARKGRAY, bg: BG_BLACK },
+            position: 0.7
+        },
+        road: {
+            surface: { fg: DARKGRAY, bg: BG_BLACK },
+            stripe: { fg: LIGHTGRAY, bg: BG_BLACK },
+            edge: { fg: BROWN, bg: BG_BLACK },
+            grid: { fg: DARKGRAY, bg: BG_BLACK }
+        },
+        offroad: {
+            groundColor: { fg: DARKGRAY, bg: BG_BLACK },
+            sceneryTypes: ['tower', 'battlement', 'torch', 'banner', 'gargoyle', 'portcullis'],
+            sceneryDensity: 0.25
+        },
+        background: {
+            type: 'castle',
+            color: { fg: DARKGRAY, bg: BG_BLACK },
+            highlightColor: { fg: LIGHTGRAY, bg: BG_BLACK }
+        }
+    },
+    'villains_lair': {
+        id: 'villains_lair',
+        name: "Villain's Lair",
+        sky: {
+            top: { fg: RED, bg: BG_BLACK },
+            horizon: { fg: LIGHTRED, bg: BG_BLACK },
+            gridColor: { fg: RED, bg: BG_BLACK }
+        },
+        sun: {
+            color: { fg: LIGHTRED, bg: BG_RED },
+            glowColor: { fg: YELLOW, bg: BG_BLACK },
+            position: 0.5
+        },
+        road: {
+            surface: { fg: DARKGRAY, bg: BG_BLACK },
+            stripe: { fg: LIGHTRED, bg: BG_BLACK },
+            edge: { fg: RED, bg: BG_BLACK },
+            grid: { fg: RED, bg: BG_BLACK }
+        },
+        offroad: {
+            groundColor: { fg: RED, bg: BG_BLACK },
+            sceneryTypes: ['lava_rock', 'flame', 'skull_pile', 'chain', 'spike', 'cauldron'],
+            sceneryDensity: 0.28
+        },
+        background: {
+            type: 'volcano',
+            color: { fg: RED, bg: BG_BLACK },
+            highlightColor: { fg: YELLOW, bg: BG_BLACK }
+        }
+    },
+    'ancient_ruins': {
+        id: 'ancient_ruins',
+        name: 'Ancient Ruins',
+        sky: {
+            top: { fg: CYAN, bg: BG_BLACK },
+            horizon: { fg: YELLOW, bg: BG_BLACK },
+            gridColor: { fg: BROWN, bg: BG_BLACK }
+        },
+        sun: {
+            color: { fg: YELLOW, bg: BG_BROWN },
+            glowColor: { fg: YELLOW, bg: BG_BLACK },
+            position: 0.4
+        },
+        road: {
+            surface: { fg: BROWN, bg: BG_BLACK },
+            stripe: { fg: YELLOW, bg: BG_BLACK },
+            edge: { fg: LIGHTGRAY, bg: BG_BLACK },
+            grid: { fg: BROWN, bg: BG_BLACK }
+        },
+        offroad: {
+            groundColor: { fg: YELLOW, bg: BG_BLACK },
+            sceneryTypes: ['column', 'statue', 'obelisk', 'sphinx', 'hieroglyph', 'scarab'],
+            sceneryDensity: 0.22
+        },
+        background: {
+            type: 'pyramids',
+            color: { fg: YELLOW, bg: BG_BLACK },
+            highlightColor: { fg: BROWN, bg: BG_BLACK }
+        }
+    },
+    'thunder_stadium': {
+        id: 'thunder_stadium',
+        name: 'Thunder Stadium',
+        sky: {
+            top: { fg: BLACK, bg: BG_BLACK },
+            horizon: { fg: DARKGRAY, bg: BG_BLACK },
+            gridColor: { fg: YELLOW, bg: BG_BLACK }
+        },
+        sun: {
+            color: { fg: WHITE, bg: BG_BLACK },
+            glowColor: { fg: YELLOW, bg: BG_BLACK },
+            position: 0.5
+        },
+        road: {
+            surface: { fg: BROWN, bg: BG_BLACK },
+            stripe: { fg: WHITE, bg: BG_BLACK },
+            edge: { fg: YELLOW, bg: BG_BLACK },
+            grid: { fg: BROWN, bg: BG_BLACK }
+        },
+        offroad: {
+            groundColor: { fg: BROWN, bg: BG_BLACK },
+            sceneryTypes: ['grandstand', 'tire_stack', 'hay_bale', 'flag_marshal', 'pit_crew', 'banner'],
+            sceneryDensity: 0.35
+        },
+        background: {
+            type: 'stadium',
+            color: { fg: DARKGRAY, bg: BG_BLACK },
+            highlightColor: { fg: YELLOW, bg: BG_BLACK }
+        }
+    },
+    'glitch_circuit': {
+        id: 'glitch_circuit',
+        name: 'Glitch Circuit',
+        sky: {
+            top: { fg: BLACK, bg: BG_BLACK },
+            horizon: { fg: LIGHTGREEN, bg: BG_BLACK },
+            gridColor: { fg: GREEN, bg: BG_BLACK }
+        },
+        sun: {
+            color: { fg: WHITE, bg: BG_GREEN },
+            glowColor: { fg: LIGHTGREEN, bg: BG_BLACK },
+            position: 0.5
+        },
+        road: {
+            surface: { fg: DARKGRAY, bg: BG_BLACK },
+            stripe: { fg: LIGHTGREEN, bg: BG_BLACK },
+            edge: { fg: LIGHTCYAN, bg: BG_BLACK },
+            grid: { fg: GREEN, bg: BG_BLACK }
+        },
+        offroad: {
+            groundColor: { fg: GREEN, bg: BG_BLACK },
+            sceneryTypes: ['building', 'palm_tree', 'tree', 'gravestone', 'cactus', 'lollipop', 'crystal', 'torch', 'column'],
+            sceneryDensity: 0.30
+        },
+        background: {
+            type: 'mountains',
+            color: { fg: GREEN, bg: BG_BLACK },
+            highlightColor: { fg: LIGHTGREEN, bg: BG_BLACK }
+        }
     }
 };
 var TRACK_CATALOG = [
@@ -1273,6 +1534,231 @@ var TRACK_CATALOG = [
             { type: 'curve', length: 8, curve: -0.4 },
             { type: 'ease_in', length: 3, targetCurve: 0.4 },
             { type: 'curve', length: 8, curve: 0.4 },
+            { type: 'ease_out', length: 3 },
+            { type: 'straight', length: 10 }
+        ]
+    },
+    {
+        id: 'jungle_run',
+        name: 'Jungle Run',
+        description: 'Race through dense tropical rainforest with exotic wildlife',
+        difficulty: 3,
+        laps: 3,
+        themeId: 'tropical_jungle',
+        estimatedLapTime: 60,
+        npcCount: 5,
+        sections: [
+            { type: 'straight', length: 15 },
+            { type: 'ease_in', length: 5, targetCurve: 0.45 },
+            { type: 'curve', length: 15, curve: 0.45 },
+            { type: 'ease_out', length: 5 },
+            { type: 'straight', length: 12 },
+            { type: 'ease_in', length: 4, targetCurve: -0.6 },
+            { type: 'curve', length: 10, curve: -0.6 },
+            { type: 'ease_out', length: 4 },
+            { type: 'ease_in', length: 4, targetCurve: 0.4 },
+            { type: 'curve', length: 10, curve: 0.4 },
+            { type: 'ease_in', length: 4, targetCurve: -0.4 },
+            { type: 'curve', length: 10, curve: -0.4 },
+            { type: 'ease_out', length: 4 },
+            { type: 'straight', length: 18 }
+        ]
+    },
+    {
+        id: 'sugar_rush',
+        name: 'Sugar Rush',
+        description: 'Sweet racing through a land made entirely of candy!',
+        difficulty: 2,
+        laps: 3,
+        themeId: 'candy_land',
+        estimatedLapTime: 50,
+        npcCount: 4,
+        sections: [
+            { type: 'straight', length: 12 },
+            { type: 'ease_in', length: 4, targetCurve: 0.35 },
+            { type: 'curve', length: 12, curve: 0.35 },
+            { type: 'ease_out', length: 4 },
+            { type: 'straight', length: 10 },
+            { type: 'ease_in', length: 5, targetCurve: -0.5 },
+            { type: 'curve', length: 14, curve: -0.5 },
+            { type: 'ease_out', length: 5 },
+            { type: 'straight', length: 8 },
+            { type: 'ease_in', length: 3, targetCurve: 0.3 },
+            { type: 'curve', length: 8, curve: 0.3 },
+            { type: 'ease_in', length: 3, targetCurve: -0.3 },
+            { type: 'curve', length: 8, curve: -0.3 },
+            { type: 'ease_out', length: 3 },
+            { type: 'straight', length: 10 }
+        ]
+    },
+    {
+        id: 'celestial_circuit',
+        name: 'Celestial Circuit',
+        description: 'Cosmic racing through the stars on a rainbow of light',
+        difficulty: 4,
+        laps: 3,
+        themeId: 'rainbow_road',
+        estimatedLapTime: 70,
+        npcCount: 6,
+        sections: [
+            { type: 'straight', length: 20 },
+            { type: 'ease_in', length: 6, targetCurve: 0.55 },
+            { type: 'curve', length: 18, curve: 0.55 },
+            { type: 'ease_out', length: 6 },
+            { type: 'straight', length: 15 },
+            { type: 'ease_in', length: 4, targetCurve: -0.65 },
+            { type: 'curve', length: 12, curve: -0.65 },
+            { type: 'ease_out', length: 4 },
+            { type: 'straight', length: 10 },
+            { type: 'ease_in', length: 5, targetCurve: 0.5 },
+            { type: 'curve', length: 14, curve: 0.5 },
+            { type: 'ease_in', length: 5, targetCurve: -0.5 },
+            { type: 'curve', length: 14, curve: -0.5 },
+            { type: 'ease_out', length: 5 },
+            { type: 'straight', length: 18 }
+        ]
+    },
+    {
+        id: 'fortress_rally',
+        name: 'Fortress Rally',
+        description: 'Navigate the twisting roads of a medieval fortress',
+        difficulty: 4,
+        laps: 3,
+        themeId: 'dark_castle',
+        estimatedLapTime: 65,
+        npcCount: 5,
+        sections: [
+            { type: 'straight', length: 14 },
+            { type: 'ease_in', length: 5, targetCurve: 0.4 },
+            { type: 'curve', length: 16, curve: 0.4 },
+            { type: 'ease_out', length: 5 },
+            { type: 'straight', length: 10 },
+            { type: 'ease_in', length: 4, targetCurve: -0.7 },
+            { type: 'curve', length: 10, curve: -0.7 },
+            { type: 'ease_out', length: 4 },
+            { type: 'straight', length: 8 },
+            { type: 'ease_in', length: 4, targetCurve: 0.45 },
+            { type: 'curve', length: 12, curve: 0.45 },
+            { type: 'ease_in', length: 4, targetCurve: -0.45 },
+            { type: 'curve', length: 12, curve: -0.45 },
+            { type: 'ease_out', length: 4 },
+            { type: 'straight', length: 16 }
+        ]
+    },
+    {
+        id: 'inferno_speedway',
+        name: 'Inferno Speedway',
+        description: 'Blaze through a volcanic villain hideout at your peril',
+        difficulty: 5,
+        laps: 3,
+        themeId: 'villains_lair',
+        estimatedLapTime: 80,
+        npcCount: 7,
+        sections: [
+            { type: 'straight', length: 16 },
+            { type: 'ease_in', length: 6, targetCurve: 0.6 },
+            { type: 'curve', length: 20, curve: 0.6 },
+            { type: 'ease_out', length: 6 },
+            { type: 'straight', length: 14 },
+            { type: 'ease_in', length: 5, targetCurve: -0.75 },
+            { type: 'curve', length: 14, curve: -0.75 },
+            { type: 'ease_out', length: 5 },
+            { type: 'straight', length: 8 },
+            { type: 'ease_in', length: 5, targetCurve: 0.55 },
+            { type: 'curve', length: 15, curve: 0.55 },
+            { type: 'ease_in', length: 5, targetCurve: -0.55 },
+            { type: 'curve', length: 15, curve: -0.55 },
+            { type: 'ease_out', length: 5 },
+            { type: 'straight', length: 20 }
+        ]
+    },
+    {
+        id: 'pharaohs_tomb',
+        name: "Pharaoh's Tomb",
+        description: 'Unearth ancient secrets racing through pyramid ruins',
+        difficulty: 3,
+        laps: 3,
+        themeId: 'ancient_ruins',
+        estimatedLapTime: 58,
+        npcCount: 5,
+        sections: [
+            { type: 'straight', length: 14 },
+            { type: 'ease_in', length: 5, targetCurve: 0.4 },
+            { type: 'curve', length: 14, curve: 0.4 },
+            { type: 'ease_out', length: 5 },
+            { type: 'straight', length: 12 },
+            { type: 'ease_in', length: 4, targetCurve: -0.5 },
+            { type: 'curve', length: 12, curve: -0.5 },
+            { type: 'ease_out', length: 4 },
+            { type: 'straight', length: 10 },
+            { type: 'ease_in', length: 4, targetCurve: 0.35 },
+            { type: 'curve', length: 10, curve: 0.35 },
+            { type: 'ease_in', length: 4, targetCurve: -0.35 },
+            { type: 'curve', length: 10, curve: -0.35 },
+            { type: 'ease_out', length: 4 },
+            { type: 'straight', length: 16 }
+        ]
+    },
+    {
+        id: 'thunder_stadium',
+        name: 'Thunder Stadium',
+        description: 'Race on packed dirt under stadium lights with roaring crowds',
+        difficulty: 2,
+        laps: 4,
+        themeId: 'thunder_stadium',
+        estimatedLapTime: 42,
+        npcCount: 6,
+        sections: [
+            { type: 'straight', length: 18 },
+            { type: 'ease_in', length: 5, targetCurve: 0.45 },
+            { type: 'curve', length: 16, curve: 0.45 },
+            { type: 'ease_out', length: 5 },
+            { type: 'straight', length: 14 },
+            { type: 'ease_in', length: 4, targetCurve: 0.65 },
+            { type: 'curve', length: 12, curve: 0.65 },
+            { type: 'ease_out', length: 4 },
+            { type: 'straight', length: 8 },
+            { type: 'ease_in', length: 5, targetCurve: -0.5 },
+            { type: 'curve', length: 18, curve: -0.5 },
+            { type: 'ease_out', length: 5 },
+            { type: 'straight', length: 12 },
+            { type: 'ease_in', length: 4, targetCurve: -0.55 },
+            { type: 'curve', length: 14, curve: -0.55 },
+            { type: 'ease_out', length: 4 },
+            { type: 'straight', length: 10 }
+        ]
+    },
+    {
+        id: 'glitch_circuit',
+        name: 'Glitch Circuit',
+        description: 'Reality is corrupted. The simulation is breaking down.',
+        difficulty: 4,
+        laps: 3,
+        themeId: 'glitch_circuit',
+        estimatedLapTime: 55,
+        npcCount: 6,
+        sections: [
+            { type: 'straight', length: 12 },
+            { type: 'ease_in', length: 3, targetCurve: 0.6 },
+            { type: 'curve', length: 8, curve: 0.6 },
+            { type: 'ease_in', length: 2, targetCurve: -0.7 },
+            { type: 'curve', length: 10, curve: -0.7 },
+            { type: 'ease_out', length: 3 },
+            { type: 'straight', length: 8 },
+            { type: 'ease_in', length: 2, targetCurve: 0.5 },
+            { type: 'curve', length: 6, curve: 0.5 },
+            { type: 'ease_in', length: 2, targetCurve: -0.5 },
+            { type: 'curve', length: 6, curve: -0.5 },
+            { type: 'ease_in', length: 2, targetCurve: 0.45 },
+            { type: 'curve', length: 6, curve: 0.45 },
+            { type: 'ease_out', length: 3 },
+            { type: 'straight', length: 14 },
+            { type: 'ease_in', length: 4, targetCurve: -0.55 },
+            { type: 'curve', length: 20, curve: -0.55 },
+            { type: 'ease_out', length: 4 },
+            { type: 'straight', length: 16 },
+            { type: 'ease_in', length: 3, targetCurve: 0.4 },
+            { type: 'curve', length: 10, curve: 0.4 },
             { type: 'ease_out', length: 3 },
             { type: 'straight', length: 10 }
         ]
@@ -1911,6 +2397,7 @@ var Hud = (function () {
             if (lapProgress < 0)
                 lapProgress += 1.0;
         }
+        var racers = vehicles.filter(function (v) { return !v.isNPC; });
         return {
             speed: Math.round(vehicle.speed),
             speedMax: VEHICLE_PHYSICS.MAX_SPEED,
@@ -1918,7 +2405,7 @@ var Hud = (function () {
             totalLaps: track.laps,
             lapProgress: lapProgress,
             position: vehicle.racePosition,
-            totalRacers: vehicles.length,
+            totalRacers: racers.length,
             lapTime: currentTime - this.lapStartTime,
             bestLapTime: this.bestLapTime === Infinity ? 0 : this.bestLapTime,
             totalTime: currentTime - this.startTime,
@@ -2091,7 +2578,8 @@ var PositionIndicator = (function () {
         return data.position + data.suffix + " / " + data.totalRacers;
     };
     PositionIndicator.calculatePositions = function (vehicles) {
-        var sorted = vehicles.slice().sort(function (a, b) {
+        var racers = vehicles.filter(function (v) { return !v.isNPC; });
+        var sorted = racers.slice().sort(function (a, b) {
             if (a.lap !== b.lap)
                 return b.lap - a.lap;
             if (a.checkpoint !== b.checkpoint)
@@ -4156,6 +4644,1888 @@ registerRoadsideSprite('cowskull', DesertSprites.createCowSkull);
 registerRoadsideSprite('desertrock', DesertSprites.createDesertRock);
 registerRoadsideSprite('westernsign', DesertSprites.createWesternSign);
 "use strict";
+var JungleSprites = {
+    createJungleTree: function () {
+        var leaf = makeAttr(GREEN, BG_BLACK);
+        var leafBright = makeAttr(LIGHTGREEN, BG_BLACK);
+        var trunk = makeAttr(BROWN, BG_BLACK);
+        var trunkDark = makeAttr(DARKGRAY, BG_BLACK);
+        var U = null;
+        return {
+            name: 'jungle_tree',
+            variants: [
+                [
+                    [{ char: '@', attr: leaf }, { char: '@', attr: leafBright }],
+                    [U, { char: '|', attr: trunk }],
+                    [U, { char: '|', attr: trunk }]
+                ],
+                [
+                    [{ char: '@', attr: leafBright }, { char: '@', attr: leaf }, { char: '@', attr: leafBright }],
+                    [{ char: '@', attr: leaf }, { char: '@', attr: leafBright }, { char: '@', attr: leaf }],
+                    [U, { char: '|', attr: trunk }, U],
+                    [U, { char: '|', attr: trunk }, U]
+                ],
+                [
+                    [U, { char: '@', attr: leafBright }, { char: '@', attr: leaf }, { char: '@', attr: leafBright }, U],
+                    [{ char: '@', attr: leaf }, { char: '@', attr: leafBright }, { char: '@', attr: leaf }, { char: '@', attr: leafBright }, { char: '@', attr: leaf }],
+                    [{ char: '@', attr: leafBright }, { char: '@', attr: leaf }, { char: '|', attr: trunk }, { char: '@', attr: leaf }, { char: '@', attr: leafBright }],
+                    [U, U, { char: '|', attr: trunk }, U, U],
+                    [U, U, { char: '|', attr: trunkDark }, U, U]
+                ],
+                [
+                    [U, U, { char: '@', attr: leaf }, { char: '@', attr: leafBright }, { char: '@', attr: leaf }, U, U],
+                    [U, { char: '@', attr: leafBright }, { char: '@', attr: leaf }, { char: '@', attr: leafBright }, { char: '@', attr: leaf }, { char: '@', attr: leafBright }, U],
+                    [{ char: '@', attr: leaf }, { char: '@', attr: leafBright }, { char: '@', attr: leaf }, { char: '@', attr: leafBright }, { char: '@', attr: leaf }, { char: '@', attr: leafBright }, { char: '@', attr: leaf }],
+                    [{ char: '@', attr: leafBright }, { char: '@', attr: leaf }, { char: '\\', attr: trunk }, { char: '|', attr: trunk }, { char: '/', attr: trunk }, { char: '@', attr: leaf }, { char: '@', attr: leafBright }],
+                    [U, U, U, { char: '|', attr: trunk }, U, U, U],
+                    [U, U, U, { char: '|', attr: trunkDark }, U, U, U]
+                ],
+                [
+                    [U, U, { char: '@', attr: leaf }, { char: '@', attr: leafBright }, { char: '@', attr: leaf }, { char: '@', attr: leafBright }, { char: '@', attr: leaf }, U, U],
+                    [U, { char: '@', attr: leafBright }, { char: '@', attr: leaf }, { char: '@', attr: leafBright }, { char: '@', attr: leaf }, { char: '@', attr: leafBright }, { char: '@', attr: leaf }, { char: '@', attr: leafBright }, U],
+                    [{ char: '@', attr: leaf }, { char: '@', attr: leafBright }, { char: '@', attr: leaf }, { char: '@', attr: leafBright }, { char: '@', attr: leaf }, { char: '@', attr: leafBright }, { char: '@', attr: leaf }, { char: '@', attr: leafBright }, { char: '@', attr: leaf }],
+                    [{ char: '@', attr: leafBright }, { char: '@', attr: leaf }, { char: '@', attr: leafBright }, { char: '@', attr: leaf }, { char: '|', attr: trunk }, { char: '@', attr: leaf }, { char: '@', attr: leafBright }, { char: '@', attr: leaf }, { char: '@', attr: leafBright }],
+                    [U, U, { char: '@', attr: leaf }, { char: '\\', attr: trunk }, { char: '|', attr: trunk }, { char: '/', attr: trunk }, { char: '@', attr: leaf }, U, U],
+                    [U, U, U, U, { char: '|', attr: trunk }, U, U, U, U],
+                    [U, U, U, U, { char: '|', attr: trunkDark }, U, U, U, U]
+                ]
+            ]
+        };
+    },
+    createFern: function () {
+        var frond = makeAttr(GREEN, BG_BLACK);
+        var frondLight = makeAttr(LIGHTGREEN, BG_BLACK);
+        var U = null;
+        return {
+            name: 'fern',
+            variants: [
+                [
+                    [{ char: '/', attr: frond }, { char: '\\', attr: frond }],
+                    [{ char: '/', attr: frondLight }, { char: '\\', attr: frondLight }]
+                ],
+                [
+                    [{ char: '/', attr: frond }, { char: '|', attr: frondLight }, { char: '\\', attr: frond }],
+                    [{ char: '/', attr: frondLight }, { char: '|', attr: frond }, { char: '\\', attr: frondLight }]
+                ],
+                [
+                    [{ char: '/', attr: frondLight }, { char: '/', attr: frond }, { char: '|', attr: frondLight }, { char: '\\', attr: frond }, { char: '\\', attr: frondLight }],
+                    [{ char: '/', attr: frond }, { char: '/', attr: frondLight }, { char: '|', attr: frond }, { char: '\\', attr: frondLight }, { char: '\\', attr: frond }],
+                    [U, { char: '/', attr: frond }, { char: '|', attr: frondLight }, { char: '\\', attr: frond }, U]
+                ],
+                [
+                    [{ char: '/', attr: frond }, { char: '/', attr: frondLight }, { char: '/', attr: frond }, { char: '|', attr: frondLight }, { char: '\\', attr: frond }, { char: '\\', attr: frondLight }, { char: '\\', attr: frond }],
+                    [U, { char: '/', attr: frondLight }, { char: '/', attr: frond }, { char: '|', attr: frondLight }, { char: '\\', attr: frond }, { char: '\\', attr: frondLight }, U],
+                    [U, U, { char: '/', attr: frond }, { char: '|', attr: frondLight }, { char: '\\', attr: frond }, U, U],
+                    [U, U, U, { char: '|', attr: frond }, U, U, U]
+                ],
+                [
+                    [{ char: '/', attr: frond }, { char: '/', attr: frondLight }, { char: '/', attr: frond }, { char: '|', attr: frondLight }, { char: '\\', attr: frond }, { char: '\\', attr: frondLight }, { char: '\\', attr: frond }],
+                    [U, { char: '/', attr: frondLight }, { char: '/', attr: frond }, { char: '|', attr: frondLight }, { char: '\\', attr: frond }, { char: '\\', attr: frondLight }, U],
+                    [U, U, { char: '/', attr: frond }, { char: '|', attr: frondLight }, { char: '\\', attr: frond }, U, U],
+                    [U, U, U, { char: '|', attr: frond }, U, U, U]
+                ]
+            ]
+        };
+    },
+    createVine: function () {
+        var vine = makeAttr(GREEN, BG_BLACK);
+        var vineLight = makeAttr(LIGHTGREEN, BG_BLACK);
+        var flower = makeAttr(LIGHTMAGENTA, BG_BLACK);
+        return {
+            name: 'vine',
+            variants: [
+                [
+                    [{ char: '|', attr: vine }],
+                    [{ char: ')', attr: vineLight }],
+                    [{ char: '|', attr: vine }]
+                ],
+                [
+                    [{ char: '(', attr: vine }, { char: ')', attr: vineLight }],
+                    [{ char: ')', attr: vineLight }, { char: '(', attr: vine }],
+                    [{ char: '|', attr: vine }, { char: ')', attr: vineLight }],
+                    [{ char: ')', attr: vineLight }, { char: '|', attr: vine }]
+                ],
+                [
+                    [{ char: '(', attr: vineLight }, { char: '|', attr: vine }, { char: ')', attr: vineLight }],
+                    [{ char: ')', attr: vine }, { char: '*', attr: flower }, { char: '(', attr: vine }],
+                    [{ char: '|', attr: vineLight }, { char: ')', attr: vine }, { char: '|', attr: vineLight }],
+                    [{ char: ')', attr: vine }, { char: '|', attr: vineLight }, { char: '(', attr: vine }],
+                    [{ char: '|', attr: vineLight }, { char: '(', attr: vine }, { char: '|', attr: vineLight }]
+                ],
+                [
+                    [{ char: '(', attr: vine }, { char: '(', attr: vineLight }, { char: ')', attr: vineLight }, { char: ')', attr: vine }],
+                    [{ char: ')', attr: vineLight }, { char: '*', attr: flower }, { char: '*', attr: flower }, { char: '(', attr: vineLight }],
+                    [{ char: '|', attr: vine }, { char: ')', attr: vineLight }, { char: '(', attr: vineLight }, { char: '|', attr: vine }],
+                    [{ char: ')', attr: vineLight }, { char: '|', attr: vine }, { char: '|', attr: vine }, { char: '(', attr: vineLight }],
+                    [{ char: '(', attr: vine }, { char: ')', attr: vineLight }, { char: '(', attr: vineLight }, { char: ')', attr: vine }],
+                    [{ char: '|', attr: vineLight }, { char: '|', attr: vine }, { char: '|', attr: vine }, { char: '|', attr: vineLight }]
+                ],
+                [
+                    [{ char: '(', attr: vine }, { char: '(', attr: vineLight }, { char: ')', attr: vineLight }, { char: ')', attr: vine }],
+                    [{ char: ')', attr: vineLight }, { char: '*', attr: flower }, { char: '*', attr: flower }, { char: '(', attr: vineLight }],
+                    [{ char: '|', attr: vine }, { char: ')', attr: vineLight }, { char: '(', attr: vineLight }, { char: '|', attr: vine }],
+                    [{ char: ')', attr: vineLight }, { char: '|', attr: vine }, { char: '|', attr: vine }, { char: '(', attr: vineLight }],
+                    [{ char: '(', attr: vine }, { char: ')', attr: vineLight }, { char: '(', attr: vineLight }, { char: ')', attr: vine }],
+                    [{ char: '|', attr: vineLight }, { char: '|', attr: vine }, { char: '|', attr: vine }, { char: '|', attr: vineLight }]
+                ]
+            ]
+        };
+    },
+    createFlower: function () {
+        var petal = makeAttr(LIGHTMAGENTA, BG_BLACK);
+        var petalDark = makeAttr(MAGENTA, BG_BLACK);
+        var center = makeAttr(YELLOW, BG_BLACK);
+        var stem = makeAttr(GREEN, BG_BLACK);
+        var leaf = makeAttr(LIGHTGREEN, BG_BLACK);
+        var U = null;
+        return {
+            name: 'flower',
+            variants: [
+                [
+                    [{ char: '*', attr: petal }],
+                    [{ char: '|', attr: stem }]
+                ],
+                [
+                    [U, { char: '*', attr: petal }, U],
+                    [{ char: '*', attr: petalDark }, { char: 'o', attr: center }, { char: '*', attr: petalDark }],
+                    [U, { char: '|', attr: stem }, U]
+                ],
+                [
+                    [U, { char: '*', attr: petal }, { char: '*', attr: petalDark }, { char: '*', attr: petal }, U],
+                    [{ char: '*', attr: petalDark }, { char: '*', attr: petal }, { char: '@', attr: center }, { char: '*', attr: petal }, { char: '*', attr: petalDark }],
+                    [U, { char: '*', attr: petal }, { char: '|', attr: stem }, { char: '*', attr: petal }, U],
+                    [U, { char: '/', attr: leaf }, { char: '|', attr: stem }, { char: '\\', attr: leaf }, U]
+                ],
+                [
+                    [U, { char: '*', attr: petal }, { char: '*', attr: petalDark }, { char: '*', attr: petal }, U],
+                    [{ char: '*', attr: petalDark }, { char: '*', attr: petal }, { char: '@', attr: center }, { char: '*', attr: petal }, { char: '*', attr: petalDark }],
+                    [{ char: '*', attr: petal }, { char: '*', attr: petalDark }, { char: '*', attr: petal }, { char: '*', attr: petalDark }, { char: '*', attr: petal }],
+                    [U, { char: '/', attr: leaf }, { char: '|', attr: stem }, { char: '\\', attr: leaf }, U],
+                    [U, U, { char: '|', attr: stem }, U, U]
+                ],
+                [
+                    [U, { char: '*', attr: petal }, { char: '*', attr: petalDark }, { char: '*', attr: petal }, U],
+                    [{ char: '*', attr: petalDark }, { char: '*', attr: petal }, { char: '@', attr: center }, { char: '*', attr: petal }, { char: '*', attr: petalDark }],
+                    [{ char: '*', attr: petal }, { char: '*', attr: petalDark }, { char: '*', attr: petal }, { char: '*', attr: petalDark }, { char: '*', attr: petal }],
+                    [U, { char: '/', attr: leaf }, { char: '|', attr: stem }, { char: '\\', attr: leaf }, U],
+                    [U, U, { char: '|', attr: stem }, U, U]
+                ]
+            ]
+        };
+    },
+    createParrot: function () {
+        var body = makeAttr(LIGHTRED, BG_BLACK);
+        var wing = makeAttr(LIGHTBLUE, BG_BLACK);
+        var beak = makeAttr(YELLOW, BG_BLACK);
+        var tail = makeAttr(LIGHTGREEN, BG_BLACK);
+        var eye = makeAttr(WHITE, BG_BLACK);
+        var U = null;
+        return {
+            name: 'parrot',
+            variants: [
+                [
+                    [{ char: '(', attr: body }, { char: '>', attr: beak }],
+                    [{ char: '~', attr: tail }, { char: ')', attr: body }]
+                ],
+                [
+                    [U, { char: '(', attr: body }, { char: '<', attr: beak }],
+                    [{ char: '/', attr: wing }, { char: GLYPH.FULL_BLOCK, attr: body }, { char: ')', attr: body }],
+                    [U, { char: '~', attr: tail }, { char: '~', attr: tail }]
+                ],
+                [
+                    [U, { char: '(', attr: body }, { char: 'o', attr: eye }, { char: '<', attr: beak }],
+                    [{ char: '/', attr: wing }, { char: GLYPH.FULL_BLOCK, attr: body }, { char: GLYPH.FULL_BLOCK, attr: body }, { char: ')', attr: body }],
+                    [{ char: '/', attr: wing }, { char: GLYPH.FULL_BLOCK, attr: body }, { char: ')', attr: body }, U],
+                    [U, { char: '~', attr: tail }, { char: '~', attr: tail }, { char: '~', attr: tail }]
+                ],
+                [
+                    [U, { char: '(', attr: body }, { char: GLYPH.FULL_BLOCK, attr: body }, { char: 'o', attr: eye }, { char: '<', attr: beak }],
+                    [{ char: '/', attr: wing }, { char: GLYPH.FULL_BLOCK, attr: body }, { char: GLYPH.FULL_BLOCK, attr: body }, { char: GLYPH.FULL_BLOCK, attr: body }, { char: ')', attr: body }],
+                    [{ char: '/', attr: wing }, { char: '/', attr: wing }, { char: GLYPH.FULL_BLOCK, attr: body }, { char: ')', attr: body }, U],
+                    [U, U, { char: '\\', attr: body }, { char: '/', attr: body }, U],
+                    [U, { char: '~', attr: tail }, { char: '~', attr: tail }, { char: '~', attr: tail }, { char: '~', attr: tail }]
+                ],
+                [
+                    [U, { char: '(', attr: body }, { char: GLYPH.FULL_BLOCK, attr: body }, { char: 'o', attr: eye }, { char: '<', attr: beak }],
+                    [{ char: '/', attr: wing }, { char: GLYPH.FULL_BLOCK, attr: body }, { char: GLYPH.FULL_BLOCK, attr: body }, { char: GLYPH.FULL_BLOCK, attr: body }, { char: ')', attr: body }],
+                    [{ char: '/', attr: wing }, { char: '/', attr: wing }, { char: GLYPH.FULL_BLOCK, attr: body }, { char: ')', attr: body }, U],
+                    [U, U, { char: '\\', attr: body }, { char: '/', attr: body }, U],
+                    [U, { char: '~', attr: tail }, { char: '~', attr: tail }, { char: '~', attr: tail }, { char: '~', attr: tail }]
+                ]
+            ]
+        };
+    },
+    createBanana: function () {
+        var leaf = makeAttr(GREEN, BG_BLACK);
+        var leafLight = makeAttr(LIGHTGREEN, BG_BLACK);
+        var trunk = makeAttr(BROWN, BG_BLACK);
+        var banana = makeAttr(YELLOW, BG_BLACK);
+        var U = null;
+        return {
+            name: 'banana',
+            variants: [
+                [
+                    [{ char: '/', attr: leaf }, { char: '\\', attr: leaf }],
+                    [U, { char: ')', attr: banana }],
+                    [U, { char: '|', attr: trunk }]
+                ],
+                [
+                    [{ char: '/', attr: leafLight }, { char: '|', attr: leaf }, { char: '\\', attr: leafLight }],
+                    [{ char: '/', attr: leaf }, { char: ')', attr: banana }, { char: '\\', attr: leaf }],
+                    [U, { char: '|', attr: trunk }, U],
+                    [U, { char: '|', attr: trunk }, U]
+                ],
+                [
+                    [{ char: '/', attr: leaf }, { char: '/', attr: leafLight }, { char: '|', attr: leaf }, { char: '\\', attr: leafLight }, { char: '\\', attr: leaf }],
+                    [{ char: '/', attr: leafLight }, U, { char: '|', attr: trunk }, U, { char: '\\', attr: leafLight }],
+                    [U, { char: ')', attr: banana }, { char: ')', attr: banana }, { char: ')', attr: banana }, U],
+                    [U, U, { char: '|', attr: trunk }, U, U],
+                    [U, U, { char: '|', attr: trunk }, U, U]
+                ],
+                [
+                    [{ char: '/', attr: leaf }, { char: '/', attr: leafLight }, U, { char: '|', attr: leaf }, U, { char: '\\', attr: leafLight }, { char: '\\', attr: leaf }],
+                    [U, { char: '/', attr: leaf }, { char: '/', attr: leafLight }, { char: '|', attr: trunk }, { char: '\\', attr: leafLight }, { char: '\\', attr: leaf }, U],
+                    [U, U, { char: ')', attr: banana }, { char: ')', attr: banana }, { char: ')', attr: banana }, U, U],
+                    [U, U, { char: ')', attr: banana }, { char: ')', attr: banana }, { char: ')', attr: banana }, U, U],
+                    [U, U, U, { char: '|', attr: trunk }, U, U, U],
+                    [U, U, U, { char: '|', attr: trunk }, U, U, U]
+                ],
+                [
+                    [{ char: '/', attr: leaf }, { char: '/', attr: leafLight }, U, { char: '|', attr: leaf }, U, { char: '\\', attr: leafLight }, { char: '\\', attr: leaf }],
+                    [U, { char: '/', attr: leaf }, { char: '/', attr: leafLight }, { char: '|', attr: trunk }, { char: '\\', attr: leafLight }, { char: '\\', attr: leaf }, U],
+                    [U, U, { char: ')', attr: banana }, { char: ')', attr: banana }, { char: ')', attr: banana }, U, U],
+                    [U, U, { char: ')', attr: banana }, { char: ')', attr: banana }, { char: ')', attr: banana }, U, U],
+                    [U, U, U, { char: '|', attr: trunk }, U, U, U],
+                    [U, U, U, { char: '|', attr: trunk }, U, U, U]
+                ]
+            ]
+        };
+    }
+};
+registerRoadsideSprite('jungle_tree', JungleSprites.createJungleTree);
+registerRoadsideSprite('fern', JungleSprites.createFern);
+registerRoadsideSprite('vine', JungleSprites.createVine);
+registerRoadsideSprite('flower', JungleSprites.createFlower);
+registerRoadsideSprite('parrot', JungleSprites.createParrot);
+registerRoadsideSprite('banana', JungleSprites.createBanana);
+"use strict";
+var CandySprites = {
+    createLollipop: function () {
+        var candy1 = makeAttr(LIGHTRED, BG_BLACK);
+        var candy2 = makeAttr(WHITE, BG_BLACK);
+        var candy3 = makeAttr(LIGHTMAGENTA, BG_BLACK);
+        var stick = makeAttr(WHITE, BG_BLACK);
+        var U = null;
+        return {
+            name: 'lollipop',
+            variants: [
+                [
+                    [{ char: '(', attr: candy1 }, { char: ')', attr: candy2 }],
+                    [U, { char: '|', attr: stick }],
+                    [U, { char: '|', attr: stick }]
+                ],
+                [
+                    [U, { char: '@', attr: candy1 }, U],
+                    [{ char: '(', attr: candy2 }, { char: '@', attr: candy3 }, { char: ')', attr: candy2 }],
+                    [U, { char: '|', attr: stick }, U],
+                    [U, { char: '|', attr: stick }, U]
+                ],
+                [
+                    [U, { char: '/', attr: candy1 }, { char: '-', attr: candy2 }, { char: '\\', attr: candy1 }, U],
+                    [{ char: '(', attr: candy2 }, { char: '@', attr: candy3 }, { char: '@', attr: candy1 }, { char: '@', attr: candy3 }, { char: ')', attr: candy2 }],
+                    [U, { char: '\\', attr: candy1 }, { char: '-', attr: candy2 }, { char: '/', attr: candy1 }, U],
+                    [U, U, { char: '|', attr: stick }, U, U],
+                    [U, U, { char: '|', attr: stick }, U, U]
+                ],
+                [
+                    [U, { char: '/', attr: candy1 }, { char: '~', attr: candy2 }, { char: '~', attr: candy3 }, { char: '\\', attr: candy1 }, U],
+                    [{ char: '(', attr: candy2 }, { char: '@', attr: candy3 }, { char: '@', attr: candy1 }, { char: '@', attr: candy3 }, { char: '@', attr: candy1 }, { char: ')', attr: candy2 }],
+                    [{ char: '(', attr: candy1 }, { char: '@', attr: candy2 }, { char: '@', attr: candy3 }, { char: '@', attr: candy2 }, { char: '@', attr: candy3 }, { char: ')', attr: candy1 }],
+                    [U, { char: '\\', attr: candy2 }, { char: '~', attr: candy1 }, { char: '~', attr: candy2 }, { char: '/', attr: candy2 }, U],
+                    [U, U, U, { char: '|', attr: stick }, U, U],
+                    [U, U, U, { char: '|', attr: stick }, U, U]
+                ],
+                [
+                    [U, { char: '/', attr: candy1 }, { char: '~', attr: candy2 }, { char: '~', attr: candy3 }, { char: '\\', attr: candy1 }, U],
+                    [{ char: '(', attr: candy2 }, { char: '@', attr: candy3 }, { char: '@', attr: candy1 }, { char: '@', attr: candy3 }, { char: '@', attr: candy1 }, { char: ')', attr: candy2 }],
+                    [{ char: '(', attr: candy1 }, { char: '@', attr: candy2 }, { char: '@', attr: candy3 }, { char: '@', attr: candy2 }, { char: '@', attr: candy3 }, { char: ')', attr: candy1 }],
+                    [U, { char: '\\', attr: candy2 }, { char: '~', attr: candy1 }, { char: '~', attr: candy2 }, { char: '/', attr: candy2 }, U],
+                    [U, U, U, { char: '|', attr: stick }, U, U],
+                    [U, U, U, { char: '|', attr: stick }, U, U]
+                ]
+            ]
+        };
+    },
+    createCandyCane: function () {
+        var red = makeAttr(LIGHTRED, BG_BLACK);
+        var white = makeAttr(WHITE, BG_BLACK);
+        var U = null;
+        return {
+            name: 'candy_cane',
+            variants: [
+                [
+                    [{ char: '/', attr: red }, { char: ')', attr: white }],
+                    [{ char: '|', attr: white }, U],
+                    [{ char: '|', attr: red }, U]
+                ],
+                [
+                    [U, { char: '/', attr: red }, { char: ')', attr: white }],
+                    [U, { char: '|', attr: white }, U],
+                    [U, { char: '|', attr: red }, U],
+                    [U, { char: '|', attr: white }, U]
+                ],
+                [
+                    [U, { char: '_', attr: red }, { char: '/', attr: white }, { char: ')', attr: red }],
+                    [{ char: '(', attr: white }, { char: '|', attr: red }, U, U],
+                    [U, { char: '|', attr: white }, U, U],
+                    [U, { char: '|', attr: red }, U, U],
+                    [U, { char: '|', attr: white }, U, U]
+                ],
+                [
+                    [U, { char: '_', attr: white }, { char: '_', attr: red }, { char: '/', attr: white }, { char: ')', attr: red }],
+                    [{ char: '(', attr: red }, { char: '_', attr: white }, { char: '|', attr: red }, U, U],
+                    [U, U, { char: '|', attr: white }, U, U],
+                    [U, U, { char: '|', attr: red }, U, U],
+                    [U, U, { char: '|', attr: white }, U, U],
+                    [U, U, { char: '|', attr: red }, U, U]
+                ],
+                [
+                    [U, { char: '_', attr: white }, { char: '_', attr: red }, { char: '/', attr: white }, { char: ')', attr: red }],
+                    [{ char: '(', attr: red }, { char: '_', attr: white }, { char: '|', attr: red }, U, U],
+                    [U, U, { char: '|', attr: white }, U, U],
+                    [U, U, { char: '|', attr: red }, U, U],
+                    [U, U, { char: '|', attr: white }, U, U],
+                    [U, U, { char: '|', attr: red }, U, U]
+                ]
+            ]
+        };
+    },
+    createGummyBear: function () {
+        var body = makeAttr(LIGHTGREEN, BG_BLACK);
+        var bodyDark = makeAttr(GREEN, BG_BLACK);
+        var eye = makeAttr(WHITE, BG_BLACK);
+        var U = null;
+        return {
+            name: 'gummy_bear',
+            variants: [
+                [
+                    [{ char: '(', attr: body }, { char: ')', attr: body }],
+                    [{ char: GLYPH.LOWER_HALF, attr: bodyDark }, { char: GLYPH.LOWER_HALF, attr: bodyDark }]
+                ],
+                [
+                    [{ char: 'o', attr: body }, U, { char: 'o', attr: body }],
+                    [{ char: '(', attr: body }, { char: GLYPH.FULL_BLOCK, attr: bodyDark }, { char: ')', attr: body }],
+                    [{ char: '/', attr: bodyDark }, U, { char: '\\', attr: bodyDark }]
+                ],
+                [
+                    [{ char: '(', attr: body }, { char: ')', attr: body }, U, { char: '(', attr: body }, { char: ')', attr: body }],
+                    [U, { char: '(', attr: body }, { char: GLYPH.FULL_BLOCK, attr: bodyDark }, { char: ')', attr: body }, U],
+                    [U, { char: '(', attr: bodyDark }, { char: GLYPH.FULL_BLOCK, attr: body }, { char: ')', attr: bodyDark }, U],
+                    [U, { char: '/', attr: bodyDark }, U, { char: '\\', attr: bodyDark }, U]
+                ],
+                [
+                    [{ char: '(', attr: body }, { char: ')', attr: body }, U, { char: '(', attr: body }, { char: ')', attr: body }],
+                    [U, { char: '(', attr: body }, { char: GLYPH.FULL_BLOCK, attr: bodyDark }, { char: ')', attr: body }, U],
+                    [U, { char: '.', attr: eye }, { char: 'u', attr: bodyDark }, { char: '.', attr: eye }, U],
+                    [U, { char: '(', attr: bodyDark }, { char: GLYPH.FULL_BLOCK, attr: body }, { char: ')', attr: bodyDark }, U],
+                    [U, { char: '/', attr: bodyDark }, U, { char: '\\', attr: bodyDark }, U]
+                ],
+                [
+                    [{ char: '(', attr: body }, { char: ')', attr: body }, U, { char: '(', attr: body }, { char: ')', attr: body }],
+                    [U, { char: '(', attr: body }, { char: GLYPH.FULL_BLOCK, attr: bodyDark }, { char: ')', attr: body }, U],
+                    [U, { char: '.', attr: eye }, { char: 'u', attr: bodyDark }, { char: '.', attr: eye }, U],
+                    [U, { char: '(', attr: bodyDark }, { char: GLYPH.FULL_BLOCK, attr: body }, { char: ')', attr: bodyDark }, U],
+                    [U, { char: '/', attr: bodyDark }, U, { char: '\\', attr: bodyDark }, U]
+                ]
+            ]
+        };
+    },
+    createCupcake: function () {
+        var frosting = makeAttr(LIGHTMAGENTA, BG_BLACK);
+        var frostingAlt = makeAttr(LIGHTCYAN, BG_BLACK);
+        var wrapper = makeAttr(BROWN, BG_BLACK);
+        var cherry = makeAttr(LIGHTRED, BG_BLACK);
+        var U = null;
+        return {
+            name: 'cupcake',
+            variants: [
+                [
+                    [{ char: GLYPH.UPPER_HALF, attr: frosting }, { char: GLYPH.UPPER_HALF, attr: frosting }],
+                    [{ char: GLYPH.FULL_BLOCK, attr: wrapper }, { char: GLYPH.FULL_BLOCK, attr: wrapper }]
+                ],
+                [
+                    [U, { char: 'o', attr: cherry }, U],
+                    [{ char: '~', attr: frosting }, { char: '~', attr: frostingAlt }, { char: '~', attr: frosting }],
+                    [{ char: '\\', attr: wrapper }, { char: GLYPH.FULL_BLOCK, attr: wrapper }, { char: '/', attr: wrapper }]
+                ],
+                [
+                    [U, { char: 'o', attr: cherry }, U, U],
+                    [{ char: '~', attr: frosting }, { char: '~', attr: frostingAlt }, { char: '~', attr: frosting }, { char: '~', attr: frostingAlt }],
+                    [{ char: '~', attr: frostingAlt }, { char: '~', attr: frosting }, { char: '~', attr: frostingAlt }, { char: '~', attr: frosting }],
+                    [{ char: '\\', attr: wrapper }, { char: GLYPH.FULL_BLOCK, attr: wrapper }, { char: GLYPH.FULL_BLOCK, attr: wrapper }, { char: '/', attr: wrapper }]
+                ],
+                [
+                    [U, U, { char: 'o', attr: cherry }, U, U],
+                    [U, { char: '/', attr: frosting }, { char: '~', attr: frostingAlt }, { char: '\\', attr: frosting }, U],
+                    [{ char: '~', attr: frosting }, { char: '~', attr: frostingAlt }, { char: '~', attr: frosting }, { char: '~', attr: frostingAlt }, { char: '~', attr: frosting }],
+                    [{ char: '~', attr: frostingAlt }, { char: '~', attr: frosting }, { char: '~', attr: frostingAlt }, { char: '~', attr: frosting }, { char: '~', attr: frostingAlt }],
+                    [U, { char: '\\', attr: wrapper }, { char: GLYPH.FULL_BLOCK, attr: wrapper }, { char: '/', attr: wrapper }, U]
+                ],
+                [
+                    [U, U, { char: 'o', attr: cherry }, U, U],
+                    [U, { char: '/', attr: frosting }, { char: '~', attr: frostingAlt }, { char: '\\', attr: frosting }, U],
+                    [{ char: '~', attr: frosting }, { char: '~', attr: frostingAlt }, { char: '~', attr: frosting }, { char: '~', attr: frostingAlt }, { char: '~', attr: frosting }],
+                    [{ char: '~', attr: frostingAlt }, { char: '~', attr: frosting }, { char: '~', attr: frostingAlt }, { char: '~', attr: frosting }, { char: '~', attr: frostingAlt }],
+                    [U, { char: '\\', attr: wrapper }, { char: GLYPH.FULL_BLOCK, attr: wrapper }, { char: '/', attr: wrapper }, U]
+                ]
+            ]
+        };
+    },
+    createIceCream: function () {
+        var scoop1 = makeAttr(LIGHTMAGENTA, BG_BLACK);
+        var scoop2 = makeAttr(BROWN, BG_BLACK);
+        var scoop3 = makeAttr(WHITE, BG_BLACK);
+        var cone = makeAttr(YELLOW, BG_BLACK);
+        var coneDark = makeAttr(BROWN, BG_BLACK);
+        var U = null;
+        return {
+            name: 'ice_cream',
+            variants: [
+                [
+                    [{ char: '(', attr: scoop1 }, { char: ')', attr: scoop1 }],
+                    [{ char: '\\', attr: cone }, { char: '/', attr: cone }],
+                    [U, { char: 'V', attr: coneDark }]
+                ],
+                [
+                    [U, { char: '@', attr: scoop1 }, U],
+                    [{ char: '(', attr: scoop2 }, { char: '@', attr: scoop3 }, { char: ')', attr: scoop2 }],
+                    [U, { char: '\\', attr: cone }, { char: '/', attr: cone }],
+                    [U, U, { char: 'V', attr: coneDark }]
+                ],
+                [
+                    [U, { char: '@', attr: scoop1 }, { char: '@', attr: scoop1 }, U],
+                    [{ char: '(', attr: scoop2 }, { char: '@', attr: scoop3 }, { char: '@', attr: scoop2 }, { char: ')', attr: scoop3 }],
+                    [U, { char: '(', attr: scoop2 }, { char: ')', attr: scoop3 }, U],
+                    [U, { char: '\\', attr: cone }, { char: '/', attr: cone }, U],
+                    [U, U, { char: 'V', attr: coneDark }, U]
+                ],
+                [
+                    [U, { char: '(', attr: scoop1 }, { char: '@', attr: scoop1 }, { char: ')', attr: scoop1 }, U],
+                    [{ char: '(', attr: scoop2 }, { char: '@', attr: scoop2 }, { char: '@', attr: scoop3 }, { char: '@', attr: scoop2 }, { char: ')', attr: scoop3 }],
+                    [U, { char: '(', attr: scoop3 }, { char: '@', attr: scoop2 }, { char: ')', attr: scoop3 }, U],
+                    [U, { char: '\\', attr: cone }, { char: '#', attr: cone }, { char: '/', attr: cone }, U],
+                    [U, U, { char: '\\', attr: coneDark }, { char: '/', attr: coneDark }, U],
+                    [U, U, U, { char: 'V', attr: coneDark }, U]
+                ],
+                [
+                    [U, { char: '(', attr: scoop1 }, { char: '@', attr: scoop1 }, { char: ')', attr: scoop1 }, U],
+                    [{ char: '(', attr: scoop2 }, { char: '@', attr: scoop2 }, { char: '@', attr: scoop3 }, { char: '@', attr: scoop2 }, { char: ')', attr: scoop3 }],
+                    [U, { char: '(', attr: scoop3 }, { char: '@', attr: scoop2 }, { char: ')', attr: scoop3 }, U],
+                    [U, { char: '\\', attr: cone }, { char: '#', attr: cone }, { char: '/', attr: cone }, U],
+                    [U, U, { char: '\\', attr: coneDark }, { char: '/', attr: coneDark }, U],
+                    [U, U, U, { char: 'V', attr: coneDark }, U]
+                ]
+            ]
+        };
+    },
+    createCottonCandy: function () {
+        var fluff1 = makeAttr(LIGHTMAGENTA, BG_BLACK);
+        var fluff2 = makeAttr(LIGHTCYAN, BG_BLACK);
+        var stick = makeAttr(WHITE, BG_BLACK);
+        var U = null;
+        return {
+            name: 'cotton_candy',
+            variants: [
+                [
+                    [{ char: '(', attr: fluff1 }, { char: ')', attr: fluff2 }],
+                    [{ char: '@', attr: fluff2 }, { char: '@', attr: fluff1 }],
+                    [U, { char: '|', attr: stick }]
+                ],
+                [
+                    [{ char: '(', attr: fluff1 }, { char: '@', attr: fluff2 }, { char: ')', attr: fluff1 }],
+                    [{ char: '@', attr: fluff2 }, { char: '@', attr: fluff1 }, { char: '@', attr: fluff2 }],
+                    [U, { char: '@', attr: fluff1 }, U],
+                    [U, { char: '|', attr: stick }, U]
+                ],
+                [
+                    [U, { char: '(', attr: fluff1 }, { char: '@', attr: fluff2 }, { char: ')', attr: fluff1 }, U],
+                    [{ char: '(', attr: fluff2 }, { char: '@', attr: fluff1 }, { char: '@', attr: fluff2 }, { char: '@', attr: fluff1 }, { char: ')', attr: fluff2 }],
+                    [{ char: '@', attr: fluff1 }, { char: '@', attr: fluff2 }, { char: '@', attr: fluff1 }, { char: '@', attr: fluff2 }, { char: '@', attr: fluff1 }],
+                    [U, { char: '@', attr: fluff2 }, { char: '@', attr: fluff1 }, { char: '@', attr: fluff2 }, U],
+                    [U, U, { char: '|', attr: stick }, U, U]
+                ],
+                [
+                    [U, { char: '(', attr: fluff2 }, { char: '@', attr: fluff1 }, { char: '@', attr: fluff2 }, { char: ')', attr: fluff1 }, U],
+                    [{ char: '(', attr: fluff1 }, { char: '@', attr: fluff2 }, { char: '@', attr: fluff1 }, { char: '@', attr: fluff2 }, { char: '@', attr: fluff1 }, { char: ')', attr: fluff2 }],
+                    [{ char: '@', attr: fluff2 }, { char: '@', attr: fluff1 }, { char: '@', attr: fluff2 }, { char: '@', attr: fluff1 }, { char: '@', attr: fluff2 }, { char: '@', attr: fluff1 }],
+                    [{ char: '@', attr: fluff1 }, { char: '@', attr: fluff2 }, { char: '@', attr: fluff1 }, { char: '@', attr: fluff2 }, { char: '@', attr: fluff1 }, { char: '@', attr: fluff2 }],
+                    [U, { char: '@', attr: fluff2 }, { char: '@', attr: fluff1 }, { char: '@', attr: fluff2 }, { char: '@', attr: fluff1 }, U],
+                    [U, U, U, { char: '|', attr: stick }, U, U]
+                ],
+                [
+                    [U, { char: '(', attr: fluff2 }, { char: '@', attr: fluff1 }, { char: '@', attr: fluff2 }, { char: ')', attr: fluff1 }, U],
+                    [{ char: '(', attr: fluff1 }, { char: '@', attr: fluff2 }, { char: '@', attr: fluff1 }, { char: '@', attr: fluff2 }, { char: '@', attr: fluff1 }, { char: ')', attr: fluff2 }],
+                    [{ char: '@', attr: fluff2 }, { char: '@', attr: fluff1 }, { char: '@', attr: fluff2 }, { char: '@', attr: fluff1 }, { char: '@', attr: fluff2 }, { char: '@', attr: fluff1 }],
+                    [{ char: '@', attr: fluff1 }, { char: '@', attr: fluff2 }, { char: '@', attr: fluff1 }, { char: '@', attr: fluff2 }, { char: '@', attr: fluff1 }, { char: '@', attr: fluff2 }],
+                    [U, { char: '@', attr: fluff2 }, { char: '@', attr: fluff1 }, { char: '@', attr: fluff2 }, { char: '@', attr: fluff1 }, U],
+                    [U, U, U, { char: '|', attr: stick }, U, U]
+                ]
+            ]
+        };
+    }
+};
+registerRoadsideSprite('lollipop', CandySprites.createLollipop);
+registerRoadsideSprite('candy_cane', CandySprites.createCandyCane);
+registerRoadsideSprite('gummy_bear', CandySprites.createGummyBear);
+registerRoadsideSprite('cupcake', CandySprites.createCupcake);
+registerRoadsideSprite('ice_cream', CandySprites.createIceCream);
+registerRoadsideSprite('cotton_candy', CandySprites.createCottonCandy);
+"use strict";
+var SpaceSprites = {
+    createStar: function () {
+        var core = makeAttr(WHITE, BG_BLACK);
+        var glow = makeAttr(YELLOW, BG_BLACK);
+        var glowDim = makeAttr(LIGHTCYAN, BG_BLACK);
+        var U = null;
+        return {
+            name: 'star',
+            variants: [
+                [
+                    [{ char: '*', attr: core }]
+                ],
+                [
+                    [U, { char: '.', attr: glow }, U],
+                    [{ char: '-', attr: glow }, { char: '*', attr: core }, { char: '-', attr: glow }],
+                    [U, { char: "'", attr: glow }, U]
+                ],
+                [
+                    [U, U, { char: '.', attr: glowDim }, U, U],
+                    [U, { char: '\\', attr: glow }, { char: '|', attr: core }, { char: '/', attr: glow }, U],
+                    [{ char: '-', attr: glow }, { char: '-', attr: core }, { char: '*', attr: core }, { char: '-', attr: core }, { char: '-', attr: glow }],
+                    [U, { char: '/', attr: glow }, { char: '|', attr: core }, { char: '\\', attr: glow }, U],
+                    [U, U, { char: "'", attr: glowDim }, U, U]
+                ],
+                [
+                    [U, U, { char: '.', attr: glowDim }, U, U],
+                    [U, { char: '\\', attr: glow }, { char: '|', attr: core }, { char: '/', attr: glow }, U],
+                    [{ char: '-', attr: glow }, { char: '-', attr: core }, { char: '*', attr: core }, { char: '-', attr: core }, { char: '-', attr: glow }],
+                    [U, { char: '/', attr: glow }, { char: '|', attr: core }, { char: '\\', attr: glow }, U],
+                    [U, U, { char: "'", attr: glowDim }, U, U]
+                ],
+                [
+                    [U, U, { char: '.', attr: glowDim }, U, U],
+                    [U, { char: '\\', attr: glow }, { char: '|', attr: core }, { char: '/', attr: glow }, U],
+                    [{ char: '-', attr: glow }, { char: '-', attr: core }, { char: '*', attr: core }, { char: '-', attr: core }, { char: '-', attr: glow }],
+                    [U, { char: '/', attr: glow }, { char: '|', attr: core }, { char: '\\', attr: glow }, U],
+                    [U, U, { char: "'", attr: glowDim }, U, U]
+                ]
+            ]
+        };
+    },
+    createMoon: function () {
+        var moonLight = makeAttr(WHITE, BG_BLACK);
+        var moonMid = makeAttr(LIGHTGRAY, BG_BLACK);
+        var moonDark = makeAttr(DARKGRAY, BG_BLACK);
+        var U = null;
+        return {
+            name: 'moon',
+            variants: [
+                [
+                    [{ char: '(', attr: moonLight }, { char: ')', attr: moonMid }],
+                    [{ char: '(', attr: moonMid }, { char: ')', attr: moonDark }]
+                ],
+                [
+                    [U, { char: '_', attr: moonLight }, U],
+                    [{ char: '(', attr: moonLight }, { char: ' ', attr: moonMid }, { char: ')', attr: moonMid }],
+                    [U, { char: '-', attr: moonDark }, U]
+                ],
+                [
+                    [U, { char: '_', attr: moonLight }, { char: '_', attr: moonLight }, { char: '_', attr: moonMid }, U],
+                    [{ char: '/', attr: moonLight }, { char: ' ', attr: moonLight }, { char: 'o', attr: moonMid }, { char: ' ', attr: moonMid }, { char: '\\', attr: moonMid }],
+                    [{ char: '\\', attr: moonMid }, { char: ' ', attr: moonMid }, { char: ' ', attr: moonDark }, { char: 'o', attr: moonDark }, { char: '/', attr: moonDark }],
+                    [U, { char: '-', attr: moonDark }, { char: '-', attr: moonDark }, { char: '-', attr: moonDark }, U]
+                ],
+                [
+                    [U, { char: '_', attr: moonLight }, { char: '_', attr: moonLight }, { char: '_', attr: moonLight }, { char: '_', attr: moonMid }, U],
+                    [{ char: '/', attr: moonLight }, { char: ' ', attr: moonLight }, { char: ' ', attr: moonLight }, { char: 'o', attr: moonMid }, { char: ' ', attr: moonMid }, { char: '\\', attr: moonMid }],
+                    [{ char: '|', attr: moonLight }, { char: ' ', attr: moonMid }, { char: ' ', attr: moonMid }, { char: ' ', attr: moonMid }, { char: ' ', attr: moonDark }, { char: '|', attr: moonDark }],
+                    [{ char: '\\', attr: moonMid }, { char: ' ', attr: moonDark }, { char: 'o', attr: moonDark }, { char: ' ', attr: moonDark }, { char: ' ', attr: moonDark }, { char: '/', attr: moonDark }],
+                    [U, { char: '-', attr: moonDark }, { char: '-', attr: moonDark }, { char: '-', attr: moonDark }, { char: '-', attr: moonDark }, U]
+                ],
+                [
+                    [U, { char: '_', attr: moonLight }, { char: '_', attr: moonLight }, { char: '_', attr: moonLight }, { char: '_', attr: moonMid }, U],
+                    [{ char: '/', attr: moonLight }, { char: ' ', attr: moonLight }, { char: ' ', attr: moonLight }, { char: 'o', attr: moonMid }, { char: ' ', attr: moonMid }, { char: '\\', attr: moonMid }],
+                    [{ char: '|', attr: moonLight }, { char: ' ', attr: moonMid }, { char: ' ', attr: moonMid }, { char: ' ', attr: moonMid }, { char: ' ', attr: moonDark }, { char: '|', attr: moonDark }],
+                    [{ char: '\\', attr: moonMid }, { char: ' ', attr: moonDark }, { char: 'o', attr: moonDark }, { char: ' ', attr: moonDark }, { char: ' ', attr: moonDark }, { char: '/', attr: moonDark }],
+                    [U, { char: '-', attr: moonDark }, { char: '-', attr: moonDark }, { char: '-', attr: moonDark }, { char: '-', attr: moonDark }, U]
+                ]
+            ]
+        };
+    },
+    createPlanet: function () {
+        var planet = makeAttr(LIGHTRED, BG_BLACK);
+        var planetDark = makeAttr(RED, BG_BLACK);
+        var ring = makeAttr(YELLOW, BG_BLACK);
+        var ringDark = makeAttr(BROWN, BG_BLACK);
+        var U = null;
+        return {
+            name: 'planet',
+            variants: [
+                [
+                    [{ char: '(', attr: planet }, { char: ')', attr: planetDark }],
+                    [{ char: '-', attr: ring }, { char: '-', attr: ringDark }]
+                ],
+                [
+                    [U, { char: '(', attr: planet }, { char: ')', attr: planetDark }, U],
+                    [{ char: '-', attr: ring }, { char: '-', attr: ring }, { char: '-', attr: ringDark }, { char: '-', attr: ringDark }],
+                    [U, { char: '(', attr: planetDark }, { char: ')', attr: planetDark }, U]
+                ],
+                [
+                    [U, { char: '/', attr: planet }, { char: GLYPH.FULL_BLOCK, attr: planet }, { char: '\\', attr: planetDark }, U],
+                    [{ char: '-', attr: ring }, { char: GLYPH.FULL_BLOCK, attr: planet }, { char: GLYPH.FULL_BLOCK, attr: planetDark }, { char: GLYPH.FULL_BLOCK, attr: planetDark }, { char: '-', attr: ringDark }],
+                    [{ char: '-', attr: ringDark }, { char: GLYPH.FULL_BLOCK, attr: planetDark }, { char: GLYPH.FULL_BLOCK, attr: planetDark }, { char: GLYPH.FULL_BLOCK, attr: planetDark }, { char: '-', attr: ringDark }],
+                    [U, { char: '\\', attr: planetDark }, { char: GLYPH.FULL_BLOCK, attr: planetDark }, { char: '/', attr: planetDark }, U]
+                ],
+                [
+                    [U, U, { char: '/', attr: planet }, { char: GLYPH.FULL_BLOCK, attr: planet }, { char: '\\', attr: planetDark }, U, U],
+                    [U, { char: '/', attr: planet }, { char: GLYPH.FULL_BLOCK, attr: planet }, { char: GLYPH.FULL_BLOCK, attr: planet }, { char: GLYPH.FULL_BLOCK, attr: planetDark }, { char: '\\', attr: planetDark }, U],
+                    [{ char: '-', attr: ring }, { char: '-', attr: ring }, { char: GLYPH.FULL_BLOCK, attr: planetDark }, { char: GLYPH.FULL_BLOCK, attr: planetDark }, { char: GLYPH.FULL_BLOCK, attr: planetDark }, { char: '-', attr: ringDark }, { char: '-', attr: ringDark }],
+                    [U, { char: '\\', attr: planetDark }, { char: GLYPH.FULL_BLOCK, attr: planetDark }, { char: GLYPH.FULL_BLOCK, attr: planetDark }, { char: GLYPH.FULL_BLOCK, attr: planetDark }, { char: '/', attr: planetDark }, U],
+                    [U, U, { char: '\\', attr: planetDark }, { char: GLYPH.FULL_BLOCK, attr: planetDark }, { char: '/', attr: planetDark }, U, U]
+                ],
+                [
+                    [U, U, { char: '/', attr: planet }, { char: GLYPH.FULL_BLOCK, attr: planet }, { char: '\\', attr: planetDark }, U, U],
+                    [U, { char: '/', attr: planet }, { char: GLYPH.FULL_BLOCK, attr: planet }, { char: GLYPH.FULL_BLOCK, attr: planet }, { char: GLYPH.FULL_BLOCK, attr: planetDark }, { char: '\\', attr: planetDark }, U],
+                    [{ char: '-', attr: ring }, { char: '-', attr: ring }, { char: GLYPH.FULL_BLOCK, attr: planetDark }, { char: GLYPH.FULL_BLOCK, attr: planetDark }, { char: GLYPH.FULL_BLOCK, attr: planetDark }, { char: '-', attr: ringDark }, { char: '-', attr: ringDark }],
+                    [U, { char: '\\', attr: planetDark }, { char: GLYPH.FULL_BLOCK, attr: planetDark }, { char: GLYPH.FULL_BLOCK, attr: planetDark }, { char: GLYPH.FULL_BLOCK, attr: planetDark }, { char: '/', attr: planetDark }, U],
+                    [U, U, { char: '\\', attr: planetDark }, { char: GLYPH.FULL_BLOCK, attr: planetDark }, { char: '/', attr: planetDark }, U, U]
+                ]
+            ]
+        };
+    },
+    createComet: function () {
+        var core = makeAttr(WHITE, BG_BLACK);
+        var coreGlow = makeAttr(LIGHTCYAN, BG_BLACK);
+        var tail1 = makeAttr(LIGHTBLUE, BG_BLACK);
+        var tail2 = makeAttr(BLUE, BG_BLACK);
+        var U = null;
+        return {
+            name: 'comet',
+            variants: [
+                [
+                    [{ char: '-', attr: tail2 }, { char: '=', attr: tail1 }, { char: '*', attr: core }]
+                ],
+                [
+                    [U, U, { char: '/', attr: coreGlow }, { char: '*', attr: core }],
+                    [{ char: '-', attr: tail2 }, { char: '~', attr: tail1 }, { char: '\\', attr: coreGlow }, U]
+                ],
+                [
+                    [U, U, U, { char: '/', attr: coreGlow }, { char: 'O', attr: core }, { char: ')', attr: coreGlow }],
+                    [{ char: '-', attr: tail2 }, { char: '~', attr: tail2 }, { char: '=', attr: tail1 }, { char: '=', attr: coreGlow }, { char: '\\', attr: coreGlow }, U],
+                    [U, U, U, { char: '~', attr: tail1 }, U, U]
+                ],
+                [
+                    [U, U, U, U, { char: '.', attr: coreGlow }, { char: '/', attr: coreGlow }, { char: '@', attr: core }, { char: ')', attr: coreGlow }],
+                    [{ char: '-', attr: tail2 }, { char: '-', attr: tail2 }, { char: '~', attr: tail1 }, { char: '=', attr: tail1 }, { char: '=', attr: coreGlow }, { char: '@', attr: core }, { char: ')', attr: coreGlow }, U],
+                    [U, U, { char: '~', attr: tail2 }, { char: '~', attr: tail1 }, { char: '=', attr: tail1 }, { char: '\\', attr: coreGlow }, U, U],
+                    [U, U, U, U, { char: '~', attr: tail1 }, U, U, U]
+                ],
+                [
+                    [U, U, U, U, { char: '.', attr: coreGlow }, { char: '/', attr: coreGlow }, { char: '@', attr: core }, { char: ')', attr: coreGlow }],
+                    [{ char: '-', attr: tail2 }, { char: '-', attr: tail2 }, { char: '~', attr: tail1 }, { char: '=', attr: tail1 }, { char: '=', attr: coreGlow }, { char: '@', attr: core }, { char: ')', attr: coreGlow }, U],
+                    [U, U, { char: '~', attr: tail2 }, { char: '~', attr: tail1 }, { char: '=', attr: tail1 }, { char: '\\', attr: coreGlow }, U, U],
+                    [U, U, U, U, { char: '~', attr: tail1 }, U, U, U]
+                ]
+            ]
+        };
+    },
+    createNebula: function () {
+        var gas1 = makeAttr(LIGHTMAGENTA, BG_BLACK);
+        var gas2 = makeAttr(MAGENTA, BG_BLACK);
+        var gas3 = makeAttr(LIGHTBLUE, BG_BLACK);
+        var gas4 = makeAttr(BLUE, BG_BLACK);
+        var star = makeAttr(WHITE, BG_BLACK);
+        var U = null;
+        return {
+            name: 'nebula',
+            variants: [
+                [
+                    [{ char: GLYPH.LIGHT_SHADE, attr: gas1 }, { char: GLYPH.MEDIUM_SHADE, attr: gas2 }, { char: GLYPH.LIGHT_SHADE, attr: gas3 }],
+                    [{ char: GLYPH.MEDIUM_SHADE, attr: gas3 }, { char: '*', attr: star }, { char: GLYPH.MEDIUM_SHADE, attr: gas1 }]
+                ],
+                [
+                    [U, { char: GLYPH.LIGHT_SHADE, attr: gas1 }, { char: GLYPH.LIGHT_SHADE, attr: gas2 }, U],
+                    [{ char: GLYPH.MEDIUM_SHADE, attr: gas2 }, { char: GLYPH.MEDIUM_SHADE, attr: gas1 }, { char: '*', attr: star }, { char: GLYPH.MEDIUM_SHADE, attr: gas3 }],
+                    [U, { char: GLYPH.LIGHT_SHADE, attr: gas3 }, { char: GLYPH.LIGHT_SHADE, attr: gas4 }, U]
+                ],
+                [
+                    [U, { char: GLYPH.LIGHT_SHADE, attr: gas1 }, { char: GLYPH.MEDIUM_SHADE, attr: gas2 }, { char: GLYPH.LIGHT_SHADE, attr: gas1 }, { char: GLYPH.LIGHT_SHADE, attr: gas3 }, U],
+                    [{ char: GLYPH.LIGHT_SHADE, attr: gas2 }, { char: GLYPH.MEDIUM_SHADE, attr: gas1 }, { char: '*', attr: star }, { char: GLYPH.MEDIUM_SHADE, attr: gas2 }, { char: GLYPH.MEDIUM_SHADE, attr: gas3 }, { char: GLYPH.LIGHT_SHADE, attr: gas4 }],
+                    [{ char: GLYPH.MEDIUM_SHADE, attr: gas3 }, { char: GLYPH.MEDIUM_SHADE, attr: gas2 }, { char: GLYPH.MEDIUM_SHADE, attr: gas1 }, { char: '*', attr: star }, { char: GLYPH.LIGHT_SHADE, attr: gas4 }, { char: GLYPH.LIGHT_SHADE, attr: gas3 }],
+                    [U, { char: GLYPH.LIGHT_SHADE, attr: gas4 }, { char: GLYPH.LIGHT_SHADE, attr: gas3 }, { char: GLYPH.MEDIUM_SHADE, attr: gas4 }, { char: GLYPH.LIGHT_SHADE, attr: gas3 }, U]
+                ],
+                [
+                    [U, U, { char: GLYPH.LIGHT_SHADE, attr: gas1 }, { char: GLYPH.MEDIUM_SHADE, attr: gas2 }, { char: GLYPH.LIGHT_SHADE, attr: gas1 }, U, U],
+                    [U, { char: GLYPH.MEDIUM_SHADE, attr: gas2 }, { char: GLYPH.MEDIUM_SHADE, attr: gas1 }, { char: '*', attr: star }, { char: GLYPH.MEDIUM_SHADE, attr: gas2 }, { char: GLYPH.LIGHT_SHADE, attr: gas3 }, U],
+                    [{ char: GLYPH.LIGHT_SHADE, attr: gas1 }, { char: GLYPH.MEDIUM_SHADE, attr: gas2 }, { char: GLYPH.MEDIUM_SHADE, attr: gas1 }, { char: GLYPH.MEDIUM_SHADE, attr: gas2 }, { char: '*', attr: star }, { char: GLYPH.MEDIUM_SHADE, attr: gas3 }, { char: GLYPH.LIGHT_SHADE, attr: gas4 }],
+                    [U, { char: GLYPH.LIGHT_SHADE, attr: gas3 }, { char: GLYPH.MEDIUM_SHADE, attr: gas4 }, { char: GLYPH.MEDIUM_SHADE, attr: gas3 }, { char: GLYPH.MEDIUM_SHADE, attr: gas4 }, { char: GLYPH.LIGHT_SHADE, attr: gas3 }, U],
+                    [U, U, { char: GLYPH.LIGHT_SHADE, attr: gas4 }, { char: GLYPH.LIGHT_SHADE, attr: gas3 }, { char: GLYPH.LIGHT_SHADE, attr: gas4 }, U, U]
+                ],
+                [
+                    [U, U, { char: GLYPH.LIGHT_SHADE, attr: gas1 }, { char: GLYPH.MEDIUM_SHADE, attr: gas2 }, { char: GLYPH.LIGHT_SHADE, attr: gas1 }, U, U],
+                    [U, { char: GLYPH.MEDIUM_SHADE, attr: gas2 }, { char: GLYPH.MEDIUM_SHADE, attr: gas1 }, { char: '*', attr: star }, { char: GLYPH.MEDIUM_SHADE, attr: gas2 }, { char: GLYPH.LIGHT_SHADE, attr: gas3 }, U],
+                    [{ char: GLYPH.LIGHT_SHADE, attr: gas1 }, { char: GLYPH.MEDIUM_SHADE, attr: gas2 }, { char: GLYPH.MEDIUM_SHADE, attr: gas1 }, { char: GLYPH.MEDIUM_SHADE, attr: gas2 }, { char: '*', attr: star }, { char: GLYPH.MEDIUM_SHADE, attr: gas3 }, { char: GLYPH.LIGHT_SHADE, attr: gas4 }],
+                    [U, { char: GLYPH.LIGHT_SHADE, attr: gas3 }, { char: GLYPH.MEDIUM_SHADE, attr: gas4 }, { char: GLYPH.MEDIUM_SHADE, attr: gas3 }, { char: GLYPH.MEDIUM_SHADE, attr: gas4 }, { char: GLYPH.LIGHT_SHADE, attr: gas3 }, U],
+                    [U, U, { char: GLYPH.LIGHT_SHADE, attr: gas4 }, { char: GLYPH.LIGHT_SHADE, attr: gas3 }, { char: GLYPH.LIGHT_SHADE, attr: gas4 }, U, U]
+                ]
+            ]
+        };
+    },
+    createSatellite: function () {
+        var body = makeAttr(LIGHTGRAY, BG_BLACK);
+        var bodyDark = makeAttr(DARKGRAY, BG_BLACK);
+        var panel = makeAttr(LIGHTBLUE, BG_BLACK);
+        var panelDark = makeAttr(BLUE, BG_BLACK);
+        var antenna = makeAttr(WHITE, BG_BLACK);
+        var U = null;
+        return {
+            name: 'satellite',
+            variants: [
+                [
+                    [{ char: '=', attr: panel }, { char: '[', attr: body }, { char: '=', attr: panel }],
+                    [U, { char: '|', attr: antenna }, U]
+                ],
+                [
+                    [U, U, { char: '/', attr: antenna }, U, U],
+                    [{ char: '=', attr: panel }, { char: '=', attr: panelDark }, { char: '[', attr: body }, { char: '=', attr: panelDark }, { char: '=', attr: panel }],
+                    [U, U, { char: GLYPH.LOWER_HALF, attr: bodyDark }, U, U]
+                ],
+                [
+                    [U, U, U, { char: '/', attr: antenna }, { char: ')', attr: antenna }, U, U],
+                    [{ char: '/', attr: panel }, { char: '#', attr: panel }, { char: '\\', attr: panelDark }, { char: '[', attr: body }, { char: '/', attr: panelDark }, { char: '#', attr: panel }, { char: '\\', attr: panel }],
+                    [{ char: '\\', attr: panelDark }, { char: '#', attr: panelDark }, { char: '/', attr: panel }, { char: ']', attr: bodyDark }, { char: '\\', attr: panel }, { char: '#', attr: panelDark }, { char: '/', attr: panelDark }],
+                    [U, U, U, { char: GLYPH.LOWER_HALF, attr: bodyDark }, U, U, U]
+                ],
+                [
+                    [U, U, U, U, { char: '/', attr: antenna }, { char: ')', attr: antenna }, U, U, U],
+                    [U, U, U, U, { char: '[', attr: body }, { char: ']', attr: body }, U, U, U],
+                    [{ char: '/', attr: panel }, { char: '#', attr: panel }, { char: '#', attr: panelDark }, { char: '/', attr: panelDark }, { char: '[', attr: body }, { char: ']', attr: bodyDark }, { char: '\\', attr: panelDark }, { char: '#', attr: panel }, { char: '\\', attr: panel }],
+                    [{ char: '\\', attr: panelDark }, { char: '#', attr: panelDark }, { char: '#', attr: panel }, { char: '\\', attr: panel }, { char: '[', attr: bodyDark }, { char: ']', attr: bodyDark }, { char: '/', attr: panel }, { char: '#', attr: panelDark }, { char: '/', attr: panelDark }],
+                    [U, U, U, U, { char: GLYPH.LOWER_HALF, attr: bodyDark }, { char: GLYPH.LOWER_HALF, attr: bodyDark }, U, U, U]
+                ],
+                [
+                    [U, U, U, U, { char: '/', attr: antenna }, { char: ')', attr: antenna }, U, U, U],
+                    [U, U, U, U, { char: '[', attr: body }, { char: ']', attr: body }, U, U, U],
+                    [{ char: '/', attr: panel }, { char: '#', attr: panel }, { char: '#', attr: panelDark }, { char: '/', attr: panelDark }, { char: '[', attr: body }, { char: ']', attr: bodyDark }, { char: '\\', attr: panelDark }, { char: '#', attr: panel }, { char: '\\', attr: panel }],
+                    [{ char: '\\', attr: panelDark }, { char: '#', attr: panelDark }, { char: '#', attr: panel }, { char: '\\', attr: panel }, { char: '[', attr: bodyDark }, { char: ']', attr: bodyDark }, { char: '/', attr: panel }, { char: '#', attr: panelDark }, { char: '/', attr: panelDark }],
+                    [U, U, U, U, { char: GLYPH.LOWER_HALF, attr: bodyDark }, { char: GLYPH.LOWER_HALF, attr: bodyDark }, U, U, U]
+                ]
+            ]
+        };
+    }
+};
+registerRoadsideSprite('star', SpaceSprites.createStar);
+registerRoadsideSprite('moon', SpaceSprites.createMoon);
+registerRoadsideSprite('planet', SpaceSprites.createPlanet);
+registerRoadsideSprite('comet', SpaceSprites.createComet);
+registerRoadsideSprite('nebula', SpaceSprites.createNebula);
+registerRoadsideSprite('satellite', SpaceSprites.createSatellite);
+"use strict";
+var CastleSprites = {
+    createTower: function () {
+        var stone = makeAttr(DARKGRAY, BG_BLACK);
+        var stoneDark = makeAttr(BLACK, BG_BLACK);
+        var stoneLight = makeAttr(LIGHTGRAY, BG_BLACK);
+        var roof = makeAttr(BROWN, BG_BLACK);
+        var window = makeAttr(YELLOW, BG_BLACK);
+        var U = null;
+        return {
+            name: 'tower',
+            variants: [
+                [
+                    [{ char: '/', attr: roof }, { char: '\\', attr: roof }],
+                    [{ char: GLYPH.FULL_BLOCK, attr: stone }, { char: GLYPH.FULL_BLOCK, attr: stone }],
+                    [{ char: GLYPH.FULL_BLOCK, attr: stoneDark }, { char: GLYPH.FULL_BLOCK, attr: stoneDark }],
+                    [{ char: GLYPH.FULL_BLOCK, attr: stone }, { char: GLYPH.FULL_BLOCK, attr: stone }]
+                ],
+                [
+                    [U, { char: '^', attr: roof }, U],
+                    [{ char: '/', attr: roof }, { char: GLYPH.FULL_BLOCK, attr: roof }, { char: '\\', attr: roof }],
+                    [{ char: GLYPH.FULL_BLOCK, attr: stone }, { char: ' ', attr: window }, { char: GLYPH.FULL_BLOCK, attr: stone }],
+                    [{ char: GLYPH.FULL_BLOCK, attr: stoneDark }, { char: GLYPH.FULL_BLOCK, attr: stone }, { char: GLYPH.FULL_BLOCK, attr: stoneDark }],
+                    [{ char: GLYPH.FULL_BLOCK, attr: stone }, { char: GLYPH.FULL_BLOCK, attr: stoneDark }, { char: GLYPH.FULL_BLOCK, attr: stone }]
+                ],
+                [
+                    [U, U, { char: '^', attr: roof }, U, U],
+                    [U, { char: '/', attr: roof }, { char: GLYPH.FULL_BLOCK, attr: roof }, { char: '\\', attr: roof }, U],
+                    [{ char: 'n', attr: stoneLight }, { char: 'n', attr: stone }, { char: 'n', attr: stoneLight }, { char: 'n', attr: stone }, { char: 'n', attr: stoneLight }],
+                    [{ char: GLYPH.FULL_BLOCK, attr: stone }, { char: GLYPH.FULL_BLOCK, attr: stoneDark }, { char: ' ', attr: window }, { char: GLYPH.FULL_BLOCK, attr: stoneDark }, { char: GLYPH.FULL_BLOCK, attr: stone }],
+                    [{ char: GLYPH.FULL_BLOCK, attr: stoneDark }, { char: GLYPH.FULL_BLOCK, attr: stone }, { char: GLYPH.FULL_BLOCK, attr: stoneDark }, { char: GLYPH.FULL_BLOCK, attr: stone }, { char: GLYPH.FULL_BLOCK, attr: stoneDark }],
+                    [{ char: GLYPH.FULL_BLOCK, attr: stone }, { char: GLYPH.FULL_BLOCK, attr: stoneDark }, { char: GLYPH.FULL_BLOCK, attr: stone }, { char: GLYPH.FULL_BLOCK, attr: stoneDark }, { char: GLYPH.FULL_BLOCK, attr: stone }]
+                ],
+                [
+                    [U, U, U, { char: '^', attr: roof }, U, U, U],
+                    [U, U, { char: '/', attr: roof }, { char: GLYPH.FULL_BLOCK, attr: roof }, { char: '\\', attr: roof }, U, U],
+                    [U, { char: '/', attr: roof }, { char: GLYPH.FULL_BLOCK, attr: roof }, { char: GLYPH.FULL_BLOCK, attr: roof }, { char: GLYPH.FULL_BLOCK, attr: roof }, { char: '\\', attr: roof }, U],
+                    [{ char: 'n', attr: stoneLight }, { char: 'n', attr: stone }, { char: 'n', attr: stoneLight }, { char: 'n', attr: stone }, { char: 'n', attr: stoneLight }, { char: 'n', attr: stone }, { char: 'n', attr: stoneLight }],
+                    [{ char: GLYPH.FULL_BLOCK, attr: stone }, { char: GLYPH.FULL_BLOCK, attr: stoneDark }, { char: GLYPH.FULL_BLOCK, attr: stone }, { char: ' ', attr: window }, { char: GLYPH.FULL_BLOCK, attr: stone }, { char: GLYPH.FULL_BLOCK, attr: stoneDark }, { char: GLYPH.FULL_BLOCK, attr: stone }],
+                    [{ char: GLYPH.FULL_BLOCK, attr: stoneDark }, { char: GLYPH.FULL_BLOCK, attr: stone }, { char: GLYPH.FULL_BLOCK, attr: stoneDark }, { char: GLYPH.FULL_BLOCK, attr: stone }, { char: GLYPH.FULL_BLOCK, attr: stoneDark }, { char: GLYPH.FULL_BLOCK, attr: stone }, { char: GLYPH.FULL_BLOCK, attr: stoneDark }],
+                    [{ char: GLYPH.FULL_BLOCK, attr: stone }, { char: GLYPH.FULL_BLOCK, attr: stoneDark }, { char: GLYPH.FULL_BLOCK, attr: stone }, { char: ' ', attr: window }, { char: GLYPH.FULL_BLOCK, attr: stone }, { char: GLYPH.FULL_BLOCK, attr: stoneDark }, { char: GLYPH.FULL_BLOCK, attr: stone }],
+                    [{ char: GLYPH.FULL_BLOCK, attr: stoneDark }, { char: GLYPH.FULL_BLOCK, attr: stone }, { char: GLYPH.FULL_BLOCK, attr: stoneDark }, { char: GLYPH.FULL_BLOCK, attr: stone }, { char: GLYPH.FULL_BLOCK, attr: stoneDark }, { char: GLYPH.FULL_BLOCK, attr: stone }, { char: GLYPH.FULL_BLOCK, attr: stoneDark }]
+                ],
+                [
+                    [U, U, U, { char: '^', attr: roof }, U, U, U],
+                    [U, U, { char: '/', attr: roof }, { char: GLYPH.FULL_BLOCK, attr: roof }, { char: '\\', attr: roof }, U, U],
+                    [U, { char: '/', attr: roof }, { char: GLYPH.FULL_BLOCK, attr: roof }, { char: GLYPH.FULL_BLOCK, attr: roof }, { char: GLYPH.FULL_BLOCK, attr: roof }, { char: '\\', attr: roof }, U],
+                    [{ char: 'n', attr: stoneLight }, { char: 'n', attr: stone }, { char: 'n', attr: stoneLight }, { char: 'n', attr: stone }, { char: 'n', attr: stoneLight }, { char: 'n', attr: stone }, { char: 'n', attr: stoneLight }],
+                    [{ char: GLYPH.FULL_BLOCK, attr: stone }, { char: GLYPH.FULL_BLOCK, attr: stoneDark }, { char: GLYPH.FULL_BLOCK, attr: stone }, { char: ' ', attr: window }, { char: GLYPH.FULL_BLOCK, attr: stone }, { char: GLYPH.FULL_BLOCK, attr: stoneDark }, { char: GLYPH.FULL_BLOCK, attr: stone }],
+                    [{ char: GLYPH.FULL_BLOCK, attr: stoneDark }, { char: GLYPH.FULL_BLOCK, attr: stone }, { char: GLYPH.FULL_BLOCK, attr: stoneDark }, { char: GLYPH.FULL_BLOCK, attr: stone }, { char: GLYPH.FULL_BLOCK, attr: stoneDark }, { char: GLYPH.FULL_BLOCK, attr: stone }, { char: GLYPH.FULL_BLOCK, attr: stoneDark }],
+                    [{ char: GLYPH.FULL_BLOCK, attr: stone }, { char: GLYPH.FULL_BLOCK, attr: stoneDark }, { char: GLYPH.FULL_BLOCK, attr: stone }, { char: ' ', attr: window }, { char: GLYPH.FULL_BLOCK, attr: stone }, { char: GLYPH.FULL_BLOCK, attr: stoneDark }, { char: GLYPH.FULL_BLOCK, attr: stone }],
+                    [{ char: GLYPH.FULL_BLOCK, attr: stoneDark }, { char: GLYPH.FULL_BLOCK, attr: stone }, { char: GLYPH.FULL_BLOCK, attr: stoneDark }, { char: GLYPH.FULL_BLOCK, attr: stone }, { char: GLYPH.FULL_BLOCK, attr: stoneDark }, { char: GLYPH.FULL_BLOCK, attr: stone }, { char: GLYPH.FULL_BLOCK, attr: stoneDark }]
+                ]
+            ]
+        };
+    },
+    createBattlement: function () {
+        var stone = makeAttr(DARKGRAY, BG_BLACK);
+        var stoneDark = makeAttr(BLACK, BG_BLACK);
+        var stoneLight = makeAttr(LIGHTGRAY, BG_BLACK);
+        var U = null;
+        return {
+            name: 'battlement',
+            variants: [
+                [
+                    [{ char: 'n', attr: stone }, U, { char: 'n', attr: stone }],
+                    [{ char: GLYPH.FULL_BLOCK, attr: stoneDark }, { char: GLYPH.FULL_BLOCK, attr: stone }, { char: GLYPH.FULL_BLOCK, attr: stoneDark }]
+                ],
+                [
+                    [{ char: 'n', attr: stoneLight }, U, { char: 'n', attr: stoneLight }, U],
+                    [{ char: GLYPH.FULL_BLOCK, attr: stone }, { char: GLYPH.FULL_BLOCK, attr: stone }, { char: GLYPH.FULL_BLOCK, attr: stone }, { char: GLYPH.FULL_BLOCK, attr: stone }],
+                    [{ char: GLYPH.FULL_BLOCK, attr: stoneDark }, { char: GLYPH.FULL_BLOCK, attr: stoneDark }, { char: GLYPH.FULL_BLOCK, attr: stoneDark }, { char: GLYPH.FULL_BLOCK, attr: stoneDark }]
+                ],
+                [
+                    [{ char: 'n', attr: stoneLight }, { char: 'n', attr: stone }, U, U, { char: 'n', attr: stone }, { char: 'n', attr: stoneLight }],
+                    [{ char: GLYPH.FULL_BLOCK, attr: stone }, { char: GLYPH.FULL_BLOCK, attr: stoneDark }, { char: GLYPH.FULL_BLOCK, attr: stone }, { char: GLYPH.FULL_BLOCK, attr: stoneDark }, { char: GLYPH.FULL_BLOCK, attr: stone }, { char: GLYPH.FULL_BLOCK, attr: stoneDark }],
+                    [{ char: GLYPH.FULL_BLOCK, attr: stoneDark }, { char: GLYPH.FULL_BLOCK, attr: stone }, { char: GLYPH.FULL_BLOCK, attr: stoneDark }, { char: GLYPH.FULL_BLOCK, attr: stone }, { char: GLYPH.FULL_BLOCK, attr: stoneDark }, { char: GLYPH.FULL_BLOCK, attr: stone }],
+                    [{ char: GLYPH.FULL_BLOCK, attr: stone }, { char: GLYPH.FULL_BLOCK, attr: stoneDark }, { char: GLYPH.FULL_BLOCK, attr: stone }, { char: GLYPH.FULL_BLOCK, attr: stoneDark }, { char: GLYPH.FULL_BLOCK, attr: stone }, { char: GLYPH.FULL_BLOCK, attr: stoneDark }]
+                ],
+                [
+                    [{ char: 'n', attr: stoneLight }, { char: 'n', attr: stone }, U, U, U, U, { char: 'n', attr: stone }, { char: 'n', attr: stoneLight }],
+                    [{ char: GLYPH.FULL_BLOCK, attr: stone }, { char: GLYPH.FULL_BLOCK, attr: stoneDark }, { char: GLYPH.FULL_BLOCK, attr: stone }, { char: GLYPH.FULL_BLOCK, attr: stone }, { char: GLYPH.FULL_BLOCK, attr: stone }, { char: GLYPH.FULL_BLOCK, attr: stone }, { char: GLYPH.FULL_BLOCK, attr: stoneDark }, { char: GLYPH.FULL_BLOCK, attr: stone }],
+                    [{ char: GLYPH.FULL_BLOCK, attr: stoneDark }, { char: GLYPH.FULL_BLOCK, attr: stone }, { char: GLYPH.FULL_BLOCK, attr: stoneDark }, { char: GLYPH.FULL_BLOCK, attr: stone }, { char: GLYPH.FULL_BLOCK, attr: stoneDark }, { char: GLYPH.FULL_BLOCK, attr: stone }, { char: GLYPH.FULL_BLOCK, attr: stoneDark }, { char: GLYPH.FULL_BLOCK, attr: stoneDark }],
+                    [{ char: GLYPH.FULL_BLOCK, attr: stone }, { char: GLYPH.FULL_BLOCK, attr: stoneDark }, { char: GLYPH.FULL_BLOCK, attr: stone }, { char: GLYPH.FULL_BLOCK, attr: stoneDark }, { char: GLYPH.FULL_BLOCK, attr: stone }, { char: GLYPH.FULL_BLOCK, attr: stoneDark }, { char: GLYPH.FULL_BLOCK, attr: stone }, { char: GLYPH.FULL_BLOCK, attr: stoneDark }],
+                    [{ char: GLYPH.FULL_BLOCK, attr: stoneDark }, { char: GLYPH.FULL_BLOCK, attr: stone }, { char: GLYPH.FULL_BLOCK, attr: stoneDark }, { char: GLYPH.FULL_BLOCK, attr: stone }, { char: GLYPH.FULL_BLOCK, attr: stoneDark }, { char: GLYPH.FULL_BLOCK, attr: stone }, { char: GLYPH.FULL_BLOCK, attr: stoneDark }, { char: GLYPH.FULL_BLOCK, attr: stone }]
+                ],
+                [
+                    [{ char: 'n', attr: stoneLight }, { char: 'n', attr: stone }, U, U, U, U, { char: 'n', attr: stone }, { char: 'n', attr: stoneLight }],
+                    [{ char: GLYPH.FULL_BLOCK, attr: stone }, { char: GLYPH.FULL_BLOCK, attr: stoneDark }, { char: GLYPH.FULL_BLOCK, attr: stone }, { char: GLYPH.FULL_BLOCK, attr: stone }, { char: GLYPH.FULL_BLOCK, attr: stone }, { char: GLYPH.FULL_BLOCK, attr: stone }, { char: GLYPH.FULL_BLOCK, attr: stoneDark }, { char: GLYPH.FULL_BLOCK, attr: stone }],
+                    [{ char: GLYPH.FULL_BLOCK, attr: stoneDark }, { char: GLYPH.FULL_BLOCK, attr: stone }, { char: GLYPH.FULL_BLOCK, attr: stoneDark }, { char: GLYPH.FULL_BLOCK, attr: stone }, { char: GLYPH.FULL_BLOCK, attr: stoneDark }, { char: GLYPH.FULL_BLOCK, attr: stone }, { char: GLYPH.FULL_BLOCK, attr: stoneDark }, { char: GLYPH.FULL_BLOCK, attr: stoneDark }],
+                    [{ char: GLYPH.FULL_BLOCK, attr: stone }, { char: GLYPH.FULL_BLOCK, attr: stoneDark }, { char: GLYPH.FULL_BLOCK, attr: stone }, { char: GLYPH.FULL_BLOCK, attr: stoneDark }, { char: GLYPH.FULL_BLOCK, attr: stone }, { char: GLYPH.FULL_BLOCK, attr: stoneDark }, { char: GLYPH.FULL_BLOCK, attr: stone }, { char: GLYPH.FULL_BLOCK, attr: stoneDark }],
+                    [{ char: GLYPH.FULL_BLOCK, attr: stoneDark }, { char: GLYPH.FULL_BLOCK, attr: stone }, { char: GLYPH.FULL_BLOCK, attr: stoneDark }, { char: GLYPH.FULL_BLOCK, attr: stone }, { char: GLYPH.FULL_BLOCK, attr: stoneDark }, { char: GLYPH.FULL_BLOCK, attr: stone }, { char: GLYPH.FULL_BLOCK, attr: stoneDark }, { char: GLYPH.FULL_BLOCK, attr: stone }]
+                ]
+            ]
+        };
+    },
+    createTorch: function () {
+        var flame = makeAttr(YELLOW, BG_BLACK);
+        var flameOuter = makeAttr(LIGHTRED, BG_BLACK);
+        var handle = makeAttr(BROWN, BG_BLACK);
+        var bracket = makeAttr(DARKGRAY, BG_BLACK);
+        var U = null;
+        return {
+            name: 'torch',
+            variants: [
+                [
+                    [{ char: '*', attr: flame }],
+                    [{ char: '|', attr: handle }],
+                    [{ char: '+', attr: bracket }]
+                ],
+                [
+                    [U, { char: '*', attr: flame }, U],
+                    [{ char: '(', attr: flameOuter }, { char: '*', attr: flame }, { char: ')', attr: flameOuter }],
+                    [U, { char: '|', attr: handle }, U],
+                    [{ char: '-', attr: bracket }, { char: '+', attr: bracket }, { char: '-', attr: bracket }]
+                ],
+                [
+                    [U, { char: '^', attr: flameOuter }, U],
+                    [{ char: '(', attr: flameOuter }, { char: '*', attr: flame }, { char: ')', attr: flameOuter }],
+                    [U, { char: '|', attr: handle }, U],
+                    [U, { char: '|', attr: handle }, U],
+                    [{ char: '-', attr: bracket }, { char: '+', attr: bracket }, { char: '-', attr: bracket }]
+                ],
+                [
+                    [U, U, { char: '^', attr: flameOuter }, U, U],
+                    [U, { char: '(', attr: flameOuter }, { char: '*', attr: flame }, { char: ')', attr: flameOuter }, U],
+                    [{ char: '~', attr: flame }, { char: '(', attr: flame }, { char: GLYPH.FULL_BLOCK, attr: flame }, { char: ')', attr: flame }, { char: '~', attr: flame }],
+                    [U, U, { char: '|', attr: handle }, U, U],
+                    [U, U, { char: '|', attr: handle }, U, U],
+                    [U, { char: '-', attr: bracket }, { char: '+', attr: bracket }, { char: '-', attr: bracket }, U]
+                ],
+                [
+                    [U, U, { char: '^', attr: flameOuter }, U, U],
+                    [U, { char: '(', attr: flameOuter }, { char: '*', attr: flame }, { char: ')', attr: flameOuter }, U],
+                    [{ char: '~', attr: flame }, { char: '(', attr: flame }, { char: GLYPH.FULL_BLOCK, attr: flame }, { char: ')', attr: flame }, { char: '~', attr: flame }],
+                    [U, U, { char: '|', attr: handle }, U, U],
+                    [U, U, { char: '|', attr: handle }, U, U],
+                    [U, { char: '-', attr: bracket }, { char: '+', attr: bracket }, { char: '-', attr: bracket }, U]
+                ]
+            ]
+        };
+    },
+    createBanner: function () {
+        var banner = makeAttr(LIGHTRED, BG_BLACK);
+        var bannerDark = makeAttr(RED, BG_BLACK);
+        var pole = makeAttr(BROWN, BG_BLACK);
+        var emblem = makeAttr(YELLOW, BG_BLACK);
+        var U = null;
+        return {
+            name: 'banner',
+            variants: [
+                [
+                    [{ char: '-', attr: pole }, { char: '-', attr: pole }],
+                    [{ char: GLYPH.FULL_BLOCK, attr: banner }, { char: GLYPH.FULL_BLOCK, attr: bannerDark }],
+                    [{ char: '\\', attr: banner }, { char: '/', attr: bannerDark }]
+                ],
+                [
+                    [{ char: '-', attr: pole }, { char: 'o', attr: pole }, { char: '-', attr: pole }],
+                    [{ char: GLYPH.FULL_BLOCK, attr: banner }, { char: '*', attr: emblem }, { char: GLYPH.FULL_BLOCK, attr: bannerDark }],
+                    [{ char: GLYPH.FULL_BLOCK, attr: bannerDark }, { char: GLYPH.FULL_BLOCK, attr: banner }, { char: GLYPH.FULL_BLOCK, attr: bannerDark }],
+                    [U, { char: 'V', attr: banner }, U]
+                ],
+                [
+                    [{ char: '-', attr: pole }, { char: '-', attr: pole }, { char: 'o', attr: pole }, { char: '-', attr: pole }],
+                    [{ char: GLYPH.FULL_BLOCK, attr: banner }, { char: GLYPH.FULL_BLOCK, attr: bannerDark }, { char: GLYPH.FULL_BLOCK, attr: banner }, { char: GLYPH.FULL_BLOCK, attr: bannerDark }],
+                    [{ char: GLYPH.FULL_BLOCK, attr: bannerDark }, { char: '*', attr: emblem }, { char: '*', attr: emblem }, { char: GLYPH.FULL_BLOCK, attr: banner }],
+                    [{ char: GLYPH.FULL_BLOCK, attr: banner }, { char: GLYPH.FULL_BLOCK, attr: banner }, { char: GLYPH.FULL_BLOCK, attr: bannerDark }, { char: GLYPH.FULL_BLOCK, attr: bannerDark }],
+                    [U, { char: '\\', attr: banner }, { char: '/', attr: bannerDark }, U]
+                ],
+                [
+                    [{ char: '-', attr: pole }, { char: '-', attr: pole }, { char: 'O', attr: pole }, { char: '-', attr: pole }, { char: '-', attr: pole }],
+                    [{ char: GLYPH.FULL_BLOCK, attr: banner }, { char: GLYPH.FULL_BLOCK, attr: bannerDark }, { char: GLYPH.FULL_BLOCK, attr: banner }, { char: GLYPH.FULL_BLOCK, attr: bannerDark }, { char: GLYPH.FULL_BLOCK, attr: banner }],
+                    [{ char: GLYPH.FULL_BLOCK, attr: bannerDark }, { char: '/', attr: emblem }, { char: '*', attr: emblem }, { char: '\\', attr: emblem }, { char: GLYPH.FULL_BLOCK, attr: bannerDark }],
+                    [{ char: GLYPH.FULL_BLOCK, attr: banner }, { char: '\\', attr: emblem }, { char: '*', attr: emblem }, { char: '/', attr: emblem }, { char: GLYPH.FULL_BLOCK, attr: banner }],
+                    [{ char: GLYPH.FULL_BLOCK, attr: bannerDark }, { char: GLYPH.FULL_BLOCK, attr: banner }, { char: GLYPH.FULL_BLOCK, attr: bannerDark }, { char: GLYPH.FULL_BLOCK, attr: banner }, { char: GLYPH.FULL_BLOCK, attr: bannerDark }],
+                    [U, { char: '\\', attr: banner }, { char: 'V', attr: bannerDark }, { char: '/', attr: banner }, U]
+                ],
+                [
+                    [{ char: '-', attr: pole }, { char: '-', attr: pole }, { char: 'O', attr: pole }, { char: '-', attr: pole }, { char: '-', attr: pole }],
+                    [{ char: GLYPH.FULL_BLOCK, attr: banner }, { char: GLYPH.FULL_BLOCK, attr: bannerDark }, { char: GLYPH.FULL_BLOCK, attr: banner }, { char: GLYPH.FULL_BLOCK, attr: bannerDark }, { char: GLYPH.FULL_BLOCK, attr: banner }],
+                    [{ char: GLYPH.FULL_BLOCK, attr: bannerDark }, { char: '/', attr: emblem }, { char: '*', attr: emblem }, { char: '\\', attr: emblem }, { char: GLYPH.FULL_BLOCK, attr: bannerDark }],
+                    [{ char: GLYPH.FULL_BLOCK, attr: banner }, { char: '\\', attr: emblem }, { char: '*', attr: emblem }, { char: '/', attr: emblem }, { char: GLYPH.FULL_BLOCK, attr: banner }],
+                    [{ char: GLYPH.FULL_BLOCK, attr: bannerDark }, { char: GLYPH.FULL_BLOCK, attr: banner }, { char: GLYPH.FULL_BLOCK, attr: bannerDark }, { char: GLYPH.FULL_BLOCK, attr: banner }, { char: GLYPH.FULL_BLOCK, attr: bannerDark }],
+                    [U, { char: '\\', attr: banner }, { char: 'V', attr: bannerDark }, { char: '/', attr: banner }, U]
+                ]
+            ]
+        };
+    },
+    createGargoyle: function () {
+        var stone = makeAttr(DARKGRAY, BG_BLACK);
+        var stoneDark = makeAttr(BLACK, BG_BLACK);
+        var eye = makeAttr(RED, BG_BLACK);
+        var U = null;
+        return {
+            name: 'gargoyle',
+            variants: [
+                [
+                    [{ char: '(', attr: stone }, { char: ')', attr: stone }],
+                    [{ char: '/', attr: stoneDark }, { char: '\\', attr: stoneDark }]
+                ],
+                [
+                    [{ char: '/', attr: stone }, { char: '^', attr: stone }, { char: '\\', attr: stone }],
+                    [{ char: '(', attr: stoneDark }, { char: 'v', attr: stone }, { char: ')', attr: stoneDark }],
+                    [{ char: '/', attr: stone }, U, { char: '\\', attr: stone }]
+                ],
+                [
+                    [{ char: '/', attr: stone }, { char: '^', attr: stone }, U, { char: '^', attr: stone }, { char: '\\', attr: stone }],
+                    [{ char: '(', attr: stoneDark }, { char: '.', attr: eye }, { char: 'v', attr: stone }, { char: '.', attr: eye }, { char: ')', attr: stoneDark }],
+                    [U, { char: '/', attr: stone }, { char: GLYPH.FULL_BLOCK, attr: stoneDark }, { char: '\\', attr: stone }, U],
+                    [{ char: '/', attr: stoneDark }, U, { char: '|', attr: stone }, U, { char: '\\', attr: stoneDark }]
+                ],
+                [
+                    [U, { char: '/', attr: stone }, { char: '^', attr: stone }, U, { char: '^', attr: stone }, { char: '\\', attr: stone }, U],
+                    [{ char: '/', attr: stone }, { char: '(', attr: stoneDark }, { char: '*', attr: eye }, { char: 'w', attr: stone }, { char: '*', attr: eye }, { char: ')', attr: stoneDark }, { char: '\\', attr: stone }],
+                    [U, { char: '/', attr: stoneDark }, { char: '/', attr: stone }, { char: GLYPH.FULL_BLOCK, attr: stoneDark }, { char: '\\', attr: stone }, { char: '\\', attr: stoneDark }, U],
+                    [{ char: '/', attr: stone }, U, { char: '(', attr: stoneDark }, { char: '|', attr: stone }, { char: ')', attr: stoneDark }, U, { char: '\\', attr: stone }],
+                    [{ char: '/', attr: stoneDark }, U, U, { char: '|', attr: stoneDark }, U, U, { char: '\\', attr: stoneDark }]
+                ],
+                [
+                    [U, { char: '/', attr: stone }, { char: '^', attr: stone }, U, { char: '^', attr: stone }, { char: '\\', attr: stone }, U],
+                    [{ char: '/', attr: stone }, { char: '(', attr: stoneDark }, { char: '*', attr: eye }, { char: 'w', attr: stone }, { char: '*', attr: eye }, { char: ')', attr: stoneDark }, { char: '\\', attr: stone }],
+                    [U, { char: '/', attr: stoneDark }, { char: '/', attr: stone }, { char: GLYPH.FULL_BLOCK, attr: stoneDark }, { char: '\\', attr: stone }, { char: '\\', attr: stoneDark }, U],
+                    [{ char: '/', attr: stone }, U, { char: '(', attr: stoneDark }, { char: '|', attr: stone }, { char: ')', attr: stoneDark }, U, { char: '\\', attr: stone }],
+                    [{ char: '/', attr: stoneDark }, U, U, { char: '|', attr: stoneDark }, U, U, { char: '\\', attr: stoneDark }]
+                ]
+            ]
+        };
+    },
+    createPortcullis: function () {
+        var iron = makeAttr(DARKGRAY, BG_BLACK);
+        var ironLight = makeAttr(LIGHTGRAY, BG_BLACK);
+        var stone = makeAttr(BROWN, BG_BLACK);
+        return {
+            name: 'portcullis',
+            variants: [
+                [
+                    [{ char: GLYPH.FULL_BLOCK, attr: stone }, { char: '^', attr: stone }, { char: GLYPH.FULL_BLOCK, attr: stone }],
+                    [{ char: '#', attr: iron }, { char: '#', attr: iron }, { char: '#', attr: iron }],
+                    [{ char: '#', attr: ironLight }, { char: '#', attr: ironLight }, { char: '#', attr: ironLight }]
+                ],
+                [
+                    [{ char: GLYPH.FULL_BLOCK, attr: stone }, { char: '/', attr: stone }, { char: '\\', attr: stone }, { char: GLYPH.FULL_BLOCK, attr: stone }],
+                    [{ char: '|', attr: iron }, { char: '#', attr: iron }, { char: '#', attr: iron }, { char: '|', attr: iron }],
+                    [{ char: '|', attr: ironLight }, { char: '#', attr: ironLight }, { char: '#', attr: ironLight }, { char: '|', attr: ironLight }],
+                    [{ char: '|', attr: iron }, { char: '#', attr: iron }, { char: '#', attr: iron }, { char: '|', attr: iron }]
+                ],
+                [
+                    [{ char: GLYPH.FULL_BLOCK, attr: stone }, { char: GLYPH.FULL_BLOCK, attr: stone }, { char: '/', attr: stone }, { char: '\\', attr: stone }, { char: GLYPH.FULL_BLOCK, attr: stone }, { char: GLYPH.FULL_BLOCK, attr: stone }],
+                    [{ char: '|', attr: iron }, { char: '#', attr: iron }, { char: '|', attr: iron }, { char: '|', attr: iron }, { char: '#', attr: iron }, { char: '|', attr: iron }],
+                    [{ char: '+', attr: ironLight }, { char: '-', attr: ironLight }, { char: '+', attr: ironLight }, { char: '+', attr: ironLight }, { char: '-', attr: ironLight }, { char: '+', attr: ironLight }],
+                    [{ char: '|', attr: iron }, { char: '#', attr: iron }, { char: '|', attr: iron }, { char: '|', attr: iron }, { char: '#', attr: iron }, { char: '|', attr: iron }],
+                    [{ char: '+', attr: ironLight }, { char: '-', attr: ironLight }, { char: '+', attr: ironLight }, { char: '+', attr: ironLight }, { char: '-', attr: ironLight }, { char: '+', attr: ironLight }]
+                ],
+                [
+                    [{ char: GLYPH.FULL_BLOCK, attr: stone }, { char: GLYPH.FULL_BLOCK, attr: stone }, { char: '/', attr: stone }, { char: '^', attr: stone }, { char: '\\', attr: stone }, { char: GLYPH.FULL_BLOCK, attr: stone }, { char: GLYPH.FULL_BLOCK, attr: stone }],
+                    [{ char: '|', attr: iron }, { char: '#', attr: iron }, { char: '|', attr: iron }, { char: '#', attr: iron }, { char: '|', attr: iron }, { char: '#', attr: iron }, { char: '|', attr: iron }],
+                    [{ char: '+', attr: ironLight }, { char: '-', attr: ironLight }, { char: '+', attr: ironLight }, { char: '-', attr: ironLight }, { char: '+', attr: ironLight }, { char: '-', attr: ironLight }, { char: '+', attr: ironLight }],
+                    [{ char: '|', attr: iron }, { char: '#', attr: iron }, { char: '|', attr: iron }, { char: '#', attr: iron }, { char: '|', attr: iron }, { char: '#', attr: iron }, { char: '|', attr: iron }],
+                    [{ char: '+', attr: ironLight }, { char: '-', attr: ironLight }, { char: '+', attr: ironLight }, { char: '-', attr: ironLight }, { char: '+', attr: ironLight }, { char: '-', attr: ironLight }, { char: '+', attr: ironLight }],
+                    [{ char: '|', attr: iron }, { char: '#', attr: iron }, { char: '|', attr: iron }, { char: '#', attr: iron }, { char: '|', attr: iron }, { char: '#', attr: iron }, { char: '|', attr: iron }]
+                ],
+                [
+                    [{ char: GLYPH.FULL_BLOCK, attr: stone }, { char: GLYPH.FULL_BLOCK, attr: stone }, { char: '/', attr: stone }, { char: '^', attr: stone }, { char: '\\', attr: stone }, { char: GLYPH.FULL_BLOCK, attr: stone }, { char: GLYPH.FULL_BLOCK, attr: stone }],
+                    [{ char: '|', attr: iron }, { char: '#', attr: iron }, { char: '|', attr: iron }, { char: '#', attr: iron }, { char: '|', attr: iron }, { char: '#', attr: iron }, { char: '|', attr: iron }],
+                    [{ char: '+', attr: ironLight }, { char: '-', attr: ironLight }, { char: '+', attr: ironLight }, { char: '-', attr: ironLight }, { char: '+', attr: ironLight }, { char: '-', attr: ironLight }, { char: '+', attr: ironLight }],
+                    [{ char: '|', attr: iron }, { char: '#', attr: iron }, { char: '|', attr: iron }, { char: '#', attr: iron }, { char: '|', attr: iron }, { char: '#', attr: iron }, { char: '|', attr: iron }],
+                    [{ char: '+', attr: ironLight }, { char: '-', attr: ironLight }, { char: '+', attr: ironLight }, { char: '-', attr: ironLight }, { char: '+', attr: ironLight }, { char: '-', attr: ironLight }, { char: '+', attr: ironLight }],
+                    [{ char: '|', attr: iron }, { char: '#', attr: iron }, { char: '|', attr: iron }, { char: '#', attr: iron }, { char: '|', attr: iron }, { char: '#', attr: iron }, { char: '|', attr: iron }]
+                ]
+            ]
+        };
+    }
+};
+registerRoadsideSprite('tower', CastleSprites.createTower);
+registerRoadsideSprite('battlement', CastleSprites.createBattlement);
+registerRoadsideSprite('torch', CastleSprites.createTorch);
+registerRoadsideSprite('banner', CastleSprites.createBanner);
+registerRoadsideSprite('gargoyle', CastleSprites.createGargoyle);
+registerRoadsideSprite('portcullis', CastleSprites.createPortcullis);
+"use strict";
+var VillainSprites = {
+    createLavaRock: function () {
+        var rock = makeAttr(DARKGRAY, BG_BLACK);
+        var rockDark = makeAttr(BLACK, BG_BLACK);
+        var lava = makeAttr(LIGHTRED, BG_BLACK);
+        var lavaGlow = makeAttr(YELLOW, BG_BLACK);
+        var U = null;
+        return {
+            name: 'lava_rock',
+            variants: [
+                [
+                    [{ char: '(', attr: rock }, { char: ')', attr: rock }],
+                    [{ char: GLYPH.LOWER_HALF, attr: lava }, { char: GLYPH.LOWER_HALF, attr: lava }]
+                ],
+                [
+                    [U, { char: '^', attr: rock }, U],
+                    [{ char: '(', attr: rockDark }, { char: GLYPH.FULL_BLOCK, attr: rock }, { char: ')', attr: rockDark }],
+                    [{ char: '~', attr: lava }, { char: '~', attr: lavaGlow }, { char: '~', attr: lava }]
+                ],
+                [
+                    [U, { char: '/', attr: rock }, { char: '^', attr: rockDark }, { char: '\\', attr: rock }, U],
+                    [{ char: '/', attr: rockDark }, { char: GLYPH.FULL_BLOCK, attr: rock }, { char: GLYPH.FULL_BLOCK, attr: rockDark }, { char: GLYPH.FULL_BLOCK, attr: rock }, { char: '\\', attr: rockDark }],
+                    [{ char: '(', attr: rock }, { char: GLYPH.FULL_BLOCK, attr: rockDark }, { char: '*', attr: lavaGlow }, { char: GLYPH.FULL_BLOCK, attr: rockDark }, { char: ')', attr: rock }],
+                    [{ char: '~', attr: lava }, { char: '~', attr: lavaGlow }, { char: '~', attr: lava }, { char: '~', attr: lavaGlow }, { char: '~', attr: lava }]
+                ],
+                [
+                    [U, U, { char: '/', attr: rock }, { char: '^', attr: rockDark }, { char: '\\', attr: rock }, U, U],
+                    [U, { char: '/', attr: rockDark }, { char: GLYPH.FULL_BLOCK, attr: rock }, { char: GLYPH.FULL_BLOCK, attr: rockDark }, { char: GLYPH.FULL_BLOCK, attr: rock }, { char: '\\', attr: rockDark }, U],
+                    [{ char: '/', attr: rock }, { char: GLYPH.FULL_BLOCK, attr: rockDark }, { char: GLYPH.FULL_BLOCK, attr: rock }, { char: '*', attr: lavaGlow }, { char: GLYPH.FULL_BLOCK, attr: rock }, { char: GLYPH.FULL_BLOCK, attr: rockDark }, { char: '\\', attr: rock }],
+                    [{ char: '(', attr: rockDark }, { char: GLYPH.FULL_BLOCK, attr: rock }, { char: GLYPH.FULL_BLOCK, attr: rockDark }, { char: '*', attr: lava }, { char: GLYPH.FULL_BLOCK, attr: rockDark }, { char: GLYPH.FULL_BLOCK, attr: rock }, { char: ')', attr: rockDark }],
+                    [{ char: '~', attr: lavaGlow }, { char: '~', attr: lava }, { char: '~', attr: lavaGlow }, { char: '~', attr: lava }, { char: '~', attr: lavaGlow }, { char: '~', attr: lava }, { char: '~', attr: lavaGlow }]
+                ],
+                [
+                    [U, U, { char: '/', attr: rock }, { char: '^', attr: rockDark }, { char: '\\', attr: rock }, U, U],
+                    [U, { char: '/', attr: rockDark }, { char: GLYPH.FULL_BLOCK, attr: rock }, { char: GLYPH.FULL_BLOCK, attr: rockDark }, { char: GLYPH.FULL_BLOCK, attr: rock }, { char: '\\', attr: rockDark }, U],
+                    [{ char: '/', attr: rock }, { char: GLYPH.FULL_BLOCK, attr: rockDark }, { char: GLYPH.FULL_BLOCK, attr: rock }, { char: '*', attr: lavaGlow }, { char: GLYPH.FULL_BLOCK, attr: rock }, { char: GLYPH.FULL_BLOCK, attr: rockDark }, { char: '\\', attr: rock }],
+                    [{ char: '(', attr: rockDark }, { char: GLYPH.FULL_BLOCK, attr: rock }, { char: GLYPH.FULL_BLOCK, attr: rockDark }, { char: '*', attr: lava }, { char: GLYPH.FULL_BLOCK, attr: rockDark }, { char: GLYPH.FULL_BLOCK, attr: rock }, { char: ')', attr: rockDark }],
+                    [{ char: '~', attr: lavaGlow }, { char: '~', attr: lava }, { char: '~', attr: lavaGlow }, { char: '~', attr: lava }, { char: '~', attr: lavaGlow }, { char: '~', attr: lava }, { char: '~', attr: lavaGlow }]
+                ]
+            ]
+        };
+    },
+    createFlame: function () {
+        var core = makeAttr(YELLOW, BG_BLACK);
+        var mid = makeAttr(LIGHTRED, BG_BLACK);
+        var outer = makeAttr(RED, BG_BLACK);
+        var smoke = makeAttr(DARKGRAY, BG_BLACK);
+        var U = null;
+        return {
+            name: 'flame',
+            variants: [
+                [
+                    [{ char: '*', attr: core }],
+                    [{ char: '^', attr: mid }],
+                    [{ char: '~', attr: outer }]
+                ],
+                [
+                    [U, { char: '.', attr: smoke }, U],
+                    [U, { char: '*', attr: core }, U],
+                    [{ char: '(', attr: mid }, { char: '^', attr: core }, { char: ')', attr: mid }],
+                    [{ char: '~', attr: outer }, { char: '^', attr: mid }, { char: '~', attr: outer }]
+                ],
+                [
+                    [U, U, { char: '.', attr: smoke }, U, U],
+                    [U, { char: '(', attr: core }, { char: '*', attr: core }, { char: ')', attr: core }, U],
+                    [{ char: '(', attr: mid }, { char: '^', attr: core }, { char: '*', attr: core }, { char: '^', attr: core }, { char: ')', attr: mid }],
+                    [{ char: '(', attr: outer }, { char: '^', attr: mid }, { char: '^', attr: core }, { char: '^', attr: mid }, { char: ')', attr: outer }],
+                    [U, { char: '~', attr: outer }, { char: '^', attr: mid }, { char: '~', attr: outer }, U]
+                ],
+                [
+                    [U, U, { char: '.', attr: smoke }, { char: '.', attr: smoke }, { char: '.', attr: smoke }, U, U],
+                    [U, U, { char: '(', attr: core }, { char: '*', attr: core }, { char: ')', attr: core }, U, U],
+                    [U, { char: '(', attr: mid }, { char: '^', attr: core }, { char: '*', attr: core }, { char: '^', attr: core }, { char: ')', attr: mid }, U],
+                    [{ char: '(', attr: outer }, { char: '^', attr: mid }, { char: '^', attr: core }, { char: '*', attr: core }, { char: '^', attr: core }, { char: '^', attr: mid }, { char: ')', attr: outer }],
+                    [{ char: '(', attr: outer }, { char: '^', attr: outer }, { char: '^', attr: mid }, { char: '^', attr: core }, { char: '^', attr: mid }, { char: '^', attr: outer }, { char: ')', attr: outer }],
+                    [U, { char: '~', attr: outer }, { char: '~', attr: mid }, { char: '^', attr: mid }, { char: '~', attr: mid }, { char: '~', attr: outer }, U]
+                ],
+                [
+                    [U, U, { char: '.', attr: smoke }, { char: '.', attr: smoke }, { char: '.', attr: smoke }, U, U],
+                    [U, U, { char: '(', attr: core }, { char: '*', attr: core }, { char: ')', attr: core }, U, U],
+                    [U, { char: '(', attr: mid }, { char: '^', attr: core }, { char: '*', attr: core }, { char: '^', attr: core }, { char: ')', attr: mid }, U],
+                    [{ char: '(', attr: outer }, { char: '^', attr: mid }, { char: '^', attr: core }, { char: '*', attr: core }, { char: '^', attr: core }, { char: '^', attr: mid }, { char: ')', attr: outer }],
+                    [{ char: '(', attr: outer }, { char: '^', attr: outer }, { char: '^', attr: mid }, { char: '^', attr: core }, { char: '^', attr: mid }, { char: '^', attr: outer }, { char: ')', attr: outer }],
+                    [U, { char: '~', attr: outer }, { char: '~', attr: mid }, { char: '^', attr: mid }, { char: '~', attr: mid }, { char: '~', attr: outer }, U]
+                ]
+            ]
+        };
+    },
+    createSkullPile: function () {
+        var skull = makeAttr(WHITE, BG_BLACK);
+        var skullDark = makeAttr(LIGHTGRAY, BG_BLACK);
+        var bone = makeAttr(LIGHTGRAY, BG_BLACK);
+        var eye = makeAttr(RED, BG_BLACK);
+        var U = null;
+        return {
+            name: 'skull_pile',
+            variants: [
+                [
+                    [{ char: '(', attr: skull }, { char: ')', attr: skull }],
+                    [{ char: 'o', attr: skullDark }, { char: 'o', attr: skullDark }]
+                ],
+                [
+                    [U, { char: '(', attr: skull }, { char: ')', attr: skull }],
+                    [{ char: '(', attr: skullDark }, { char: 'o', attr: eye }, { char: ')', attr: skullDark }],
+                    [{ char: '-', attr: bone }, { char: '-', attr: bone }, { char: '-', attr: bone }]
+                ],
+                [
+                    [U, { char: '/', attr: skull }, { char: 'O', attr: skull }, { char: '\\', attr: skull }, U],
+                    [{ char: '/', attr: skullDark }, { char: '.', attr: eye }, { char: 'v', attr: skull }, { char: '.', attr: eye }, { char: '\\', attr: skullDark }],
+                    [{ char: '(', attr: skull }, { char: 'o', attr: skullDark }, { char: '(', attr: skull }, { char: 'o', attr: skullDark }, { char: ')', attr: skull }],
+                    [{ char: '-', attr: bone }, { char: '=', attr: bone }, { char: '-', attr: bone }, { char: '=', attr: bone }, { char: '-', attr: bone }]
+                ],
+                [
+                    [U, U, { char: '/', attr: skull }, { char: 'O', attr: skull }, { char: '\\', attr: skull }, U, U],
+                    [U, { char: '/', attr: skull }, { char: '*', attr: eye }, { char: 'v', attr: skull }, { char: '*', attr: eye }, { char: '\\', attr: skull }, U],
+                    [{ char: '/', attr: skullDark }, { char: 'O', attr: skull }, { char: '\\', attr: skullDark }, U, { char: '/', attr: skullDark }, { char: 'O', attr: skull }, { char: '\\', attr: skullDark }],
+                    [{ char: '.', attr: eye }, { char: 'v', attr: skull }, { char: '.', attr: eye }, { char: '-', attr: bone }, { char: '.', attr: eye }, { char: 'v', attr: skull }, { char: '.', attr: eye }],
+                    [{ char: '-', attr: bone }, { char: '=', attr: bone }, { char: '-', attr: bone }, { char: '=', attr: bone }, { char: '-', attr: bone }, { char: '=', attr: bone }, { char: '-', attr: bone }]
+                ],
+                [
+                    [U, U, { char: '/', attr: skull }, { char: 'O', attr: skull }, { char: '\\', attr: skull }, U, U],
+                    [U, { char: '/', attr: skull }, { char: '*', attr: eye }, { char: 'v', attr: skull }, { char: '*', attr: eye }, { char: '\\', attr: skull }, U],
+                    [{ char: '/', attr: skullDark }, { char: 'O', attr: skull }, { char: '\\', attr: skullDark }, U, { char: '/', attr: skullDark }, { char: 'O', attr: skull }, { char: '\\', attr: skullDark }],
+                    [{ char: '.', attr: eye }, { char: 'v', attr: skull }, { char: '.', attr: eye }, { char: '-', attr: bone }, { char: '.', attr: eye }, { char: 'v', attr: skull }, { char: '.', attr: eye }],
+                    [{ char: '-', attr: bone }, { char: '=', attr: bone }, { char: '-', attr: bone }, { char: '=', attr: bone }, { char: '-', attr: bone }, { char: '=', attr: bone }, { char: '-', attr: bone }]
+                ]
+            ]
+        };
+    },
+    createChain: function () {
+        var chain = makeAttr(DARKGRAY, BG_BLACK);
+        var chainLight = makeAttr(LIGHTGRAY, BG_BLACK);
+        var U = null;
+        return {
+            name: 'chain',
+            variants: [
+                [
+                    [{ char: 'o', attr: chain }],
+                    [{ char: 'O', attr: chainLight }],
+                    [{ char: 'o', attr: chain }],
+                    [{ char: 'O', attr: chainLight }]
+                ],
+                [
+                    [{ char: '(', attr: chain }, { char: ')', attr: chain }],
+                    [U, { char: 'O', attr: chainLight }],
+                    [{ char: '(', attr: chain }, { char: ')', attr: chain }],
+                    [U, { char: 'O', attr: chainLight }],
+                    [{ char: '(', attr: chain }, { char: ')', attr: chain }]
+                ],
+                [
+                    [{ char: '/', attr: chain }, { char: 'o', attr: chainLight }, { char: '\\', attr: chain }],
+                    [U, { char: 'O', attr: chain }, U],
+                    [{ char: '/', attr: chainLight }, { char: 'o', attr: chain }, { char: '\\', attr: chainLight }],
+                    [U, { char: 'O', attr: chainLight }, U],
+                    [{ char: '/', attr: chain }, { char: 'o', attr: chainLight }, { char: '\\', attr: chain }],
+                    [U, { char: 'O', attr: chain }, U]
+                ],
+                [
+                    [{ char: '/', attr: chain }, { char: 'O', attr: chainLight }, { char: '\\', attr: chain }],
+                    [{ char: '\\', attr: chainLight }, { char: 'o', attr: chain }, { char: '/', attr: chainLight }],
+                    [{ char: '/', attr: chain }, { char: 'O', attr: chainLight }, { char: '\\', attr: chain }],
+                    [{ char: '\\', attr: chainLight }, { char: 'o', attr: chain }, { char: '/', attr: chainLight }],
+                    [{ char: '/', attr: chain }, { char: 'O', attr: chainLight }, { char: '\\', attr: chain }],
+                    [{ char: '\\', attr: chainLight }, { char: 'o', attr: chain }, { char: '/', attr: chainLight }],
+                    [U, { char: 'V', attr: chain }, U]
+                ],
+                [
+                    [{ char: '/', attr: chain }, { char: 'O', attr: chainLight }, { char: '\\', attr: chain }],
+                    [{ char: '\\', attr: chainLight }, { char: 'o', attr: chain }, { char: '/', attr: chainLight }],
+                    [{ char: '/', attr: chain }, { char: 'O', attr: chainLight }, { char: '\\', attr: chain }],
+                    [{ char: '\\', attr: chainLight }, { char: 'o', attr: chain }, { char: '/', attr: chainLight }],
+                    [{ char: '/', attr: chain }, { char: 'O', attr: chainLight }, { char: '\\', attr: chain }],
+                    [{ char: '\\', attr: chainLight }, { char: 'o', attr: chain }, { char: '/', attr: chainLight }],
+                    [U, { char: 'V', attr: chain }, U]
+                ]
+            ]
+        };
+    },
+    createSpike: function () {
+        var spike = makeAttr(LIGHTGRAY, BG_BLACK);
+        var spikeDark = makeAttr(DARKGRAY, BG_BLACK);
+        var blood = makeAttr(RED, BG_BLACK);
+        var U = null;
+        return {
+            name: 'spike',
+            variants: [
+                [
+                    [{ char: '^', attr: spike }, { char: '^', attr: spike }, { char: '^', attr: spike }],
+                    [{ char: '/', attr: spikeDark }, { char: '|', attr: spike }, { char: '\\', attr: spikeDark }]
+                ],
+                [
+                    [U, { char: '^', attr: spike }, { char: '^', attr: spike }, U],
+                    [{ char: '/', attr: spikeDark }, { char: '|', attr: spike }, { char: '|', attr: spike }, { char: '\\', attr: spikeDark }],
+                    [{ char: '/', attr: spikeDark }, { char: '/', attr: spike }, { char: '\\', attr: spike }, { char: '\\', attr: spikeDark }]
+                ],
+                [
+                    [U, { char: '^', attr: spike }, U, { char: '^', attr: spike }, U],
+                    [{ char: '/', attr: spikeDark }, { char: '|', attr: spike }, { char: '^', attr: spike }, { char: '|', attr: spike }, { char: '\\', attr: spikeDark }],
+                    [{ char: '|', attr: spikeDark }, { char: '|', attr: spike }, { char: '|', attr: spike }, { char: '|', attr: spike }, { char: '|', attr: spikeDark }],
+                    [{ char: '/', attr: spikeDark }, { char: '-', attr: spike }, { char: '-', attr: spike }, { char: '-', attr: spike }, { char: '\\', attr: spikeDark }]
+                ],
+                [
+                    [U, { char: '^', attr: spike }, U, { char: '^', attr: spike }, U, { char: '^', attr: spike }, U],
+                    [{ char: '/', attr: spikeDark }, { char: '|', attr: spike }, { char: '/', attr: spikeDark }, { char: '|', attr: spike }, { char: '\\', attr: spikeDark }, { char: '|', attr: spike }, { char: '\\', attr: spikeDark }],
+                    [{ char: '|', attr: spikeDark }, { char: '|', attr: spike }, { char: '|', attr: spikeDark }, { char: '|', attr: spike }, { char: '|', attr: spikeDark }, { char: '|', attr: spike }, { char: '|', attr: spikeDark }],
+                    [{ char: '|', attr: spike }, { char: '|', attr: spikeDark }, { char: '|', attr: spike }, { char: '.', attr: blood }, { char: '|', attr: spike }, { char: '|', attr: spikeDark }, { char: '|', attr: spike }],
+                    [{ char: '-', attr: spikeDark }, { char: '-', attr: spike }, { char: '-', attr: spikeDark }, { char: '-', attr: spike }, { char: '-', attr: spikeDark }, { char: '-', attr: spike }, { char: '-', attr: spikeDark }]
+                ],
+                [
+                    [U, { char: '^', attr: spike }, U, { char: '^', attr: spike }, U, { char: '^', attr: spike }, U],
+                    [{ char: '/', attr: spikeDark }, { char: '|', attr: spike }, { char: '/', attr: spikeDark }, { char: '|', attr: spike }, { char: '\\', attr: spikeDark }, { char: '|', attr: spike }, { char: '\\', attr: spikeDark }],
+                    [{ char: '|', attr: spikeDark }, { char: '|', attr: spike }, { char: '|', attr: spikeDark }, { char: '|', attr: spike }, { char: '|', attr: spikeDark }, { char: '|', attr: spike }, { char: '|', attr: spikeDark }],
+                    [{ char: '|', attr: spike }, { char: '|', attr: spikeDark }, { char: '|', attr: spike }, { char: '.', attr: blood }, { char: '|', attr: spike }, { char: '|', attr: spikeDark }, { char: '|', attr: spike }],
+                    [{ char: '-', attr: spikeDark }, { char: '-', attr: spike }, { char: '-', attr: spikeDark }, { char: '-', attr: spike }, { char: '-', attr: spikeDark }, { char: '-', attr: spike }, { char: '-', attr: spikeDark }]
+                ]
+            ]
+        };
+    },
+    createCauldron: function () {
+        var pot = makeAttr(DARKGRAY, BG_BLACK);
+        var potDark = makeAttr(BLACK, BG_BLACK);
+        var brew = makeAttr(LIGHTGREEN, BG_BLACK);
+        var bubble = makeAttr(GREEN, BG_BLACK);
+        var fire = makeAttr(LIGHTRED, BG_BLACK);
+        var U = null;
+        return {
+            name: 'cauldron',
+            variants: [
+                [
+                    [{ char: 'o', attr: bubble }, { char: 'o', attr: bubble }],
+                    [{ char: '(', attr: pot }, { char: ')', attr: pot }],
+                    [{ char: '^', attr: fire }, { char: '^', attr: fire }]
+                ],
+                [
+                    [U, { char: 'o', attr: bubble }, U],
+                    [{ char: '(', attr: pot }, { char: '~', attr: brew }, { char: ')', attr: pot }],
+                    [{ char: '(', attr: potDark }, { char: '_', attr: pot }, { char: ')', attr: potDark }],
+                    [{ char: '^', attr: fire }, { char: '^', attr: fire }, { char: '^', attr: fire }]
+                ],
+                [
+                    [U, { char: 'o', attr: bubble }, U, { char: 'o', attr: bubble }, U],
+                    [{ char: '/', attr: pot }, { char: '~', attr: brew }, { char: '~', attr: brew }, { char: '~', attr: brew }, { char: '\\', attr: pot }],
+                    [{ char: '|', attr: pot }, { char: GLYPH.FULL_BLOCK, attr: brew }, { char: GLYPH.FULL_BLOCK, attr: brew }, { char: GLYPH.FULL_BLOCK, attr: brew }, { char: '|', attr: pot }],
+                    [{ char: '\\', attr: potDark }, { char: '_', attr: pot }, { char: '_', attr: pot }, { char: '_', attr: pot }, { char: '/', attr: potDark }],
+                    [U, { char: '^', attr: fire }, { char: '*', attr: fire }, { char: '^', attr: fire }, U]
+                ],
+                [
+                    [U, { char: 'o', attr: bubble }, U, { char: 'o', attr: bubble }, U, { char: 'o', attr: bubble }, U],
+                    [U, { char: '/', attr: pot }, { char: '~', attr: brew }, { char: '~', attr: brew }, { char: '~', attr: brew }, { char: '\\', attr: pot }, U],
+                    [{ char: '/', attr: pot }, { char: GLYPH.FULL_BLOCK, attr: brew }, { char: 'o', attr: bubble }, { char: GLYPH.FULL_BLOCK, attr: brew }, { char: 'o', attr: bubble }, { char: GLYPH.FULL_BLOCK, attr: brew }, { char: '\\', attr: pot }],
+                    [{ char: '|', attr: potDark }, { char: GLYPH.FULL_BLOCK, attr: brew }, { char: GLYPH.FULL_BLOCK, attr: brew }, { char: GLYPH.FULL_BLOCK, attr: brew }, { char: GLYPH.FULL_BLOCK, attr: brew }, { char: GLYPH.FULL_BLOCK, attr: brew }, { char: '|', attr: potDark }],
+                    [{ char: '\\', attr: potDark }, { char: '_', attr: pot }, { char: '_', attr: pot }, { char: '_', attr: pot }, { char: '_', attr: pot }, { char: '_', attr: pot }, { char: '/', attr: potDark }],
+                    [U, { char: '^', attr: fire }, { char: '*', attr: fire }, { char: '^', attr: fire }, { char: '*', attr: fire }, { char: '^', attr: fire }, U]
+                ],
+                [
+                    [U, { char: 'o', attr: bubble }, U, { char: 'o', attr: bubble }, U, { char: 'o', attr: bubble }, U],
+                    [U, { char: '/', attr: pot }, { char: '~', attr: brew }, { char: '~', attr: brew }, { char: '~', attr: brew }, { char: '\\', attr: pot }, U],
+                    [{ char: '/', attr: pot }, { char: GLYPH.FULL_BLOCK, attr: brew }, { char: 'o', attr: bubble }, { char: GLYPH.FULL_BLOCK, attr: brew }, { char: 'o', attr: bubble }, { char: GLYPH.FULL_BLOCK, attr: brew }, { char: '\\', attr: pot }],
+                    [{ char: '|', attr: potDark }, { char: GLYPH.FULL_BLOCK, attr: brew }, { char: GLYPH.FULL_BLOCK, attr: brew }, { char: GLYPH.FULL_BLOCK, attr: brew }, { char: GLYPH.FULL_BLOCK, attr: brew }, { char: GLYPH.FULL_BLOCK, attr: brew }, { char: '|', attr: potDark }],
+                    [{ char: '\\', attr: potDark }, { char: '_', attr: pot }, { char: '_', attr: pot }, { char: '_', attr: pot }, { char: '_', attr: pot }, { char: '_', attr: pot }, { char: '/', attr: potDark }],
+                    [U, { char: '^', attr: fire }, { char: '*', attr: fire }, { char: '^', attr: fire }, { char: '*', attr: fire }, { char: '^', attr: fire }, U]
+                ]
+            ]
+        };
+    }
+};
+registerRoadsideSprite('lava_rock', VillainSprites.createLavaRock);
+registerRoadsideSprite('flame', VillainSprites.createFlame);
+registerRoadsideSprite('skull_pile', VillainSprites.createSkullPile);
+registerRoadsideSprite('chain', VillainSprites.createChain);
+registerRoadsideSprite('spike', VillainSprites.createSpike);
+registerRoadsideSprite('cauldron', VillainSprites.createCauldron);
+"use strict";
+var RuinsSprites = {
+    createColumn: function () {
+        var stone = makeAttr(YELLOW, BG_BLACK);
+        var stoneDark = makeAttr(BROWN, BG_BLACK);
+        var stoneLight = makeAttr(WHITE, BG_BLACK);
+        return {
+            name: 'column',
+            variants: [
+                [
+                    [{ char: '=', attr: stoneLight }, { char: '=', attr: stoneLight }],
+                    [{ char: '|', attr: stone }, { char: '|', attr: stone }],
+                    [{ char: '|', attr: stoneDark }, { char: '|', attr: stoneDark }],
+                    [{ char: '=', attr: stone }, { char: '=', attr: stone }]
+                ],
+                [
+                    [{ char: '/', attr: stoneLight }, { char: '=', attr: stoneLight }, { char: '\\', attr: stoneLight }],
+                    [{ char: '|', attr: stone }, { char: '|', attr: stone }, { char: '|', attr: stone }],
+                    [{ char: '|', attr: stoneDark }, { char: '|', attr: stone }, { char: '|', attr: stoneDark }],
+                    [{ char: '|', attr: stone }, { char: '|', attr: stoneDark }, { char: '|', attr: stone }],
+                    [{ char: '\\', attr: stoneDark }, { char: '=', attr: stone }, { char: '/', attr: stoneDark }]
+                ],
+                [
+                    [{ char: '/', attr: stoneLight }, { char: '-', attr: stoneLight }, { char: '-', attr: stoneLight }, { char: '\\', attr: stoneLight }],
+                    [{ char: '|', attr: stone }, { char: GLYPH.FULL_BLOCK, attr: stone }, { char: GLYPH.FULL_BLOCK, attr: stone }, { char: '|', attr: stone }],
+                    [{ char: '|', attr: stoneDark }, { char: GLYPH.FULL_BLOCK, attr: stoneDark }, { char: GLYPH.FULL_BLOCK, attr: stone }, { char: '|', attr: stoneDark }],
+                    [{ char: '|', attr: stone }, { char: GLYPH.FULL_BLOCK, attr: stone }, { char: GLYPH.FULL_BLOCK, attr: stoneDark }, { char: '|', attr: stone }],
+                    [{ char: '|', attr: stoneDark }, { char: GLYPH.FULL_BLOCK, attr: stoneDark }, { char: GLYPH.FULL_BLOCK, attr: stone }, { char: '|', attr: stoneDark }],
+                    [{ char: '\\', attr: stoneDark }, { char: '-', attr: stone }, { char: '-', attr: stone }, { char: '/', attr: stoneDark }]
+                ],
+                [
+                    [{ char: '/', attr: stoneLight }, { char: '=', attr: stoneLight }, { char: '=', attr: stoneLight }, { char: '=', attr: stoneLight }, { char: '\\', attr: stoneLight }],
+                    [{ char: '|', attr: stone }, { char: '(', attr: stone }, { char: ')', attr: stone }, { char: '(', attr: stone }, { char: '|', attr: stone }],
+                    [{ char: '|', attr: stoneDark }, { char: '|', attr: stone }, { char: '|', attr: stoneDark }, { char: '|', attr: stone }, { char: '|', attr: stoneDark }],
+                    [{ char: '|', attr: stone }, { char: '|', attr: stoneDark }, { char: '|', attr: stone }, { char: '|', attr: stoneDark }, { char: '|', attr: stone }],
+                    [{ char: '|', attr: stoneDark }, { char: '|', attr: stone }, { char: '|', attr: stoneDark }, { char: '|', attr: stone }, { char: '|', attr: stoneDark }],
+                    [{ char: '|', attr: stone }, { char: ')', attr: stoneDark }, { char: '(', attr: stoneDark }, { char: ')', attr: stoneDark }, { char: '|', attr: stone }],
+                    [{ char: '\\', attr: stoneDark }, { char: '=', attr: stone }, { char: '=', attr: stone }, { char: '=', attr: stone }, { char: '/', attr: stoneDark }]
+                ],
+                [
+                    [{ char: '/', attr: stoneLight }, { char: '=', attr: stoneLight }, { char: '=', attr: stoneLight }, { char: '=', attr: stoneLight }, { char: '\\', attr: stoneLight }],
+                    [{ char: '|', attr: stone }, { char: '(', attr: stone }, { char: ')', attr: stone }, { char: '(', attr: stone }, { char: '|', attr: stone }],
+                    [{ char: '|', attr: stoneDark }, { char: '|', attr: stone }, { char: '|', attr: stoneDark }, { char: '|', attr: stone }, { char: '|', attr: stoneDark }],
+                    [{ char: '|', attr: stone }, { char: '|', attr: stoneDark }, { char: '|', attr: stone }, { char: '|', attr: stoneDark }, { char: '|', attr: stone }],
+                    [{ char: '|', attr: stoneDark }, { char: '|', attr: stone }, { char: '|', attr: stoneDark }, { char: '|', attr: stone }, { char: '|', attr: stoneDark }],
+                    [{ char: '|', attr: stone }, { char: ')', attr: stoneDark }, { char: '(', attr: stoneDark }, { char: ')', attr: stoneDark }, { char: '|', attr: stone }],
+                    [{ char: '\\', attr: stoneDark }, { char: '=', attr: stone }, { char: '=', attr: stone }, { char: '=', attr: stone }, { char: '/', attr: stoneDark }]
+                ]
+            ]
+        };
+    },
+    createStatue: function () {
+        var stone = makeAttr(YELLOW, BG_BLACK);
+        var stoneDark = makeAttr(BROWN, BG_BLACK);
+        var gold = makeAttr(YELLOW, BG_BROWN);
+        var face = makeAttr(BROWN, BG_BLACK);
+        var U = null;
+        return {
+            name: 'statue',
+            variants: [
+                [
+                    [{ char: '/', attr: gold }, { char: '\\', attr: gold }],
+                    [{ char: GLYPH.FULL_BLOCK, attr: stone }, { char: GLYPH.FULL_BLOCK, attr: stone }],
+                    [{ char: '/', attr: stoneDark }, { char: '\\', attr: stoneDark }]
+                ],
+                [
+                    [U, { char: '^', attr: gold }, U],
+                    [{ char: '/', attr: gold }, { char: 'O', attr: face }, { char: '\\', attr: gold }],
+                    [{ char: GLYPH.FULL_BLOCK, attr: stone }, { char: GLYPH.FULL_BLOCK, attr: stoneDark }, { char: GLYPH.FULL_BLOCK, attr: stone }],
+                    [{ char: '/', attr: stoneDark }, { char: GLYPH.FULL_BLOCK, attr: stone }, { char: '\\', attr: stoneDark }]
+                ],
+                [
+                    [U, { char: '/', attr: gold }, { char: '^', attr: gold }, { char: '\\', attr: gold }, U],
+                    [{ char: '/', attr: gold }, { char: GLYPH.FULL_BLOCK, attr: gold }, { char: 'O', attr: face }, { char: GLYPH.FULL_BLOCK, attr: gold }, { char: '\\', attr: gold }],
+                    [{ char: '|', attr: stone }, { char: '.', attr: face }, { char: 'v', attr: face }, { char: '.', attr: face }, { char: '|', attr: stone }],
+                    [{ char: GLYPH.FULL_BLOCK, attr: stone }, { char: GLYPH.FULL_BLOCK, attr: stoneDark }, { char: GLYPH.FULL_BLOCK, attr: stone }, { char: GLYPH.FULL_BLOCK, attr: stoneDark }, { char: GLYPH.FULL_BLOCK, attr: stone }],
+                    [{ char: '/', attr: stoneDark }, { char: GLYPH.FULL_BLOCK, attr: stone }, { char: GLYPH.FULL_BLOCK, attr: stoneDark }, { char: GLYPH.FULL_BLOCK, attr: stone }, { char: '\\', attr: stoneDark }]
+                ],
+                [
+                    [U, U, { char: '/', attr: gold }, { char: '^', attr: gold }, { char: '\\', attr: gold }, U, U],
+                    [U, { char: '/', attr: gold }, { char: GLYPH.FULL_BLOCK, attr: gold }, { char: GLYPH.FULL_BLOCK, attr: gold }, { char: GLYPH.FULL_BLOCK, attr: gold }, { char: '\\', attr: gold }, U],
+                    [{ char: '/', attr: gold }, { char: GLYPH.FULL_BLOCK, attr: gold }, { char: '.', attr: face }, { char: 'v', attr: face }, { char: '.', attr: face }, { char: GLYPH.FULL_BLOCK, attr: gold }, { char: '\\', attr: gold }],
+                    [{ char: '|', attr: stone }, { char: '|', attr: stone }, { char: GLYPH.FULL_BLOCK, attr: stone }, { char: GLYPH.FULL_BLOCK, attr: stoneDark }, { char: GLYPH.FULL_BLOCK, attr: stone }, { char: '|', attr: stone }, { char: '|', attr: stone }],
+                    [{ char: GLYPH.FULL_BLOCK, attr: stone }, { char: GLYPH.FULL_BLOCK, attr: stoneDark }, { char: GLYPH.FULL_BLOCK, attr: stone }, { char: GLYPH.FULL_BLOCK, attr: stoneDark }, { char: GLYPH.FULL_BLOCK, attr: stone }, { char: GLYPH.FULL_BLOCK, attr: stoneDark }, { char: GLYPH.FULL_BLOCK, attr: stone }],
+                    [{ char: '/', attr: stoneDark }, { char: '-', attr: stone }, { char: GLYPH.FULL_BLOCK, attr: stoneDark }, { char: GLYPH.FULL_BLOCK, attr: stone }, { char: GLYPH.FULL_BLOCK, attr: stoneDark }, { char: '-', attr: stone }, { char: '\\', attr: stoneDark }]
+                ],
+                [
+                    [U, U, { char: '/', attr: gold }, { char: '^', attr: gold }, { char: '\\', attr: gold }, U, U],
+                    [U, { char: '/', attr: gold }, { char: GLYPH.FULL_BLOCK, attr: gold }, { char: GLYPH.FULL_BLOCK, attr: gold }, { char: GLYPH.FULL_BLOCK, attr: gold }, { char: '\\', attr: gold }, U],
+                    [{ char: '/', attr: gold }, { char: GLYPH.FULL_BLOCK, attr: gold }, { char: '.', attr: face }, { char: 'v', attr: face }, { char: '.', attr: face }, { char: GLYPH.FULL_BLOCK, attr: gold }, { char: '\\', attr: gold }],
+                    [{ char: '|', attr: stone }, { char: '|', attr: stone }, { char: GLYPH.FULL_BLOCK, attr: stone }, { char: GLYPH.FULL_BLOCK, attr: stoneDark }, { char: GLYPH.FULL_BLOCK, attr: stone }, { char: '|', attr: stone }, { char: '|', attr: stone }],
+                    [{ char: GLYPH.FULL_BLOCK, attr: stone }, { char: GLYPH.FULL_BLOCK, attr: stoneDark }, { char: GLYPH.FULL_BLOCK, attr: stone }, { char: GLYPH.FULL_BLOCK, attr: stoneDark }, { char: GLYPH.FULL_BLOCK, attr: stone }, { char: GLYPH.FULL_BLOCK, attr: stoneDark }, { char: GLYPH.FULL_BLOCK, attr: stone }],
+                    [{ char: '/', attr: stoneDark }, { char: '-', attr: stone }, { char: GLYPH.FULL_BLOCK, attr: stoneDark }, { char: GLYPH.FULL_BLOCK, attr: stone }, { char: GLYPH.FULL_BLOCK, attr: stoneDark }, { char: '-', attr: stone }, { char: '\\', attr: stoneDark }]
+                ]
+            ]
+        };
+    },
+    createObelisk: function () {
+        var stone = makeAttr(YELLOW, BG_BLACK);
+        var stoneDark = makeAttr(BROWN, BG_BLACK);
+        var top = makeAttr(WHITE, BG_BLACK);
+        var glyph = makeAttr(RED, BG_BLACK);
+        var U = null;
+        return {
+            name: 'obelisk',
+            variants: [
+                [
+                    [{ char: '^', attr: top }],
+                    [{ char: '|', attr: stone }],
+                    [{ char: '|', attr: stoneDark }],
+                    [{ char: '|', attr: stone }]
+                ],
+                [
+                    [{ char: '/', attr: top }, { char: '\\', attr: top }],
+                    [{ char: '|', attr: stone }, { char: '|', attr: stone }],
+                    [{ char: '|', attr: stoneDark }, { char: '|', attr: stoneDark }],
+                    [{ char: '|', attr: stone }, { char: '|', attr: stone }],
+                    [{ char: '/', attr: stoneDark }, { char: '\\', attr: stoneDark }]
+                ],
+                [
+                    [U, { char: '^', attr: top }, U],
+                    [{ char: '/', attr: stone }, { char: '\\', attr: stone }, U],
+                    [{ char: '|', attr: stone }, { char: '*', attr: glyph }, { char: '|', attr: stoneDark }],
+                    [{ char: '|', attr: stoneDark }, { char: GLYPH.FULL_BLOCK, attr: stone }, { char: '|', attr: stone }],
+                    [{ char: '|', attr: stone }, { char: '*', attr: glyph }, { char: '|', attr: stoneDark }],
+                    [{ char: '/', attr: stoneDark }, { char: '-', attr: stone }, { char: '\\', attr: stoneDark }]
+                ],
+                [
+                    [U, { char: '/', attr: top }, { char: '\\', attr: top }, U],
+                    [{ char: '/', attr: stone }, { char: GLYPH.FULL_BLOCK, attr: stone }, { char: GLYPH.FULL_BLOCK, attr: stone }, { char: '\\', attr: stone }],
+                    [{ char: '|', attr: stone }, { char: '@', attr: glyph }, { char: GLYPH.FULL_BLOCK, attr: stoneDark }, { char: '|', attr: stoneDark }],
+                    [{ char: '|', attr: stoneDark }, { char: GLYPH.FULL_BLOCK, attr: stone }, { char: '*', attr: glyph }, { char: '|', attr: stone }],
+                    [{ char: '|', attr: stone }, { char: '*', attr: glyph }, { char: GLYPH.FULL_BLOCK, attr: stoneDark }, { char: '|', attr: stoneDark }],
+                    [{ char: '|', attr: stoneDark }, { char: GLYPH.FULL_BLOCK, attr: stoneDark }, { char: '@', attr: glyph }, { char: '|', attr: stone }],
+                    [{ char: '/', attr: stoneDark }, { char: '-', attr: stone }, { char: '-', attr: stone }, { char: '\\', attr: stoneDark }]
+                ],
+                [
+                    [U, { char: '/', attr: top }, { char: '\\', attr: top }, U],
+                    [{ char: '/', attr: stone }, { char: GLYPH.FULL_BLOCK, attr: stone }, { char: GLYPH.FULL_BLOCK, attr: stone }, { char: '\\', attr: stone }],
+                    [{ char: '|', attr: stone }, { char: '@', attr: glyph }, { char: GLYPH.FULL_BLOCK, attr: stoneDark }, { char: '|', attr: stoneDark }],
+                    [{ char: '|', attr: stoneDark }, { char: GLYPH.FULL_BLOCK, attr: stone }, { char: '*', attr: glyph }, { char: '|', attr: stone }],
+                    [{ char: '|', attr: stone }, { char: '*', attr: glyph }, { char: GLYPH.FULL_BLOCK, attr: stoneDark }, { char: '|', attr: stoneDark }],
+                    [{ char: '|', attr: stoneDark }, { char: GLYPH.FULL_BLOCK, attr: stoneDark }, { char: '@', attr: glyph }, { char: '|', attr: stone }],
+                    [{ char: '/', attr: stoneDark }, { char: '-', attr: stone }, { char: '-', attr: stone }, { char: '\\', attr: stoneDark }]
+                ]
+            ]
+        };
+    },
+    createSphinx: function () {
+        var stone = makeAttr(YELLOW, BG_BLACK);
+        var stoneDark = makeAttr(BROWN, BG_BLACK);
+        var face = makeAttr(BROWN, BG_BLACK);
+        var eye = makeAttr(WHITE, BG_BLACK);
+        var U = null;
+        return {
+            name: 'sphinx',
+            variants: [
+                [
+                    [{ char: '/', attr: stone }, { char: 'O', attr: face }, { char: '\\', attr: stone }],
+                    [{ char: '-', attr: stoneDark }, { char: '-', attr: stone }, { char: '-', attr: stoneDark }]
+                ],
+                [
+                    [U, { char: '/', attr: stone }, { char: '\\', attr: stone }, U],
+                    [{ char: '/', attr: stone }, { char: 'O', attr: face }, { char: 'v', attr: face }, { char: '\\', attr: stone }],
+                    [{ char: '-', attr: stoneDark }, { char: '-', attr: stone }, { char: '-', attr: stone }, { char: '-', attr: stoneDark }]
+                ],
+                [
+                    [U, { char: '/', attr: stone }, { char: '_', attr: stone }, { char: '_', attr: stone }, { char: '\\', attr: stone }, U],
+                    [{ char: '/', attr: stone }, { char: '.', attr: eye }, { char: GLYPH.FULL_BLOCK, attr: face }, { char: GLYPH.FULL_BLOCK, attr: face }, { char: '.', attr: eye }, { char: '\\', attr: stone }],
+                    [{ char: '|', attr: stoneDark }, { char: GLYPH.FULL_BLOCK, attr: stone }, { char: '>', attr: face }, { char: '<', attr: face }, { char: GLYPH.FULL_BLOCK, attr: stone }, { char: '|', attr: stoneDark }],
+                    [{ char: '-', attr: stoneDark }, { char: '-', attr: stone }, { char: '-', attr: stoneDark }, { char: '-', attr: stoneDark }, { char: '-', attr: stone }, { char: '-', attr: stoneDark }]
+                ],
+                [
+                    [U, U, { char: '/', attr: stone }, { char: '_', attr: stone }, { char: '_', attr: stone }, { char: '_', attr: stone }, { char: '\\', attr: stone }, U, U],
+                    [U, { char: '/', attr: stone }, { char: GLYPH.FULL_BLOCK, attr: stone }, { char: '.', attr: eye }, { char: GLYPH.FULL_BLOCK, attr: face }, { char: '.', attr: eye }, { char: GLYPH.FULL_BLOCK, attr: stone }, { char: '\\', attr: stone }, U],
+                    [{ char: '/', attr: stoneDark }, { char: GLYPH.FULL_BLOCK, attr: stone }, { char: GLYPH.FULL_BLOCK, attr: stoneDark }, { char: '>', attr: face }, { char: 'w', attr: face }, { char: '<', attr: face }, { char: GLYPH.FULL_BLOCK, attr: stoneDark }, { char: GLYPH.FULL_BLOCK, attr: stone }, { char: '\\', attr: stoneDark }],
+                    [{ char: '-', attr: stone }, { char: '-', attr: stone }, { char: GLYPH.FULL_BLOCK, attr: stone }, { char: GLYPH.FULL_BLOCK, attr: stoneDark }, { char: GLYPH.FULL_BLOCK, attr: stone }, { char: GLYPH.FULL_BLOCK, attr: stoneDark }, { char: GLYPH.FULL_BLOCK, attr: stone }, { char: '-', attr: stone }, { char: '-', attr: stone }],
+                    [{ char: '-', attr: stoneDark }, { char: '-', attr: stoneDark }, { char: '-', attr: stone }, { char: '-', attr: stoneDark }, { char: '-', attr: stone }, { char: '-', attr: stoneDark }, { char: '-', attr: stone }, { char: '-', attr: stoneDark }, { char: '-', attr: stoneDark }]
+                ],
+                [
+                    [U, U, { char: '/', attr: stone }, { char: '_', attr: stone }, { char: '_', attr: stone }, { char: '_', attr: stone }, { char: '\\', attr: stone }, U, U],
+                    [U, { char: '/', attr: stone }, { char: GLYPH.FULL_BLOCK, attr: stone }, { char: '.', attr: eye }, { char: GLYPH.FULL_BLOCK, attr: face }, { char: '.', attr: eye }, { char: GLYPH.FULL_BLOCK, attr: stone }, { char: '\\', attr: stone }, U],
+                    [{ char: '/', attr: stoneDark }, { char: GLYPH.FULL_BLOCK, attr: stone }, { char: GLYPH.FULL_BLOCK, attr: stoneDark }, { char: '>', attr: face }, { char: 'w', attr: face }, { char: '<', attr: face }, { char: GLYPH.FULL_BLOCK, attr: stoneDark }, { char: GLYPH.FULL_BLOCK, attr: stone }, { char: '\\', attr: stoneDark }],
+                    [{ char: '-', attr: stone }, { char: '-', attr: stone }, { char: GLYPH.FULL_BLOCK, attr: stone }, { char: GLYPH.FULL_BLOCK, attr: stoneDark }, { char: GLYPH.FULL_BLOCK, attr: stone }, { char: GLYPH.FULL_BLOCK, attr: stoneDark }, { char: GLYPH.FULL_BLOCK, attr: stone }, { char: '-', attr: stone }, { char: '-', attr: stone }],
+                    [{ char: '-', attr: stoneDark }, { char: '-', attr: stoneDark }, { char: '-', attr: stone }, { char: '-', attr: stoneDark }, { char: '-', attr: stone }, { char: '-', attr: stoneDark }, { char: '-', attr: stone }, { char: '-', attr: stoneDark }, { char: '-', attr: stoneDark }]
+                ]
+            ]
+        };
+    },
+    createHieroglyph: function () {
+        var stone = makeAttr(YELLOW, BG_BLACK);
+        var stoneDark = makeAttr(BROWN, BG_BLACK);
+        var glyph1 = makeAttr(RED, BG_BLACK);
+        var glyph2 = makeAttr(BLUE, BG_BLACK);
+        var glyph3 = makeAttr(GREEN, BG_BLACK);
+        return {
+            name: 'hieroglyph',
+            variants: [
+                [
+                    [{ char: GLYPH.FULL_BLOCK, attr: stone }, { char: GLYPH.FULL_BLOCK, attr: stone }],
+                    [{ char: '*', attr: glyph1 }, { char: '+', attr: glyph2 }],
+                    [{ char: GLYPH.FULL_BLOCK, attr: stoneDark }, { char: GLYPH.FULL_BLOCK, attr: stoneDark }]
+                ],
+                [
+                    [{ char: GLYPH.FULL_BLOCK, attr: stone }, { char: GLYPH.FULL_BLOCK, attr: stone }, { char: GLYPH.FULL_BLOCK, attr: stone }],
+                    [{ char: '@', attr: glyph1 }, { char: '+', attr: glyph2 }, { char: '~', attr: glyph3 }],
+                    [{ char: '|', attr: glyph3 }, { char: '*', attr: glyph1 }, { char: 'o', attr: glyph2 }],
+                    [{ char: GLYPH.FULL_BLOCK, attr: stoneDark }, { char: GLYPH.FULL_BLOCK, attr: stoneDark }, { char: GLYPH.FULL_BLOCK, attr: stoneDark }]
+                ],
+                [
+                    [{ char: GLYPH.FULL_BLOCK, attr: stone }, { char: GLYPH.FULL_BLOCK, attr: stone }, { char: GLYPH.FULL_BLOCK, attr: stone }, { char: GLYPH.FULL_BLOCK, attr: stone }],
+                    [{ char: '@', attr: glyph1 }, { char: '~', attr: glyph2 }, { char: '+', attr: glyph3 }, { char: '|', attr: glyph1 }],
+                    [{ char: '|', attr: glyph2 }, { char: 'o', attr: glyph3 }, { char: '*', attr: glyph1 }, { char: '~', attr: glyph2 }],
+                    [{ char: '^', attr: glyph3 }, { char: '*', attr: glyph1 }, { char: '@', attr: glyph2 }, { char: 'v', attr: glyph3 }],
+                    [{ char: GLYPH.FULL_BLOCK, attr: stoneDark }, { char: GLYPH.FULL_BLOCK, attr: stoneDark }, { char: GLYPH.FULL_BLOCK, attr: stoneDark }, { char: GLYPH.FULL_BLOCK, attr: stoneDark }]
+                ],
+                [
+                    [{ char: GLYPH.FULL_BLOCK, attr: stone }, { char: GLYPH.FULL_BLOCK, attr: stone }, { char: GLYPH.FULL_BLOCK, attr: stone }, { char: GLYPH.FULL_BLOCK, attr: stone }, { char: GLYPH.FULL_BLOCK, attr: stone }],
+                    [{ char: '/', attr: glyph1 }, { char: 'O', attr: glyph2 }, { char: '\\', attr: glyph1 }, { char: '~', attr: glyph3 }, { char: '|', attr: glyph2 }],
+                    [{ char: '|', attr: glyph2 }, { char: '*', attr: glyph3 }, { char: '+', attr: glyph1 }, { char: '@', attr: glyph2 }, { char: '~', attr: glyph1 }],
+                    [{ char: '^', attr: glyph3 }, { char: '~', attr: glyph1 }, { char: 'o', attr: glyph2 }, { char: '*', attr: glyph3 }, { char: 'v', attr: glyph1 }],
+                    [{ char: '|', attr: glyph1 }, { char: '@', attr: glyph2 }, { char: '|', attr: glyph3 }, { char: '+', attr: glyph1 }, { char: '|', attr: glyph2 }],
+                    [{ char: GLYPH.FULL_BLOCK, attr: stoneDark }, { char: GLYPH.FULL_BLOCK, attr: stoneDark }, { char: GLYPH.FULL_BLOCK, attr: stoneDark }, { char: GLYPH.FULL_BLOCK, attr: stoneDark }, { char: GLYPH.FULL_BLOCK, attr: stoneDark }]
+                ],
+                [
+                    [{ char: GLYPH.FULL_BLOCK, attr: stone }, { char: GLYPH.FULL_BLOCK, attr: stone }, { char: GLYPH.FULL_BLOCK, attr: stone }, { char: GLYPH.FULL_BLOCK, attr: stone }, { char: GLYPH.FULL_BLOCK, attr: stone }],
+                    [{ char: '/', attr: glyph1 }, { char: 'O', attr: glyph2 }, { char: '\\', attr: glyph1 }, { char: '~', attr: glyph3 }, { char: '|', attr: glyph2 }],
+                    [{ char: '|', attr: glyph2 }, { char: '*', attr: glyph3 }, { char: '+', attr: glyph1 }, { char: '@', attr: glyph2 }, { char: '~', attr: glyph1 }],
+                    [{ char: '^', attr: glyph3 }, { char: '~', attr: glyph1 }, { char: 'o', attr: glyph2 }, { char: '*', attr: glyph3 }, { char: 'v', attr: glyph1 }],
+                    [{ char: '|', attr: glyph1 }, { char: '@', attr: glyph2 }, { char: '|', attr: glyph3 }, { char: '+', attr: glyph1 }, { char: '|', attr: glyph2 }],
+                    [{ char: GLYPH.FULL_BLOCK, attr: stoneDark }, { char: GLYPH.FULL_BLOCK, attr: stoneDark }, { char: GLYPH.FULL_BLOCK, attr: stoneDark }, { char: GLYPH.FULL_BLOCK, attr: stoneDark }, { char: GLYPH.FULL_BLOCK, attr: stoneDark }]
+                ]
+            ]
+        };
+    },
+    createScarab: function () {
+        var shell = makeAttr(LIGHTBLUE, BG_BLACK);
+        var shellDark = makeAttr(BLUE, BG_BLACK);
+        var gold = makeAttr(YELLOW, BG_BLACK);
+        var leg = makeAttr(BROWN, BG_BLACK);
+        var U = null;
+        return {
+            name: 'scarab',
+            variants: [
+                [
+                    [{ char: '(', attr: shell }, { char: ')', attr: shell }],
+                    [{ char: '<', attr: leg }, { char: '>', attr: leg }]
+                ],
+                [
+                    [{ char: '/', attr: shell }, { char: '*', attr: gold }, { char: '\\', attr: shell }],
+                    [{ char: '(', attr: shellDark }, { char: GLYPH.FULL_BLOCK, attr: shell }, { char: ')', attr: shellDark }],
+                    [{ char: '<', attr: leg }, { char: '|', attr: leg }, { char: '>', attr: leg }]
+                ],
+                [
+                    [U, { char: '/', attr: shell }, { char: '*', attr: gold }, { char: '\\', attr: shell }, U],
+                    [{ char: '/', attr: shell }, { char: GLYPH.FULL_BLOCK, attr: shell }, { char: GLYPH.FULL_BLOCK, attr: shellDark }, { char: GLYPH.FULL_BLOCK, attr: shell }, { char: '\\', attr: shell }],
+                    [{ char: '(', attr: shellDark }, { char: GLYPH.FULL_BLOCK, attr: shellDark }, { char: GLYPH.FULL_BLOCK, attr: shell }, { char: GLYPH.FULL_BLOCK, attr: shellDark }, { char: ')', attr: shellDark }],
+                    [{ char: '<', attr: leg }, { char: '/', attr: leg }, { char: '|', attr: leg }, { char: '\\', attr: leg }, { char: '>', attr: leg }]
+                ],
+                [
+                    [U, U, { char: '/', attr: shell }, { char: '@', attr: gold }, { char: '\\', attr: shell }, U, U],
+                    [U, { char: '/', attr: shell }, { char: GLYPH.FULL_BLOCK, attr: shell }, { char: GLYPH.FULL_BLOCK, attr: shellDark }, { char: GLYPH.FULL_BLOCK, attr: shell }, { char: '\\', attr: shell }, U],
+                    [{ char: '/', attr: shellDark }, { char: GLYPH.FULL_BLOCK, attr: shell }, { char: GLYPH.FULL_BLOCK, attr: shellDark }, { char: GLYPH.FULL_BLOCK, attr: shell }, { char: GLYPH.FULL_BLOCK, attr: shellDark }, { char: GLYPH.FULL_BLOCK, attr: shell }, { char: '\\', attr: shellDark }],
+                    [{ char: '(', attr: shellDark }, { char: GLYPH.FULL_BLOCK, attr: shellDark }, { char: GLYPH.FULL_BLOCK, attr: shell }, { char: GLYPH.FULL_BLOCK, attr: shellDark }, { char: GLYPH.FULL_BLOCK, attr: shell }, { char: GLYPH.FULL_BLOCK, attr: shellDark }, { char: ')', attr: shellDark }],
+                    [{ char: '<', attr: leg }, { char: '<', attr: leg }, { char: '/', attr: leg }, { char: '|', attr: leg }, { char: '\\', attr: leg }, { char: '>', attr: leg }, { char: '>', attr: leg }]
+                ],
+                [
+                    [U, U, { char: '/', attr: shell }, { char: '@', attr: gold }, { char: '\\', attr: shell }, U, U],
+                    [U, { char: '/', attr: shell }, { char: GLYPH.FULL_BLOCK, attr: shell }, { char: GLYPH.FULL_BLOCK, attr: shellDark }, { char: GLYPH.FULL_BLOCK, attr: shell }, { char: '\\', attr: shell }, U],
+                    [{ char: '/', attr: shellDark }, { char: GLYPH.FULL_BLOCK, attr: shell }, { char: GLYPH.FULL_BLOCK, attr: shellDark }, { char: GLYPH.FULL_BLOCK, attr: shell }, { char: GLYPH.FULL_BLOCK, attr: shellDark }, { char: GLYPH.FULL_BLOCK, attr: shell }, { char: '\\', attr: shellDark }],
+                    [{ char: '(', attr: shellDark }, { char: GLYPH.FULL_BLOCK, attr: shellDark }, { char: GLYPH.FULL_BLOCK, attr: shell }, { char: GLYPH.FULL_BLOCK, attr: shellDark }, { char: GLYPH.FULL_BLOCK, attr: shell }, { char: GLYPH.FULL_BLOCK, attr: shellDark }, { char: ')', attr: shellDark }],
+                    [{ char: '<', attr: leg }, { char: '<', attr: leg }, { char: '/', attr: leg }, { char: '|', attr: leg }, { char: '\\', attr: leg }, { char: '>', attr: leg }, { char: '>', attr: leg }]
+                ]
+            ]
+        };
+    }
+};
+registerRoadsideSprite('column', RuinsSprites.createColumn);
+registerRoadsideSprite('statue', RuinsSprites.createStatue);
+registerRoadsideSprite('obelisk', RuinsSprites.createObelisk);
+registerRoadsideSprite('sphinx', RuinsSprites.createSphinx);
+registerRoadsideSprite('hieroglyph', RuinsSprites.createHieroglyph);
+registerRoadsideSprite('scarab', RuinsSprites.createScarab);
+"use strict";
+var StadiumSprites = {
+    createGrandstand: function () {
+        var structure = makeAttr(DARKGRAY, BG_BLACK);
+        var fans1 = makeAttr(LIGHTRED, BG_BLACK);
+        var fans2 = makeAttr(YELLOW, BG_BLACK);
+        var fans3 = makeAttr(LIGHTCYAN, BG_BLACK);
+        var rail = makeAttr(WHITE, BG_BLACK);
+        var U = null;
+        return {
+            name: 'grandstand',
+            variants: [
+                [
+                    [{ char: GLYPH.FULL_BLOCK, attr: structure }, { char: GLYPH.MEDIUM_SHADE, attr: fans1 }, { char: GLYPH.MEDIUM_SHADE, attr: fans2 }, { char: GLYPH.FULL_BLOCK, attr: structure }],
+                    [{ char: GLYPH.FULL_BLOCK, attr: structure }, { char: GLYPH.DARK_SHADE, attr: fans3 }, { char: GLYPH.DARK_SHADE, attr: fans1 }, { char: GLYPH.FULL_BLOCK, attr: structure }],
+                    [{ char: '-', attr: rail }, { char: '-', attr: rail }, { char: '-', attr: rail }, { char: '-', attr: rail }]
+                ],
+                [
+                    [{ char: GLYPH.FULL_BLOCK, attr: structure }, { char: 'o', attr: fans1 }, { char: 'o', attr: fans2 }, { char: 'o', attr: fans3 }, { char: GLYPH.FULL_BLOCK, attr: structure }],
+                    [{ char: GLYPH.FULL_BLOCK, attr: structure }, { char: 'o', attr: fans3 }, { char: 'o', attr: fans1 }, { char: 'o', attr: fans2 }, { char: GLYPH.FULL_BLOCK, attr: structure }],
+                    [{ char: GLYPH.FULL_BLOCK, attr: structure }, { char: 'o', attr: fans2 }, { char: 'o', attr: fans3 }, { char: 'o', attr: fans1 }, { char: GLYPH.FULL_BLOCK, attr: structure }],
+                    [{ char: '=', attr: rail }, { char: '=', attr: rail }, { char: '=', attr: rail }, { char: '=', attr: rail }, { char: '=', attr: rail }]
+                ],
+                [
+                    [{ char: '/', attr: structure }, { char: GLYPH.MEDIUM_SHADE, attr: fans1 }, { char: GLYPH.MEDIUM_SHADE, attr: fans2 }, { char: GLYPH.MEDIUM_SHADE, attr: fans3 }, { char: GLYPH.MEDIUM_SHADE, attr: fans1 }, { char: GLYPH.MEDIUM_SHADE, attr: fans2 }, { char: '\\', attr: structure }],
+                    [{ char: GLYPH.FULL_BLOCK, attr: structure }, { char: 'o', attr: fans3 }, { char: 'o', attr: fans1 }, { char: 'o', attr: fans2 }, { char: 'o', attr: fans3 }, { char: 'o', attr: fans1 }, { char: GLYPH.FULL_BLOCK, attr: structure }],
+                    [{ char: GLYPH.FULL_BLOCK, attr: structure }, { char: 'o', attr: fans2 }, { char: 'o', attr: fans3 }, { char: 'o', attr: fans1 }, { char: 'o', attr: fans2 }, { char: 'o', attr: fans3 }, { char: GLYPH.FULL_BLOCK, attr: structure }],
+                    [{ char: GLYPH.FULL_BLOCK, attr: structure }, { char: 'o', attr: fans1 }, { char: 'o', attr: fans2 }, { char: 'o', attr: fans3 }, { char: 'o', attr: fans1 }, { char: 'o', attr: fans2 }, { char: GLYPH.FULL_BLOCK, attr: structure }],
+                    [{ char: '[', attr: rail }, { char: '=', attr: rail }, { char: '=', attr: rail }, { char: '=', attr: rail }, { char: '=', attr: rail }, { char: '=', attr: rail }, { char: ']', attr: rail }]
+                ],
+                [
+                    [U, { char: '/', attr: structure }, { char: '_', attr: structure }, { char: '_', attr: structure }, { char: '_', attr: structure }, { char: '_', attr: structure }, { char: '_', attr: structure }, { char: '\\', attr: structure }, U],
+                    [{ char: GLYPH.FULL_BLOCK, attr: structure }, { char: 'o', attr: fans1 }, { char: 'o', attr: fans2 }, { char: 'o', attr: fans3 }, { char: 'o', attr: fans1 }, { char: 'o', attr: fans2 }, { char: 'o', attr: fans3 }, { char: 'o', attr: fans1 }, { char: GLYPH.FULL_BLOCK, attr: structure }],
+                    [{ char: GLYPH.FULL_BLOCK, attr: structure }, { char: 'o', attr: fans3 }, { char: 'o', attr: fans1 }, { char: 'o', attr: fans2 }, { char: 'o', attr: fans3 }, { char: 'o', attr: fans1 }, { char: 'o', attr: fans2 }, { char: 'o', attr: fans3 }, { char: GLYPH.FULL_BLOCK, attr: structure }],
+                    [{ char: GLYPH.FULL_BLOCK, attr: structure }, { char: 'o', attr: fans2 }, { char: 'o', attr: fans3 }, { char: 'o', attr: fans1 }, { char: 'o', attr: fans2 }, { char: 'o', attr: fans3 }, { char: 'o', attr: fans1 }, { char: 'o', attr: fans2 }, { char: GLYPH.FULL_BLOCK, attr: structure }],
+                    [{ char: GLYPH.FULL_BLOCK, attr: structure }, { char: GLYPH.FULL_BLOCK, attr: structure }, { char: GLYPH.FULL_BLOCK, attr: structure }, { char: GLYPH.FULL_BLOCK, attr: structure }, { char: GLYPH.FULL_BLOCK, attr: structure }, { char: GLYPH.FULL_BLOCK, attr: structure }, { char: GLYPH.FULL_BLOCK, attr: structure }, { char: GLYPH.FULL_BLOCK, attr: structure }, { char: GLYPH.FULL_BLOCK, attr: structure }],
+                    [{ char: '[', attr: rail }, { char: '=', attr: rail }, { char: '=', attr: rail }, { char: '=', attr: rail }, { char: '=', attr: rail }, { char: '=', attr: rail }, { char: '=', attr: rail }, { char: '=', attr: rail }, { char: ']', attr: rail }]
+                ],
+                [
+                    [U, { char: '/', attr: structure }, { char: '_', attr: structure }, { char: '_', attr: structure }, { char: '_', attr: structure }, { char: '_', attr: structure }, { char: '_', attr: structure }, { char: '\\', attr: structure }, U],
+                    [{ char: GLYPH.FULL_BLOCK, attr: structure }, { char: 'o', attr: fans1 }, { char: 'o', attr: fans2 }, { char: 'o', attr: fans3 }, { char: 'o', attr: fans1 }, { char: 'o', attr: fans2 }, { char: 'o', attr: fans3 }, { char: 'o', attr: fans1 }, { char: GLYPH.FULL_BLOCK, attr: structure }],
+                    [{ char: GLYPH.FULL_BLOCK, attr: structure }, { char: 'o', attr: fans3 }, { char: 'o', attr: fans1 }, { char: 'o', attr: fans2 }, { char: 'o', attr: fans3 }, { char: 'o', attr: fans1 }, { char: 'o', attr: fans2 }, { char: 'o', attr: fans3 }, { char: GLYPH.FULL_BLOCK, attr: structure }],
+                    [{ char: GLYPH.FULL_BLOCK, attr: structure }, { char: 'o', attr: fans2 }, { char: 'o', attr: fans3 }, { char: 'o', attr: fans1 }, { char: 'o', attr: fans2 }, { char: 'o', attr: fans3 }, { char: 'o', attr: fans1 }, { char: 'o', attr: fans2 }, { char: GLYPH.FULL_BLOCK, attr: structure }],
+                    [{ char: GLYPH.FULL_BLOCK, attr: structure }, { char: GLYPH.FULL_BLOCK, attr: structure }, { char: GLYPH.FULL_BLOCK, attr: structure }, { char: GLYPH.FULL_BLOCK, attr: structure }, { char: GLYPH.FULL_BLOCK, attr: structure }, { char: GLYPH.FULL_BLOCK, attr: structure }, { char: GLYPH.FULL_BLOCK, attr: structure }, { char: GLYPH.FULL_BLOCK, attr: structure }, { char: GLYPH.FULL_BLOCK, attr: structure }],
+                    [{ char: '[', attr: rail }, { char: '=', attr: rail }, { char: '=', attr: rail }, { char: '=', attr: rail }, { char: '=', attr: rail }, { char: '=', attr: rail }, { char: '=', attr: rail }, { char: '=', attr: rail }, { char: ']', attr: rail }]
+                ]
+            ]
+        };
+    },
+    createTireStack: function () {
+        var tire = makeAttr(DARKGRAY, BG_BLACK);
+        var tireInner = makeAttr(BLACK, BG_BLACK);
+        var paint = makeAttr(WHITE, BG_BLACK);
+        var U = null;
+        return {
+            name: 'tire_stack',
+            variants: [
+                [
+                    [{ char: 'O', attr: tire }, { char: 'O', attr: paint }],
+                    [{ char: 'O', attr: paint }, { char: 'O', attr: tire }]
+                ],
+                [
+                    [U, { char: 'O', attr: paint }, U],
+                    [{ char: 'O', attr: tire }, { char: 'O', attr: paint }, { char: 'O', attr: tire }],
+                    [{ char: 'O', attr: paint }, { char: 'O', attr: tire }, { char: 'O', attr: paint }]
+                ],
+                [
+                    [U, { char: 'O', attr: paint }, { char: 'O', attr: tire }, U],
+                    [{ char: '(', attr: tire }, { char: '0', attr: tireInner }, { char: '0', attr: tireInner }, { char: ')', attr: tire }],
+                    [{ char: '(', attr: paint }, { char: '0', attr: tireInner }, { char: '0', attr: tireInner }, { char: ')', attr: paint }],
+                    [{ char: '(', attr: tire }, { char: '0', attr: tireInner }, { char: '0', attr: tireInner }, { char: ')', attr: tire }]
+                ],
+                [
+                    [U, U, { char: 'O', attr: paint }, U, U],
+                    [U, { char: '(', attr: tire }, { char: '0', attr: tireInner }, { char: ')', attr: tire }, U],
+                    [{ char: '(', attr: paint }, { char: '0', attr: tireInner }, { char: GLYPH.FULL_BLOCK, attr: tire }, { char: '0', attr: tireInner }, { char: ')', attr: paint }],
+                    [{ char: '(', attr: tire }, { char: '0', attr: tireInner }, { char: GLYPH.FULL_BLOCK, attr: paint }, { char: '0', attr: tireInner }, { char: ')', attr: tire }],
+                    [{ char: '(', attr: paint }, { char: '0', attr: tireInner }, { char: GLYPH.FULL_BLOCK, attr: tire }, { char: '0', attr: tireInner }, { char: ')', attr: paint }]
+                ],
+                [
+                    [U, U, { char: 'O', attr: paint }, U, U],
+                    [U, { char: '(', attr: tire }, { char: '0', attr: tireInner }, { char: ')', attr: tire }, U],
+                    [{ char: '(', attr: paint }, { char: '0', attr: tireInner }, { char: GLYPH.FULL_BLOCK, attr: tire }, { char: '0', attr: tireInner }, { char: ')', attr: paint }],
+                    [{ char: '(', attr: tire }, { char: '0', attr: tireInner }, { char: GLYPH.FULL_BLOCK, attr: paint }, { char: '0', attr: tireInner }, { char: ')', attr: tire }],
+                    [{ char: '(', attr: paint }, { char: '0', attr: tireInner }, { char: GLYPH.FULL_BLOCK, attr: tire }, { char: '0', attr: tireInner }, { char: ')', attr: paint }]
+                ]
+            ]
+        };
+    },
+    createHayBale: function () {
+        var hay = makeAttr(YELLOW, BG_BLACK);
+        var hayDark = makeAttr(BROWN, BG_BLACK);
+        var twine = makeAttr(BROWN, BG_BLACK);
+        return {
+            name: 'hay_bale',
+            variants: [
+                [
+                    [{ char: '[', attr: hay }, { char: ']', attr: hay }]
+                ],
+                [
+                    [{ char: '/', attr: hay }, { char: '~', attr: hayDark }, { char: '\\', attr: hay }],
+                    [{ char: '[', attr: hay }, { char: '=', attr: twine }, { char: ']', attr: hay }]
+                ],
+                [
+                    [{ char: '/', attr: hay }, { char: GLYPH.MEDIUM_SHADE, attr: hayDark }, { char: GLYPH.MEDIUM_SHADE, attr: hay }, { char: '\\', attr: hay }],
+                    [{ char: '[', attr: hay }, { char: '=', attr: twine }, { char: '=', attr: twine }, { char: ']', attr: hay }]
+                ],
+                [
+                    [{ char: '/', attr: hay }, { char: '~', attr: hayDark }, { char: '~', attr: hay }, { char: '~', attr: hayDark }, { char: '\\', attr: hay }],
+                    [{ char: '[', attr: hay }, { char: GLYPH.MEDIUM_SHADE, attr: hayDark }, { char: '|', attr: twine }, { char: GLYPH.MEDIUM_SHADE, attr: hay }, { char: ']', attr: hay }],
+                    [{ char: '\\', attr: hay }, { char: '_', attr: hayDark }, { char: '=', attr: twine }, { char: '_', attr: hay }, { char: '/', attr: hay }]
+                ],
+                [
+                    [{ char: '/', attr: hay }, { char: '~', attr: hayDark }, { char: '~', attr: hay }, { char: '~', attr: hayDark }, { char: '\\', attr: hay }],
+                    [{ char: '[', attr: hay }, { char: GLYPH.MEDIUM_SHADE, attr: hayDark }, { char: '|', attr: twine }, { char: GLYPH.MEDIUM_SHADE, attr: hay }, { char: ']', attr: hay }],
+                    [{ char: '\\', attr: hay }, { char: '_', attr: hayDark }, { char: '=', attr: twine }, { char: '_', attr: hay }, { char: '/', attr: hay }]
+                ]
+            ]
+        };
+    },
+    createFlagMarshal: function () {
+        var uniform = makeAttr(WHITE, BG_BLACK);
+        var pants = makeAttr(DARKGRAY, BG_BLACK);
+        var flag = makeAttr(YELLOW, BG_BLACK);
+        var flagAlt = makeAttr(LIGHTGREEN, BG_BLACK);
+        var U = null;
+        return {
+            name: 'flag_marshal',
+            variants: [
+                [
+                    [{ char: '\\', attr: flag }],
+                    [{ char: 'o', attr: uniform }],
+                    [{ char: '|', attr: pants }]
+                ],
+                [
+                    [{ char: '~', attr: flag }, { char: '>', attr: flag }],
+                    [U, { char: 'O', attr: uniform }],
+                    [{ char: '/', attr: uniform }, { char: '\\', attr: uniform }],
+                    [{ char: '/', attr: pants }, { char: '\\', attr: pants }]
+                ],
+                [
+                    [{ char: '~', attr: flagAlt }, { char: '~', attr: flagAlt }, { char: '>', attr: flagAlt }],
+                    [U, { char: '|', attr: uniform }, U],
+                    [U, { char: 'O', attr: uniform }, U],
+                    [{ char: '/', attr: uniform }, { char: '|', attr: uniform }, { char: '\\', attr: uniform }],
+                    [{ char: '/', attr: pants }, U, { char: '\\', attr: pants }]
+                ],
+                [
+                    [U, { char: '~', attr: flag }, { char: '~', attr: flag }, { char: '>', attr: flag }],
+                    [U, U, { char: '|', attr: uniform }, U],
+                    [U, { char: '(', attr: uniform }, { char: ')', attr: uniform }, U],
+                    [U, { char: '/', attr: uniform }, { char: '\\', attr: uniform }, U],
+                    [U, { char: '|', attr: pants }, { char: '|', attr: pants }, U],
+                    [{ char: '/', attr: pants }, U, U, { char: '\\', attr: pants }]
+                ],
+                [
+                    [U, { char: '~', attr: flag }, { char: '~', attr: flag }, { char: '>', attr: flag }],
+                    [U, U, { char: '|', attr: uniform }, U],
+                    [U, { char: '(', attr: uniform }, { char: ')', attr: uniform }, U],
+                    [U, { char: '/', attr: uniform }, { char: '\\', attr: uniform }, U],
+                    [U, { char: '|', attr: pants }, { char: '|', attr: pants }, U],
+                    [{ char: '/', attr: pants }, U, U, { char: '\\', attr: pants }]
+                ]
+            ]
+        };
+    },
+    createPitCrew: function () {
+        var helmet = makeAttr(LIGHTRED, BG_BLACK);
+        var suit = makeAttr(RED, BG_BLACK);
+        var tool = makeAttr(LIGHTGRAY, BG_BLACK);
+        var U = null;
+        return {
+            name: 'pit_crew',
+            variants: [
+                [
+                    [{ char: 'o', attr: helmet }],
+                    [{ char: '#', attr: suit }],
+                    [{ char: 'A', attr: suit }]
+                ],
+                [
+                    [{ char: '(', attr: helmet }, { char: ')', attr: helmet }],
+                    [{ char: '[', attr: suit }, { char: ']', attr: suit }],
+                    [{ char: '/', attr: suit }, { char: '\\', attr: suit }],
+                    [{ char: '|', attr: suit }, { char: '|', attr: suit }]
+                ],
+                [
+                    [U, { char: '@', attr: helmet }, U],
+                    [{ char: '/', attr: tool }, { char: '#', attr: suit }, { char: '\\', attr: suit }],
+                    [{ char: '|', attr: tool }, { char: '#', attr: suit }, { char: '|', attr: suit }],
+                    [U, { char: '/', attr: suit }, { char: '\\', attr: suit }],
+                    [U, { char: '|', attr: suit }, { char: '|', attr: suit }]
+                ],
+                [
+                    [U, { char: '(', attr: helmet }, { char: ')', attr: helmet }, U],
+                    [{ char: '/', attr: tool }, { char: '[', attr: suit }, { char: ']', attr: suit }, { char: '\\', attr: suit }],
+                    [{ char: '|', attr: tool }, { char: '[', attr: suit }, { char: ']', attr: suit }, U],
+                    [U, { char: '[', attr: suit }, { char: ']', attr: suit }, U],
+                    [U, { char: '/', attr: suit }, { char: '\\', attr: suit }, U],
+                    [U, { char: '|', attr: suit }, { char: '|', attr: suit }, U]
+                ],
+                [
+                    [U, { char: '(', attr: helmet }, { char: ')', attr: helmet }, U],
+                    [{ char: '/', attr: tool }, { char: '[', attr: suit }, { char: ']', attr: suit }, { char: '\\', attr: suit }],
+                    [{ char: '|', attr: tool }, { char: '[', attr: suit }, { char: ']', attr: suit }, U],
+                    [U, { char: '[', attr: suit }, { char: ']', attr: suit }, U],
+                    [U, { char: '/', attr: suit }, { char: '\\', attr: suit }, U],
+                    [U, { char: '|', attr: suit }, { char: '|', attr: suit }, U]
+                ]
+            ]
+        };
+    },
+    createBanner: function () {
+        var frame = makeAttr(DARKGRAY, BG_BLACK);
+        var banner1 = makeAttr(LIGHTRED, BG_RED);
+        var banner2 = makeAttr(YELLOW, BG_BROWN);
+        var banner3 = makeAttr(LIGHTCYAN, BG_CYAN);
+        var pole = makeAttr(LIGHTGRAY, BG_BLACK);
+        var U = null;
+        return {
+            name: 'banner',
+            variants: [
+                [
+                    [{ char: '[', attr: frame }, { char: '#', attr: banner1 }, { char: ']', attr: frame }],
+                    [U, { char: '|', attr: pole }, U]
+                ],
+                [
+                    [{ char: '[', attr: frame }, { char: GLYPH.FULL_BLOCK, attr: banner2 }, { char: GLYPH.FULL_BLOCK, attr: banner2 }, { char: ']', attr: frame }],
+                    [U, { char: '|', attr: pole }, { char: '|', attr: pole }, U],
+                    [U, { char: '|', attr: pole }, { char: '|', attr: pole }, U]
+                ],
+                [
+                    [{ char: '/', attr: frame }, { char: '-', attr: frame }, { char: '-', attr: frame }, { char: '-', attr: frame }, { char: '\\', attr: frame }],
+                    [{ char: '|', attr: frame }, { char: GLYPH.FULL_BLOCK, attr: banner1 }, { char: GLYPH.FULL_BLOCK, attr: banner1 }, { char: GLYPH.FULL_BLOCK, attr: banner1 }, { char: '|', attr: frame }],
+                    [U, U, { char: '|', attr: pole }, U, U],
+                    [U, U, { char: '|', attr: pole }, U, U]
+                ],
+                [
+                    [{ char: '/', attr: frame }, { char: '-', attr: frame }, { char: '-', attr: frame }, { char: '-', attr: frame }, { char: '-', attr: frame }, { char: '\\', attr: frame }],
+                    [{ char: '|', attr: frame }, { char: GLYPH.FULL_BLOCK, attr: banner3 }, { char: GLYPH.FULL_BLOCK, attr: banner3 }, { char: GLYPH.FULL_BLOCK, attr: banner3 }, { char: GLYPH.FULL_BLOCK, attr: banner3 }, { char: '|', attr: frame }],
+                    [{ char: '\\', attr: frame }, { char: '_', attr: frame }, { char: '_', attr: frame }, { char: '_', attr: frame }, { char: '_', attr: frame }, { char: '/', attr: frame }],
+                    [U, U, { char: '|', attr: pole }, { char: '|', attr: pole }, U, U],
+                    [U, U, { char: '|', attr: pole }, { char: '|', attr: pole }, U, U]
+                ],
+                [
+                    [{ char: '/', attr: frame }, { char: '-', attr: frame }, { char: '-', attr: frame }, { char: '-', attr: frame }, { char: '-', attr: frame }, { char: '\\', attr: frame }],
+                    [{ char: '|', attr: frame }, { char: GLYPH.FULL_BLOCK, attr: banner2 }, { char: GLYPH.FULL_BLOCK, attr: banner2 }, { char: GLYPH.FULL_BLOCK, attr: banner2 }, { char: GLYPH.FULL_BLOCK, attr: banner2 }, { char: '|', attr: frame }],
+                    [{ char: '\\', attr: frame }, { char: '_', attr: frame }, { char: '_', attr: frame }, { char: '_', attr: frame }, { char: '_', attr: frame }, { char: '/', attr: frame }],
+                    [U, U, { char: '|', attr: pole }, { char: '|', attr: pole }, U, U],
+                    [U, U, { char: '|', attr: pole }, { char: '|', attr: pole }, U, U]
+                ]
+            ]
+        };
+    }
+};
+registerRoadsideSprite('grandstand', StadiumSprites.createGrandstand);
+registerRoadsideSprite('tire_stack', StadiumSprites.createTireStack);
+registerRoadsideSprite('hay_bale', StadiumSprites.createHayBale);
+registerRoadsideSprite('flag_marshal', StadiumSprites.createFlagMarshal);
+registerRoadsideSprite('pit_crew', StadiumSprites.createPitCrew);
+registerRoadsideSprite('banner', StadiumSprites.createBanner);
+"use strict";
 var NPC_VEHICLE_TYPES = ['sedan', 'truck', 'sportscar'];
 var NPC_VEHICLE_COLORS = [
     { body: RED, trim: LIGHTRED, name: 'red' },
@@ -4940,6 +7310,965 @@ var CactusCanyonTheme = {
 };
 registerTheme(CactusCanyonTheme);
 "use strict";
+var TropicalJungleTheme = {
+    name: 'tropical_jungle',
+    description: 'Race through a dense tropical rainforest teeming with life',
+    colors: {
+        skyTop: { fg: LIGHTCYAN, bg: BG_BLACK },
+        skyMid: { fg: GREEN, bg: BG_BLACK },
+        skyHorizon: { fg: LIGHTGREEN, bg: BG_BLACK },
+        skyGrid: { fg: GREEN, bg: BG_BLACK },
+        skyGridGlow: { fg: LIGHTGREEN, bg: BG_BLACK },
+        celestialCore: { fg: YELLOW, bg: BG_GREEN },
+        celestialGlow: { fg: LIGHTGREEN, bg: BG_BLACK },
+        starBright: { fg: WHITE, bg: BG_BLACK },
+        starDim: { fg: LIGHTGREEN, bg: BG_BLACK },
+        sceneryPrimary: { fg: GREEN, bg: BG_BLACK },
+        scenerySecondary: { fg: LIGHTGREEN, bg: BG_BLACK },
+        sceneryTertiary: { fg: BROWN, bg: BG_BLACK },
+        roadSurface: { fg: BROWN, bg: BG_BLACK },
+        roadSurfaceAlt: { fg: YELLOW, bg: BG_BLACK },
+        roadStripe: { fg: YELLOW, bg: BG_BLACK },
+        roadEdge: { fg: GREEN, bg: BG_BLACK },
+        roadGrid: { fg: BROWN, bg: BG_BLACK },
+        shoulderPrimary: { fg: GREEN, bg: BG_BLACK },
+        shoulderSecondary: { fg: LIGHTGREEN, bg: BG_BLACK },
+        roadsideColors: {
+            'jungle_tree': {
+                primary: { fg: GREEN, bg: BG_BLACK },
+                secondary: { fg: BROWN, bg: BG_BLACK }
+            },
+            'fern': {
+                primary: { fg: GREEN, bg: BG_BLACK },
+                secondary: { fg: LIGHTGREEN, bg: BG_BLACK }
+            },
+            'vine': {
+                primary: { fg: GREEN, bg: BG_BLACK },
+                secondary: { fg: LIGHTMAGENTA, bg: BG_BLACK }
+            },
+            'flower': {
+                primary: { fg: LIGHTMAGENTA, bg: BG_BLACK },
+                secondary: { fg: YELLOW, bg: BG_BLACK }
+            },
+            'parrot': {
+                primary: { fg: LIGHTRED, bg: BG_BLACK },
+                secondary: { fg: LIGHTBLUE, bg: BG_BLACK }
+            },
+            'banana': {
+                primary: { fg: GREEN, bg: BG_BLACK },
+                secondary: { fg: YELLOW, bg: BG_BLACK }
+            }
+        }
+    },
+    sky: {
+        type: 'gradient',
+        converging: false,
+        horizontal: false
+    },
+    background: {
+        type: 'jungle_canopy',
+        config: {
+            vineCount: 8,
+            hangingVines: true,
+            parallaxSpeed: 0.08
+        }
+    },
+    celestial: {
+        type: 'sun',
+        size: 2,
+        positionX: 0.4,
+        positionY: 0.2
+    },
+    stars: {
+        enabled: false,
+        density: 0,
+        twinkle: false
+    },
+    ground: {
+        type: 'jungle',
+        primary: { fg: GREEN, bg: BG_BLACK },
+        secondary: { fg: BROWN, bg: BG_BLACK },
+        pattern: {
+            grassDensity: 0.7,
+            grassChars: ['"', 'v', 'V', 'Y', ',']
+        }
+    },
+    roadside: {
+        pool: [
+            { sprite: 'jungle_tree', weight: 5, side: 'both' },
+            { sprite: 'fern', weight: 4, side: 'both' },
+            { sprite: 'vine', weight: 3, side: 'both' },
+            { sprite: 'flower', weight: 3, side: 'both' },
+            { sprite: 'parrot', weight: 1, side: 'both' },
+            { sprite: 'banana', weight: 2, side: 'both' }
+        ],
+        spacing: 35,
+        density: 1.4
+    }
+};
+registerTheme(TropicalJungleTheme);
+"use strict";
+var CandyLandTheme = {
+    name: 'candy_land',
+    description: 'Race through a magical world made entirely of sweets and candy',
+    colors: {
+        skyTop: { fg: LIGHTMAGENTA, bg: BG_BLACK },
+        skyMid: { fg: LIGHTCYAN, bg: BG_BLACK },
+        skyHorizon: { fg: LIGHTMAGENTA, bg: BG_BLACK },
+        skyGrid: { fg: LIGHTMAGENTA, bg: BG_BLACK },
+        skyGridGlow: { fg: WHITE, bg: BG_BLACK },
+        celestialCore: { fg: YELLOW, bg: BG_MAGENTA },
+        celestialGlow: { fg: LIGHTMAGENTA, bg: BG_BLACK },
+        starBright: { fg: WHITE, bg: BG_BLACK },
+        starDim: { fg: LIGHTCYAN, bg: BG_BLACK },
+        sceneryPrimary: { fg: LIGHTMAGENTA, bg: BG_BLACK },
+        scenerySecondary: { fg: LIGHTCYAN, bg: BG_BLACK },
+        sceneryTertiary: { fg: WHITE, bg: BG_BLACK },
+        roadSurface: { fg: LIGHTMAGENTA, bg: BG_BLACK },
+        roadSurfaceAlt: { fg: MAGENTA, bg: BG_BLACK },
+        roadStripe: { fg: WHITE, bg: BG_BLACK },
+        roadEdge: { fg: LIGHTCYAN, bg: BG_BLACK },
+        roadGrid: { fg: MAGENTA, bg: BG_BLACK },
+        shoulderPrimary: { fg: LIGHTGREEN, bg: BG_BLACK },
+        shoulderSecondary: { fg: LIGHTCYAN, bg: BG_BLACK },
+        roadsideColors: {
+            'lollipop': {
+                primary: { fg: LIGHTRED, bg: BG_BLACK },
+                secondary: { fg: WHITE, bg: BG_BLACK }
+            },
+            'candy_cane': {
+                primary: { fg: LIGHTRED, bg: BG_BLACK },
+                secondary: { fg: WHITE, bg: BG_BLACK }
+            },
+            'gummy_bear': {
+                primary: { fg: LIGHTGREEN, bg: BG_BLACK },
+                secondary: { fg: GREEN, bg: BG_BLACK }
+            },
+            'cupcake': {
+                primary: { fg: LIGHTMAGENTA, bg: BG_BLACK },
+                secondary: { fg: LIGHTRED, bg: BG_BLACK }
+            },
+            'ice_cream': {
+                primary: { fg: LIGHTMAGENTA, bg: BG_BLACK },
+                secondary: { fg: BROWN, bg: BG_BLACK }
+            },
+            'cotton_candy': {
+                primary: { fg: LIGHTMAGENTA, bg: BG_BLACK },
+                secondary: { fg: LIGHTCYAN, bg: BG_BLACK }
+            }
+        }
+    },
+    sky: {
+        type: 'stars',
+        converging: false,
+        horizontal: false
+    },
+    background: {
+        type: 'candy_hills',
+        config: {
+            swirls: true,
+            parallaxSpeed: 0.12
+        }
+    },
+    celestial: {
+        type: 'sun',
+        size: 3,
+        positionX: 0.5,
+        positionY: 0.3
+    },
+    stars: {
+        enabled: true,
+        density: 0.4,
+        twinkle: true
+    },
+    ground: {
+        type: 'candy',
+        primary: { fg: LIGHTMAGENTA, bg: BG_BLACK },
+        secondary: { fg: LIGHTCYAN, bg: BG_BLACK },
+        pattern: {
+            ditherDensity: 0.4,
+            ditherChars: ['*', '@', '.', '~']
+        }
+    },
+    roadside: {
+        pool: [
+            { sprite: 'lollipop', weight: 4, side: 'both' },
+            { sprite: 'candy_cane', weight: 4, side: 'both' },
+            { sprite: 'gummy_bear', weight: 2, side: 'both' },
+            { sprite: 'cupcake', weight: 3, side: 'both' },
+            { sprite: 'ice_cream', weight: 2, side: 'both' },
+            { sprite: 'cotton_candy', weight: 3, side: 'both' }
+        ],
+        spacing: 40,
+        density: 1.2
+    }
+};
+registerTheme(CandyLandTheme);
+"use strict";
+var RainbowRoadTheme = {
+    name: 'rainbow_road',
+    description: 'Race across a cosmic highway through the stars and galaxies',
+    colors: {
+        skyTop: { fg: BLACK, bg: BG_BLACK },
+        skyMid: { fg: BLUE, bg: BG_BLACK },
+        skyHorizon: { fg: MAGENTA, bg: BG_BLACK },
+        skyGrid: { fg: MAGENTA, bg: BG_BLACK },
+        skyGridGlow: { fg: LIGHTMAGENTA, bg: BG_BLACK },
+        celestialCore: { fg: WHITE, bg: BG_BLACK },
+        celestialGlow: { fg: LIGHTMAGENTA, bg: BG_BLACK },
+        starBright: { fg: WHITE, bg: BG_BLACK },
+        starDim: { fg: CYAN, bg: BG_BLACK },
+        sceneryPrimary: { fg: LIGHTMAGENTA, bg: BG_BLACK },
+        scenerySecondary: { fg: LIGHTCYAN, bg: BG_BLACK },
+        sceneryTertiary: { fg: LIGHTBLUE, bg: BG_BLACK },
+        roadSurface: { fg: LIGHTMAGENTA, bg: BG_BLACK },
+        roadSurfaceAlt: { fg: LIGHTCYAN, bg: BG_BLACK },
+        roadStripe: { fg: WHITE, bg: BG_BLACK },
+        roadEdge: { fg: YELLOW, bg: BG_BLACK },
+        roadGrid: { fg: LIGHTBLUE, bg: BG_BLACK },
+        shoulderPrimary: { fg: BLUE, bg: BG_BLACK },
+        shoulderSecondary: { fg: MAGENTA, bg: BG_BLACK },
+        roadsideColors: {
+            'star': {
+                primary: { fg: WHITE, bg: BG_BLACK },
+                secondary: { fg: YELLOW, bg: BG_BLACK }
+            },
+            'moon': {
+                primary: { fg: WHITE, bg: BG_BLACK },
+                secondary: { fg: LIGHTGRAY, bg: BG_BLACK }
+            },
+            'planet': {
+                primary: { fg: LIGHTBLUE, bg: BG_BLACK },
+                secondary: { fg: LIGHTCYAN, bg: BG_BLACK }
+            },
+            'comet': {
+                primary: { fg: LIGHTCYAN, bg: BG_BLACK },
+                secondary: { fg: WHITE, bg: BG_BLACK }
+            },
+            'nebula': {
+                primary: { fg: LIGHTMAGENTA, bg: BG_BLACK },
+                secondary: { fg: MAGENTA, bg: BG_BLACK }
+            },
+            'satellite': {
+                primary: { fg: LIGHTGRAY, bg: BG_BLACK },
+                secondary: { fg: LIGHTBLUE, bg: BG_BLACK }
+            }
+        }
+    },
+    sky: {
+        type: 'stars',
+        converging: true,
+        horizontal: false
+    },
+    background: {
+        type: 'nebula',
+        config: {
+            cloudCount: 5,
+            parallaxSpeed: 0.05
+        }
+    },
+    celestial: {
+        type: 'sun',
+        size: 4,
+        positionX: 0.5,
+        positionY: 0.4
+    },
+    stars: {
+        enabled: true,
+        density: 1.0,
+        twinkle: true
+    },
+    ground: {
+        type: 'void',
+        primary: { fg: BLUE, bg: BG_BLACK },
+        secondary: { fg: WHITE, bg: BG_BLACK },
+        pattern: {
+            ditherDensity: 0.1,
+            ditherChars: ['.', '*']
+        }
+    },
+    roadside: {
+        pool: [
+            { sprite: 'star', weight: 5, side: 'both' },
+            { sprite: 'moon', weight: 2, side: 'both' },
+            { sprite: 'planet', weight: 3, side: 'both' },
+            { sprite: 'comet', weight: 2, side: 'both' },
+            { sprite: 'nebula', weight: 3, side: 'both' },
+            { sprite: 'satellite', weight: 2, side: 'both' }
+        ],
+        spacing: 45,
+        density: 1.0
+    }
+};
+registerTheme(RainbowRoadTheme);
+"use strict";
+var DarkCastleTheme = {
+    name: 'dark_castle',
+    description: 'Race through the moonlit grounds of an ancient fortress',
+    colors: {
+        skyTop: { fg: BLACK, bg: BG_BLACK },
+        skyMid: { fg: DARKGRAY, bg: BG_BLACK },
+        skyHorizon: { fg: BLUE, bg: BG_BLACK },
+        skyGrid: { fg: DARKGRAY, bg: BG_BLACK },
+        skyGridGlow: { fg: LIGHTGRAY, bg: BG_BLACK },
+        celestialCore: { fg: WHITE, bg: BG_BLACK },
+        celestialGlow: { fg: LIGHTGRAY, bg: BG_BLACK },
+        starBright: { fg: LIGHTGRAY, bg: BG_BLACK },
+        starDim: { fg: DARKGRAY, bg: BG_BLACK },
+        sceneryPrimary: { fg: DARKGRAY, bg: BG_BLACK },
+        scenerySecondary: { fg: BLACK, bg: BG_BLACK },
+        sceneryTertiary: { fg: BLUE, bg: BG_BLACK },
+        roadSurface: { fg: DARKGRAY, bg: BG_BLACK },
+        roadSurfaceAlt: { fg: BLACK, bg: BG_BLACK },
+        roadStripe: { fg: LIGHTGRAY, bg: BG_BLACK },
+        roadEdge: { fg: BROWN, bg: BG_BLACK },
+        roadGrid: { fg: DARKGRAY, bg: BG_BLACK },
+        shoulderPrimary: { fg: DARKGRAY, bg: BG_BLACK },
+        shoulderSecondary: { fg: BROWN, bg: BG_BLACK },
+        roadsideColors: {
+            'tower': {
+                primary: { fg: DARKGRAY, bg: BG_BLACK },
+                secondary: { fg: YELLOW, bg: BG_BLACK }
+            },
+            'battlement': {
+                primary: { fg: DARKGRAY, bg: BG_BLACK },
+                secondary: { fg: BLACK, bg: BG_BLACK }
+            },
+            'torch': {
+                primary: { fg: BROWN, bg: BG_BLACK },
+                secondary: { fg: YELLOW, bg: BG_BLACK }
+            },
+            'banner': {
+                primary: { fg: LIGHTRED, bg: BG_BLACK },
+                secondary: { fg: YELLOW, bg: BG_BLACK }
+            },
+            'gargoyle': {
+                primary: { fg: DARKGRAY, bg: BG_BLACK },
+                secondary: { fg: LIGHTGRAY, bg: BG_BLACK }
+            },
+            'portcullis': {
+                primary: { fg: BROWN, bg: BG_BLACK },
+                secondary: { fg: DARKGRAY, bg: BG_BLACK }
+            }
+        }
+    },
+    sky: {
+        type: 'gradient',
+        converging: false,
+        horizontal: false
+    },
+    background: {
+        type: 'castle_fortress',
+        config: {
+            towerCount: 5,
+            hasTorches: true,
+            parallaxSpeed: 0.08
+        }
+    },
+    celestial: {
+        type: 'moon',
+        size: 3,
+        positionX: 0.7,
+        positionY: 0.25
+    },
+    stars: {
+        enabled: true,
+        density: 0.25,
+        twinkle: true
+    },
+    ground: {
+        type: 'cobblestone',
+        primary: { fg: DARKGRAY, bg: BG_BLACK },
+        secondary: { fg: BLACK, bg: BG_BLACK },
+        pattern: {
+            ditherDensity: 0.6,
+            ditherChars: ['#', '+', GLYPH.DARK_SHADE]
+        }
+    },
+    roadside: {
+        pool: [
+            { sprite: 'tower', weight: 3, side: 'both' },
+            { sprite: 'battlement', weight: 4, side: 'both' },
+            { sprite: 'torch', weight: 5, side: 'both' },
+            { sprite: 'banner', weight: 3, side: 'both' },
+            { sprite: 'gargoyle', weight: 2, side: 'both' },
+            { sprite: 'portcullis', weight: 2, side: 'both' }
+        ],
+        spacing: 35,
+        density: 1.0
+    }
+};
+registerTheme(DarkCastleTheme);
+"use strict";
+var VillainsLairTheme = {
+    name: 'villains_lair',
+    description: 'Speed through the fiery domain of a supervillain',
+    colors: {
+        skyTop: { fg: BLACK, bg: BG_BLACK },
+        skyMid: { fg: RED, bg: BG_BLACK },
+        skyHorizon: { fg: YELLOW, bg: BG_BLACK },
+        skyGrid: { fg: RED, bg: BG_BLACK },
+        skyGridGlow: { fg: YELLOW, bg: BG_BLACK },
+        celestialCore: { fg: YELLOW, bg: BG_RED },
+        celestialGlow: { fg: RED, bg: BG_BLACK },
+        starBright: { fg: YELLOW, bg: BG_BLACK },
+        starDim: { fg: RED, bg: BG_BLACK },
+        sceneryPrimary: { fg: DARKGRAY, bg: BG_BLACK },
+        scenerySecondary: { fg: RED, bg: BG_BLACK },
+        sceneryTertiary: { fg: YELLOW, bg: BG_BLACK },
+        roadSurface: { fg: DARKGRAY, bg: BG_BLACK },
+        roadSurfaceAlt: { fg: BLACK, bg: BG_BLACK },
+        roadStripe: { fg: RED, bg: BG_BLACK },
+        roadEdge: { fg: YELLOW, bg: BG_BLACK },
+        roadGrid: { fg: RED, bg: BG_BLACK },
+        shoulderPrimary: { fg: DARKGRAY, bg: BG_BLACK },
+        shoulderSecondary: { fg: RED, bg: BG_BLACK },
+        roadsideColors: {
+            'lava_rock': {
+                primary: { fg: DARKGRAY, bg: BG_BLACK },
+                secondary: { fg: RED, bg: BG_BLACK }
+            },
+            'flame': {
+                primary: { fg: YELLOW, bg: BG_BLACK },
+                secondary: { fg: RED, bg: BG_BLACK }
+            },
+            'skull_pile': {
+                primary: { fg: WHITE, bg: BG_BLACK },
+                secondary: { fg: LIGHTGRAY, bg: BG_BLACK }
+            },
+            'chain': {
+                primary: { fg: DARKGRAY, bg: BG_BLACK },
+                secondary: { fg: LIGHTGRAY, bg: BG_BLACK }
+            },
+            'spike': {
+                primary: { fg: DARKGRAY, bg: BG_BLACK },
+                secondary: { fg: RED, bg: BG_BLACK }
+            },
+            'cauldron': {
+                primary: { fg: DARKGRAY, bg: BG_BLACK },
+                secondary: { fg: LIGHTGREEN, bg: BG_BLACK }
+            }
+        }
+    },
+    sky: {
+        type: 'gradient',
+        converging: false,
+        horizontal: false
+    },
+    background: {
+        type: 'volcanic',
+        config: {
+            lavaGlow: true,
+            smokeLevel: 2,
+            parallaxSpeed: 0.1
+        }
+    },
+    celestial: {
+        type: 'sun',
+        size: 5,
+        positionX: 0.5,
+        positionY: 0.6
+    },
+    stars: {
+        enabled: true,
+        density: 0.35,
+        twinkle: true
+    },
+    ground: {
+        type: 'lava',
+        primary: { fg: DARKGRAY, bg: BG_BLACK },
+        secondary: { fg: YELLOW, bg: BG_BLACK },
+        pattern: {
+            ditherDensity: 0.5,
+            ditherChars: ['*', '~', GLYPH.MEDIUM_SHADE]
+        }
+    },
+    roadside: {
+        pool: [
+            { sprite: 'lava_rock', weight: 4, side: 'both' },
+            { sprite: 'flame', weight: 5, side: 'both' },
+            { sprite: 'skull_pile', weight: 3, side: 'both' },
+            { sprite: 'chain', weight: 2, side: 'both' },
+            { sprite: 'spike', weight: 3, side: 'both' },
+            { sprite: 'cauldron', weight: 2, side: 'both' }
+        ],
+        spacing: 35,
+        density: 1.1
+    }
+};
+registerTheme(VillainsLairTheme);
+"use strict";
+var AncientRuinsTheme = {
+    name: 'ancient_ruins',
+    description: 'Discover the secrets of ancient Egypt at high speed',
+    colors: {
+        skyTop: { fg: CYAN, bg: BG_BLACK },
+        skyMid: { fg: YELLOW, bg: BG_BLACK },
+        skyHorizon: { fg: WHITE, bg: BG_BLACK },
+        skyGrid: { fg: YELLOW, bg: BG_BLACK },
+        skyGridGlow: { fg: WHITE, bg: BG_BLACK },
+        celestialCore: { fg: WHITE, bg: BG_BROWN },
+        celestialGlow: { fg: YELLOW, bg: BG_BLACK },
+        starBright: { fg: WHITE, bg: BG_BLACK },
+        starDim: { fg: YELLOW, bg: BG_BLACK },
+        sceneryPrimary: { fg: BROWN, bg: BG_BLACK },
+        scenerySecondary: { fg: YELLOW, bg: BG_BLACK },
+        sceneryTertiary: { fg: WHITE, bg: BG_BLACK },
+        roadSurface: { fg: BROWN, bg: BG_BLACK },
+        roadSurfaceAlt: { fg: YELLOW, bg: BG_BLACK },
+        roadStripe: { fg: WHITE, bg: BG_BLACK },
+        roadEdge: { fg: LIGHTGRAY, bg: BG_BLACK },
+        roadGrid: { fg: YELLOW, bg: BG_BLACK },
+        shoulderPrimary: { fg: YELLOW, bg: BG_BLACK },
+        shoulderSecondary: { fg: BROWN, bg: BG_BLACK },
+        roadsideColors: {
+            'column': {
+                primary: { fg: WHITE, bg: BG_BLACK },
+                secondary: { fg: YELLOW, bg: BG_BLACK }
+            },
+            'statue': {
+                primary: { fg: YELLOW, bg: BG_BLACK },
+                secondary: { fg: BROWN, bg: BG_BLACK }
+            },
+            'obelisk': {
+                primary: { fg: LIGHTGRAY, bg: BG_BLACK },
+                secondary: { fg: YELLOW, bg: BG_BLACK }
+            },
+            'sphinx': {
+                primary: { fg: YELLOW, bg: BG_BLACK },
+                secondary: { fg: BROWN, bg: BG_BLACK }
+            },
+            'hieroglyph': {
+                primary: { fg: YELLOW, bg: BG_BLACK },
+                secondary: { fg: LIGHTCYAN, bg: BG_BLACK }
+            },
+            'scarab': {
+                primary: { fg: LIGHTGREEN, bg: BG_BLACK },
+                secondary: { fg: YELLOW, bg: BG_BLACK }
+            }
+        }
+    },
+    sky: {
+        type: 'gradient',
+        converging: false,
+        horizontal: false
+    },
+    background: {
+        type: 'pyramids',
+        config: {
+            pyramidCount: 3,
+            hasSphinx: true,
+            parallaxSpeed: 0.06
+        }
+    },
+    celestial: {
+        type: 'sun',
+        size: 4,
+        positionX: 0.6,
+        positionY: 0.3
+    },
+    stars: {
+        enabled: false,
+        density: 0,
+        twinkle: false
+    },
+    ground: {
+        type: 'sand',
+        primary: { fg: YELLOW, bg: BG_BLACK },
+        secondary: { fg: BROWN, bg: BG_BLACK },
+        pattern: {
+            ditherDensity: 0.35,
+            ditherChars: ['.', "'", '~', GLYPH.LIGHT_SHADE]
+        }
+    },
+    roadside: {
+        pool: [
+            { sprite: 'column', weight: 4, side: 'both' },
+            { sprite: 'statue', weight: 3, side: 'both' },
+            { sprite: 'obelisk', weight: 3, side: 'both' },
+            { sprite: 'sphinx', weight: 2, side: 'both' },
+            { sprite: 'hieroglyph', weight: 3, side: 'both' },
+            { sprite: 'scarab', weight: 2, side: 'both' }
+        ],
+        spacing: 45,
+        density: 0.9
+    }
+};
+registerTheme(AncientRuinsTheme);
+"use strict";
+var ThunderStadiumTheme = {
+    name: 'thunder_stadium',
+    description: 'Race on packed dirt under stadium lights with roaring crowds',
+    colors: {
+        skyTop: { fg: BLACK, bg: BG_BLACK },
+        skyMid: { fg: DARKGRAY, bg: BG_BLACK },
+        skyHorizon: { fg: DARKGRAY, bg: BG_BLACK },
+        skyGrid: { fg: YELLOW, bg: BG_BLACK },
+        skyGridGlow: { fg: WHITE, bg: BG_BLACK },
+        celestialCore: { fg: WHITE, bg: BG_BLACK },
+        celestialGlow: { fg: YELLOW, bg: BG_BLACK },
+        starBright: { fg: WHITE, bg: BG_BLACK },
+        starDim: { fg: YELLOW, bg: BG_BLACK },
+        sceneryPrimary: { fg: DARKGRAY, bg: BG_BLACK },
+        scenerySecondary: { fg: WHITE, bg: BG_BLACK },
+        sceneryTertiary: { fg: YELLOW, bg: BG_BLACK },
+        roadSurface: { fg: YELLOW, bg: BG_BROWN },
+        roadSurfaceAlt: { fg: BROWN, bg: BG_BROWN },
+        roadStripe: { fg: WHITE, bg: BG_BROWN },
+        roadEdge: { fg: YELLOW, bg: BG_BLACK },
+        roadGrid: { fg: DARKGRAY, bg: BG_BROWN },
+        shoulderPrimary: { fg: YELLOW, bg: BG_BROWN },
+        shoulderSecondary: { fg: BROWN, bg: BG_BROWN },
+        roadsideColors: {
+            'grandstand': {
+                primary: { fg: DARKGRAY, bg: BG_BLACK },
+                secondary: { fg: WHITE, bg: BG_BLACK }
+            },
+            'tire_stack': {
+                primary: { fg: DARKGRAY, bg: BG_BLACK },
+                secondary: { fg: WHITE, bg: BG_BLACK }
+            },
+            'hay_bale': {
+                primary: { fg: YELLOW, bg: BG_BLACK },
+                secondary: { fg: BROWN, bg: BG_BLACK }
+            },
+            'flag_marshal': {
+                primary: { fg: WHITE, bg: BG_BLACK },
+                secondary: { fg: YELLOW, bg: BG_BLACK }
+            },
+            'pit_crew': {
+                primary: { fg: LIGHTRED, bg: BG_BLACK },
+                secondary: { fg: RED, bg: BG_BLACK }
+            },
+            'banner': {
+                primary: { fg: LIGHTRED, bg: BG_RED },
+                secondary: { fg: YELLOW, bg: BG_BROWN }
+            }
+        }
+    },
+    sky: {
+        type: 'plain',
+        converging: false,
+        horizontal: false
+    },
+    background: {
+        type: 'stadium',
+        config: {
+            parallaxSpeed: 0.05
+        }
+    },
+    celestial: {
+        type: 'none',
+        size: 0,
+        positionX: 0.5,
+        positionY: 0.5
+    },
+    stars: {
+        enabled: false,
+        density: 0,
+        twinkle: false
+    },
+    ground: {
+        type: 'dirt',
+        primary: { fg: BROWN, bg: BG_BLACK },
+        secondary: { fg: BROWN, bg: BG_BLACK },
+        pattern: {
+            ditherDensity: 0.4,
+            ditherChars: ['.', "'", '`', GLYPH.LIGHT_SHADE]
+        }
+    },
+    roadside: {
+        pool: [
+            { sprite: 'grandstand', weight: 3, side: 'both' },
+            { sprite: 'tire_stack', weight: 4, side: 'both' },
+            { sprite: 'hay_bale', weight: 4, side: 'both' },
+            { sprite: 'flag_marshal', weight: 2, side: 'both' },
+            { sprite: 'pit_crew', weight: 2, side: 'both' },
+            { sprite: 'banner', weight: 3, side: 'both' }
+        ],
+        spacing: 35,
+        density: 1.2
+    }
+};
+registerTheme(ThunderStadiumTheme);
+"use strict";
+var GlitchState = {
+    intensity: 0.3,
+    intensityTarget: 0.3,
+    wavePhase: 0,
+    lastSpikeTime: 0,
+    colorCorruptPhase: 0,
+    tearOffset: 0,
+    noiseRows: [],
+    skyGlitchType: 0,
+    skyGlitchTimer: 0,
+    matrixRainDrops: [],
+    roadColorGlitch: 0,
+    roadGlitchTimer: 0,
+    roadsideColorShift: 0,
+    update: function (trackPosition, dt) {
+        this.wavePhase += dt * 2;
+        var baseIntensity = 0.2 + Math.sin(this.wavePhase) * 0.1;
+        if (Math.random() < 0.02) {
+            this.intensityTarget = 0.6 + Math.random() * 0.4;
+            this.lastSpikeTime = trackPosition;
+        }
+        if (this.intensityTarget > baseIntensity) {
+            this.intensityTarget -= dt * 0.5;
+        }
+        this.intensity += (this.intensityTarget - this.intensity) * dt * 5;
+        if (Math.random() < this.intensity * 0.1) {
+            this.colorCorruptPhase = Math.floor(Math.random() * 6);
+        }
+        if (Math.random() < this.intensity * 0.15) {
+            this.tearOffset = Math.floor(Math.random() * 8) - 4;
+        }
+        else if (Math.random() < 0.3) {
+            this.tearOffset = 0;
+        }
+        if (Math.random() < this.intensity * 0.2) {
+            this.noiseRows = [];
+            var numNoiseRows = Math.floor(Math.random() * 3 * this.intensity);
+            for (var i = 0; i < numNoiseRows; i++) {
+                this.noiseRows.push(Math.floor(Math.random() * 25));
+            }
+        }
+        else if (Math.random() < 0.2) {
+            this.noiseRows = [];
+        }
+        this.skyGlitchTimer -= dt;
+        if (this.skyGlitchTimer <= 0) {
+            if (Math.random() < this.intensity * 0.08) {
+                this.skyGlitchType = Math.floor(Math.random() * 5);
+                this.skyGlitchTimer = 0.5 + Math.random() * 2.0;
+                if (this.skyGlitchType === 1) {
+                    this.matrixRainDrops = [];
+                    for (var r = 0; r < 15; r++) {
+                        this.matrixRainDrops.push({
+                            x: Math.floor(Math.random() * 80),
+                            y: Math.floor(Math.random() * 8),
+                            speed: 0.5 + Math.random() * 1.5,
+                            char: String.fromCharCode(48 + Math.floor(Math.random() * 10))
+                        });
+                    }
+                }
+            }
+            else {
+                this.skyGlitchType = 0;
+            }
+        }
+        if (this.skyGlitchType === 1) {
+            for (var d = 0; d < this.matrixRainDrops.length; d++) {
+                var drop = this.matrixRainDrops[d];
+                drop.y += drop.speed * dt * 10;
+                if (drop.y > 8) {
+                    drop.y = 0;
+                    drop.x = Math.floor(Math.random() * 80);
+                    drop.char = String.fromCharCode(48 + Math.floor(Math.random() * 10));
+                }
+                if (Math.random() < 0.1) {
+                    drop.char = String.fromCharCode(48 + Math.floor(Math.random() * 10));
+                }
+            }
+        }
+        this.roadGlitchTimer -= dt;
+        if (this.roadGlitchTimer <= 0) {
+            if (Math.random() < this.intensity * 0.12) {
+                this.roadColorGlitch = 1 + Math.floor(Math.random() * 4);
+                this.roadGlitchTimer = 0.3 + Math.random() * 1.5;
+            }
+            else {
+                this.roadColorGlitch = 0;
+            }
+        }
+        if (Math.random() < this.intensity * 0.15) {
+            this.roadsideColorShift = Math.floor(Math.random() * 8);
+        }
+        else if (Math.random() < 0.1) {
+            this.roadsideColorShift = 0;
+        }
+    },
+    corruptColor: function (originalFg, originalBg) {
+        if (Math.random() > this.intensity * 0.5) {
+            return { fg: originalFg, bg: originalBg };
+        }
+        switch (this.colorCorruptPhase) {
+            case 0:
+                return { fg: 15 - originalFg, bg: originalBg };
+            case 1:
+                return { fg: originalBg & 0x07, bg: (originalFg << 4) & 0x70 };
+            case 2:
+                return { fg: (originalFg + 8) % 16, bg: originalBg };
+            case 3:
+                return { fg: LIGHTGREEN, bg: BG_BLACK };
+            case 4:
+                return { fg: LIGHTCYAN, bg: BG_BLACK };
+            case 5:
+                return { fg: LIGHTRED, bg: BG_BLACK };
+            default:
+                return { fg: originalFg, bg: originalBg };
+        }
+    },
+    corruptChar: function (original) {
+        if (Math.random() > this.intensity * 0.3) {
+            return original;
+        }
+        var glitchChars = [
+            GLYPH.FULL_BLOCK, GLYPH.DARK_SHADE, GLYPH.MEDIUM_SHADE, GLYPH.LIGHT_SHADE,
+            '#', '@', '%', '&', '$', '!', '?', '/', '\\', '|',
+            GLYPH.BOX_H, GLYPH.BOX_V, GLYPH.BOX_TR, GLYPH.BOX_TL,
+            '0', '1', 'X', 'x', '>', '<', '^', 'v'
+        ];
+        return glitchChars[Math.floor(Math.random() * glitchChars.length)];
+    },
+    isNoiseRow: function (row) {
+        for (var i = 0; i < this.noiseRows.length; i++) {
+            if (this.noiseRows[i] === row)
+                return true;
+        }
+        return false;
+    },
+    getNoiseChar: function () {
+        var noiseChars = [GLYPH.LIGHT_SHADE, GLYPH.MEDIUM_SHADE, GLYPH.DARK_SHADE, ' ', '#', '%'];
+        return noiseChars[Math.floor(Math.random() * noiseChars.length)];
+    },
+    getTearOffset: function (row) {
+        if (row > 8 && row < 18 && Math.abs(this.tearOffset) > 0) {
+            return this.tearOffset;
+        }
+        return 0;
+    },
+    getGlitchedRoadColor: function (baseFg, baseBg, distance) {
+        if (this.roadColorGlitch === 0) {
+            return { fg: baseFg, bg: baseBg };
+        }
+        switch (this.roadColorGlitch) {
+            case 1:
+                return { fg: 15 - baseFg, bg: ((baseBg >> 4) ^ 0x07) << 4 };
+            case 2:
+                var rainbowColors = [LIGHTRED, YELLOW, LIGHTGREEN, LIGHTCYAN, LIGHTBLUE, LIGHTMAGENTA];
+                var colorIndex = Math.floor(distance + (this.wavePhase * 3)) % rainbowColors.length;
+                return { fg: rainbowColors[colorIndex], bg: BG_BLACK };
+            case 3:
+                var flash = Math.floor(Date.now() / 50) % 2;
+                return flash === 0 ? { fg: WHITE, bg: BG_BLACK } : { fg: BLACK, bg: BG_LIGHTGRAY };
+            case 4:
+                if (Math.random() < 0.3) {
+                    return { fg: Math.floor(Math.random() * 16), bg: [BG_BLACK, BG_GREEN, BG_CYAN, BG_RED][Math.floor(Math.random() * 4)] };
+                }
+                return { fg: baseFg, bg: baseBg };
+            default:
+                return { fg: baseFg, bg: baseBg };
+        }
+    },
+    getGlitchedSpriteColor: function (baseFg, baseBg) {
+        if (this.roadsideColorShift === 0 || Math.random() > this.intensity * 0.7) {
+            return { fg: baseFg, bg: baseBg };
+        }
+        var shiftedFg = (baseFg + this.roadsideColorShift) % 16;
+        var shiftedBg = baseBg;
+        if (Math.random() < 0.2) {
+            shiftedBg = [BG_BLACK, BG_GREEN, BG_BLUE, BG_CYAN][Math.floor(Math.random() * 4)];
+        }
+        return { fg: shiftedFg, bg: shiftedBg };
+    }
+};
+var GlitchTheme = {
+    name: 'glitch_circuit',
+    description: 'Reality is corrupted. The simulation is breaking down.',
+    colors: {
+        skyTop: { fg: BLACK, bg: BG_BLACK },
+        skyMid: { fg: DARKGRAY, bg: BG_BLACK },
+        skyHorizon: { fg: LIGHTGREEN, bg: BG_BLACK },
+        skyGrid: { fg: GREEN, bg: BG_BLACK },
+        skyGridGlow: { fg: LIGHTGREEN, bg: BG_BLACK },
+        celestialCore: { fg: WHITE, bg: BG_GREEN },
+        celestialGlow: { fg: LIGHTGREEN, bg: BG_BLACK },
+        starBright: { fg: WHITE, bg: BG_BLACK },
+        starDim: { fg: GREEN, bg: BG_BLACK },
+        sceneryPrimary: { fg: GREEN, bg: BG_BLACK },
+        scenerySecondary: { fg: LIGHTGREEN, bg: BG_BLACK },
+        sceneryTertiary: { fg: WHITE, bg: BG_BLACK },
+        roadSurface: { fg: DARKGRAY, bg: BG_BLACK },
+        roadSurfaceAlt: { fg: GREEN, bg: BG_BLACK },
+        roadStripe: { fg: LIGHTGREEN, bg: BG_BLACK },
+        roadEdge: { fg: LIGHTCYAN, bg: BG_BLACK },
+        roadGrid: { fg: GREEN, bg: BG_BLACK },
+        shoulderPrimary: { fg: GREEN, bg: BG_BLACK },
+        shoulderSecondary: { fg: DARKGRAY, bg: BG_BLACK }
+    },
+    sky: {
+        type: 'grid',
+        gridDensity: 8,
+        converging: true,
+        horizontal: true
+    },
+    background: {
+        type: 'mountains',
+        config: {
+            count: 5,
+            minHeight: 3,
+            maxHeight: 7,
+            parallaxSpeed: 0.08
+        }
+    },
+    celestial: {
+        type: 'sun',
+        size: 3,
+        positionX: 0.5,
+        positionY: 0.4
+    },
+    stars: {
+        enabled: true,
+        density: 0.3,
+        twinkle: true
+    },
+    ground: {
+        type: 'void',
+        primary: { fg: GREEN, bg: BG_BLACK },
+        secondary: { fg: LIGHTGREEN, bg: BG_BLACK },
+        pattern: {
+            gridSpacing: 4,
+            gridChar: '+'
+        }
+    },
+    roadside: {
+        pool: [
+            { sprite: 'building', weight: 1, side: 'both' },
+            { sprite: 'lamppost', weight: 1, side: 'both' },
+            { sprite: 'palm', weight: 1, side: 'both' },
+            { sprite: 'umbrella', weight: 1, side: 'both' },
+            { sprite: 'tree', weight: 1, side: 'both' },
+            { sprite: 'gravestone', weight: 1, side: 'both' },
+            { sprite: 'deadtree', weight: 1, side: 'both' },
+            { sprite: 'pumpkin', weight: 1, side: 'both' },
+            { sprite: 'snowpine', weight: 1, side: 'both' },
+            { sprite: 'snowman', weight: 1, side: 'both' },
+            { sprite: 'saguaro', weight: 1, side: 'both' },
+            { sprite: 'cowskull', weight: 1, side: 'both' },
+            { sprite: 'jungle_tree', weight: 1, side: 'both' },
+            { sprite: 'fern', weight: 1, side: 'both' },
+            { sprite: 'lollipop', weight: 1, side: 'both' },
+            { sprite: 'candy_cane', weight: 1, side: 'both' },
+            { sprite: 'gummy_bear', weight: 1, side: 'both' },
+            { sprite: 'planet', weight: 1, side: 'both' },
+            { sprite: 'satellite', weight: 1, side: 'both' },
+            { sprite: 'torch', weight: 1, side: 'both' },
+            { sprite: 'tower', weight: 1, side: 'both' },
+            { sprite: 'flame', weight: 1, side: 'both' },
+            { sprite: 'skull_pile', weight: 1, side: 'both' },
+            { sprite: 'column', weight: 1, side: 'both' },
+            { sprite: 'obelisk', weight: 1, side: 'both' },
+            { sprite: 'sphinx', weight: 1, side: 'both' },
+            { sprite: 'tire_stack', weight: 1, side: 'both' },
+            { sprite: 'hay_bale', weight: 1, side: 'both' }
+        ],
+        spacing: 35,
+        density: 1.2
+    }
+};
+registerTheme(GlitchTheme);
+"use strict";
 var FrameManager = (function () {
     function FrameManager(width, height, horizonY) {
         this.width = width;
@@ -5366,12 +8695,39 @@ var FrameRenderer = (function () {
         else if (this.activeTheme.background.type === 'forest') {
             this.renderForestTreeline();
         }
+        else if (this.activeTheme.background.type === 'jungle_canopy') {
+            this.renderJungleCanopy();
+        }
+        else if (this.activeTheme.background.type === 'candy_hills') {
+            this.renderCandyHills();
+        }
+        else if (this.activeTheme.background.type === 'nebula') {
+            this.renderNebula();
+        }
+        else if (this.activeTheme.background.type === 'castle_fortress') {
+            this.renderCastleFortress();
+        }
+        else if (this.activeTheme.background.type === 'volcanic') {
+            this.renderVolcanic();
+        }
+        else if (this.activeTheme.background.type === 'pyramids') {
+            this.renderPyramids();
+        }
+        else if (this.activeTheme.background.type === 'dunes') {
+            this.renderDunes();
+        }
+        else if (this.activeTheme.background.type === 'stadium') {
+            this.renderStadium();
+        }
         this._staticElementsDirty = false;
         logDebug('Static elements rendered, dirty=' + this._staticElementsDirty);
     };
     FrameRenderer.prototype.beginFrame = function () {
     };
     FrameRenderer.prototype.renderSky = function (trackPosition, curvature, playerSteer, speed, dt) {
+        if (this.activeTheme.name === 'glitch_circuit' && typeof GlitchState !== 'undefined') {
+            GlitchState.update(trackPosition, dt || 0.016);
+        }
         if (this.activeTheme.sky.type === 'grid') {
             this.renderSkyGrid(trackPosition);
         }
@@ -5389,8 +8745,28 @@ var FrameRenderer = (function () {
         }
     };
     FrameRenderer.prototype.renderRoad = function (trackPosition, cameraX, _track, road) {
-        if (this.activeTheme.ground && this.activeTheme.ground.type === 'grid') {
-            this.renderHolodeckFloor(trackPosition);
+        if (this.activeTheme.ground) {
+            if (this.activeTheme.ground.type === 'grid') {
+                this.renderHolodeckFloor(trackPosition);
+            }
+            else if (this.activeTheme.ground.type === 'lava') {
+                this.renderLavaGround(trackPosition);
+            }
+            else if (this.activeTheme.ground.type === 'candy') {
+                this.renderCandyGround(trackPosition);
+            }
+            else if (this.activeTheme.ground.type === 'void') {
+                this.renderVoidGround(trackPosition);
+            }
+            else if (this.activeTheme.ground.type === 'cobblestone') {
+                this.renderCobblestoneGround(trackPosition);
+            }
+            else if (this.activeTheme.ground.type === 'jungle') {
+                this.renderJungleGround(trackPosition);
+            }
+            else if (this.activeTheme.ground.type === 'dirt') {
+                this.renderDirtGround(trackPosition);
+            }
         }
         this.renderRoadSurface(trackPosition, cameraX, road);
         var roadsideObjects = this.buildRoadsideObjects(trackPosition, cameraX, road);
@@ -5534,7 +8910,159 @@ var FrameRenderer = (function () {
         }
     };
     FrameRenderer.prototype.endFrame = function () {
+        if (this.activeTheme.name === 'glitch_circuit' && typeof GlitchState !== 'undefined') {
+            this.applyGlitchEffects();
+        }
         this.cycle();
+    };
+    FrameRenderer.prototype.applyGlitchEffects = function () {
+        var roadFrame = this.frameManager.getRoadFrame();
+        var groundFrame = this.frameManager.getGroundGridFrame();
+        if (GlitchState.intensity > 0.2 && roadFrame) {
+            for (var row = 0; row < this.height - this.horizonY; row++) {
+                if (GlitchState.isNoiseRow(row)) {
+                    var noiseAttr = makeAttr(Math.random() < 0.5 ? GREEN : LIGHTGREEN, BG_BLACK);
+                    for (var x = 0; x < this.width; x++) {
+                        if (Math.random() < 0.7) {
+                            roadFrame.setData(x, row, GlitchState.getNoiseChar(), noiseAttr);
+                        }
+                    }
+                }
+            }
+        }
+        if (GlitchState.intensity > 0.4 && groundFrame) {
+            var corruptRows = Math.floor(GlitchState.intensity * 3);
+            for (var cr = 0; cr < corruptRows; cr++) {
+                var corruptY = Math.floor(Math.random() * (this.height - this.horizonY));
+                var corruptX = Math.floor(Math.random() * this.width);
+                var corruptW = Math.floor(Math.random() * 20) + 5;
+                var corruptedColor = GlitchState.corruptColor(GREEN, BG_BLACK);
+                var corruptAttr = makeAttr(corruptedColor.fg, corruptedColor.bg);
+                for (var cx = corruptX; cx < corruptX + corruptW && cx < this.width; cx++) {
+                    groundFrame.setData(cx, corruptY, GlitchState.corruptChar('#'), corruptAttr);
+                }
+            }
+        }
+        if (Math.abs(GlitchState.tearOffset) > 0 && roadFrame) {
+            var tearY = 5 + Math.floor(Math.random() * 8);
+            var offset = GlitchState.tearOffset;
+            var tearAttr = makeAttr(LIGHTCYAN, BG_BLACK);
+            if (offset > 0) {
+                for (var tx = 0; tx < Math.abs(offset); tx++) {
+                    roadFrame.setData(tx, tearY, '>', tearAttr);
+                }
+            }
+            else {
+                for (var tx2 = this.width - Math.abs(offset); tx2 < this.width; tx2++) {
+                    roadFrame.setData(tx2, tearY, '<', tearAttr);
+                }
+            }
+        }
+        if (GlitchState.intensity > 0.6 && roadFrame) {
+            var numCorruptions = Math.floor(GlitchState.intensity * 10);
+            for (var i = 0; i < numCorruptions; i++) {
+                var rx = Math.floor(Math.random() * this.width);
+                var ry = Math.floor(Math.random() * (this.height - this.horizonY));
+                var glitchAttr = makeAttr([LIGHTGREEN, LIGHTCYAN, LIGHTRED, WHITE][Math.floor(Math.random() * 4)], BG_BLACK);
+                roadFrame.setData(rx, ry, GlitchState.corruptChar('X'), glitchAttr);
+            }
+        }
+        this.applySkyGlitchEffects();
+    };
+    FrameRenderer.prototype.applySkyGlitchEffects = function () {
+        var mountainsFrame = this.frameManager.getMountainsFrame();
+        var skyGridFrame = this.frameManager.getSkyGridFrame();
+        switch (GlitchState.skyGlitchType) {
+            case 1:
+                if (skyGridFrame) {
+                    var rainAttr = makeAttr(LIGHTGREEN, BG_BLACK);
+                    var rainDimAttr = makeAttr(GREEN, BG_BLACK);
+                    for (var d = 0; d < GlitchState.matrixRainDrops.length; d++) {
+                        var drop = GlitchState.matrixRainDrops[d];
+                        var dropY = Math.floor(drop.y);
+                        if (dropY >= 0 && dropY < this.horizonY && drop.x >= 0 && drop.x < this.width) {
+                            skyGridFrame.setData(drop.x, dropY, drop.char, rainAttr);
+                            if (dropY > 0) {
+                                skyGridFrame.setData(drop.x, dropY - 1, drop.char, rainDimAttr);
+                            }
+                        }
+                    }
+                }
+                break;
+            case 2:
+                if (mountainsFrame) {
+                    var binaryAttr = makeAttr(LIGHTGREEN, BG_BLACK);
+                    var numBinary = 15 + Math.floor(GlitchState.intensity * 20);
+                    for (var b = 0; b < numBinary; b++) {
+                        var bx = Math.floor(Math.random() * this.width);
+                        var by = Math.floor(Math.random() * this.horizonY);
+                        var binaryChar = Math.random() < 0.5 ? '0' : '1';
+                        mountainsFrame.setData(bx, by, binaryChar, binaryAttr);
+                    }
+                }
+                break;
+            case 3:
+                if (skyGridFrame) {
+                    var bsodBgAttr = makeAttr(WHITE, BG_BLUE);
+                    var bsodTextAttr = makeAttr(WHITE, BG_BLUE);
+                    var bsodHeight = 3 + Math.floor(Math.random() * 3);
+                    var bsodY = Math.floor(Math.random() * (this.horizonY - bsodHeight));
+                    for (var by2 = bsodY; by2 < bsodY + bsodHeight && by2 < this.horizonY; by2++) {
+                        for (var bx2 = 10; bx2 < this.width - 10; bx2++) {
+                            skyGridFrame.setData(bx2, by2, ' ', bsodBgAttr);
+                        }
+                    }
+                    var errorMsgs = ['FATAL_ERROR', 'MEMORY_CORRUPT', 'REALITY.SYS', 'STACK_OVERFLOW', '0x0000DEAD'];
+                    var msg = errorMsgs[Math.floor(Math.random() * errorMsgs.length)];
+                    var msgX = Math.floor((this.width - msg.length) / 2);
+                    for (var c = 0; c < msg.length; c++) {
+                        if (msgX + c >= 0 && msgX + c < this.width) {
+                            skyGridFrame.setData(msgX + c, bsodY + 1, msg[c], bsodTextAttr);
+                        }
+                    }
+                }
+                break;
+            case 4:
+                if (mountainsFrame) {
+                    var staticColors = [LIGHTCYAN, LIGHTMAGENTA, YELLOW, WHITE];
+                    var numStatic = 20 + Math.floor(GlitchState.intensity * 30);
+                    for (var s = 0; s < numStatic; s++) {
+                        var sx = Math.floor(Math.random() * this.width);
+                        var sy = Math.floor(Math.random() * this.horizonY);
+                        var staticAttr = makeAttr(staticColors[Math.floor(Math.random() * staticColors.length)], BG_BLACK);
+                        var staticChars = [GLYPH.FULL_BLOCK, GLYPH.DARK_SHADE, GLYPH.MEDIUM_SHADE, '#', '%'];
+                        mountainsFrame.setData(sx, sy, staticChars[Math.floor(Math.random() * staticChars.length)], staticAttr);
+                    }
+                }
+                break;
+        }
+        if (GlitchState.intensity > 0.3 && mountainsFrame && Math.random() < 0.3) {
+            var corruptX = Math.floor(Math.random() * this.width);
+            var corruptY = Math.floor(Math.random() * this.horizonY);
+            var corruptW = 3 + Math.floor(Math.random() * 8);
+            var corruptH = 1 + Math.floor(Math.random() * 3);
+            var corruptColors = [LIGHTGREEN, GREEN, LIGHTCYAN, CYAN];
+            var corruptAttr2 = makeAttr(corruptColors[Math.floor(Math.random() * corruptColors.length)], BG_BLACK);
+            for (var cy = corruptY; cy < corruptY + corruptH && cy < this.horizonY; cy++) {
+                for (var cx = corruptX; cx < corruptX + corruptW && cx < this.width; cx++) {
+                    if (Math.random() < 0.6) {
+                        var glitchChars = ['/', '\\', '|', '-', '+', '#', '0', '1'];
+                        mountainsFrame.setData(cx, cy, glitchChars[Math.floor(Math.random() * glitchChars.length)], corruptAttr2);
+                    }
+                }
+            }
+        }
+        if (GlitchState.intensity > 0.5 && Math.random() < 0.2) {
+            var sunFrame = this.frameManager.getSunFrame();
+            if (sunFrame) {
+                var flickerAttr = makeAttr(Math.random() < 0.5 ? BLACK : LIGHTGREEN, Math.random() < 0.3 ? BG_GREEN : BG_BLACK);
+                for (var sf = 0; sf < 3; sf++) {
+                    var sfx = Math.floor(Math.random() * 8) + 36;
+                    var sfy = Math.floor(Math.random() * 4) + 2;
+                    sunFrame.setData(sfx, sfy, GlitchState.getNoiseChar(), flickerAttr);
+                }
+            }
+        }
     };
     FrameRenderer.prototype.renderSun = function () {
         var sunFrame = this.frameManager.getSunFrame();
@@ -5796,6 +9324,501 @@ var FrameRenderer = (function () {
             }
         }
     };
+    FrameRenderer.prototype.renderJungleCanopy = function () {
+        var frame = this.frameManager.getMountainsFrame();
+        if (!frame)
+            return;
+        var colors = this.activeTheme.colors;
+        var leafDark = makeAttr(colors.sceneryPrimary.fg, colors.sceneryPrimary.bg);
+        var leafLight = makeAttr(colors.scenerySecondary.fg, colors.scenerySecondary.bg);
+        var vineAttr = makeAttr(colors.sceneryTertiary.fg, colors.sceneryTertiary.bg);
+        var canopyHeight = Math.min(this.horizonY - 1, 7);
+        for (var x = 0; x < this.width; x++) {
+            var hash = (x * 23 + 7) % 17;
+            var topY = this.horizonY - canopyHeight + (hash % 3);
+            for (var y = topY; y < this.horizonY; y++) {
+                var depth = y - topY;
+                var leafChar;
+                if (depth === 0) {
+                    leafChar = ((x + hash) % 3 === 0) ? '@' : ((x % 2 === 0) ? 'O' : 'o');
+                    frame.setData(x, y, leafChar, leafLight);
+                }
+                else if (depth < 2) {
+                    leafChar = ((x + depth) % 2 === 0) ? GLYPH.MEDIUM_SHADE : GLYPH.DARK_SHADE;
+                    frame.setData(x, y, leafChar, leafDark);
+                }
+                else {
+                    if ((x * 13 + depth * 7) % 5 !== 0) {
+                        leafChar = GLYPH.LIGHT_SHADE;
+                        frame.setData(x, y, leafChar, leafDark);
+                    }
+                }
+            }
+        }
+        for (var vineX = 3; vineX < this.width - 3; vineX += 7 + ((vineX * 11) % 5)) {
+            var vineLength = 2 + ((vineX * 7) % 4);
+            var vineStartY = this.horizonY - canopyHeight + 2;
+            for (var vy = 0; vy < vineLength && vineStartY + vy < this.horizonY; vy++) {
+                var vineChar = (vy === vineLength - 1) ? ')' : '|';
+                frame.setData(vineX, vineStartY + vy, vineChar, vineAttr);
+            }
+        }
+        for (var fx = 5; fx < this.width - 5; fx += 11 + ((fx * 3) % 7)) {
+            var fy = this.horizonY - canopyHeight + 1 + ((fx * 5) % 2);
+            if (fy < this.horizonY - 1) {
+                frame.setData(fx, fy, '*', makeAttr(LIGHTMAGENTA, BG_BLACK));
+            }
+        }
+    };
+    FrameRenderer.prototype.renderCandyHills = function () {
+        var frame = this.frameManager.getMountainsFrame();
+        if (!frame)
+            return;
+        var colors = this.activeTheme.colors;
+        var hill1 = makeAttr(colors.sceneryPrimary.fg, colors.sceneryPrimary.bg);
+        var hill2 = makeAttr(colors.scenerySecondary.fg, colors.scenerySecondary.bg);
+        var sparkle = makeAttr(colors.sceneryTertiary.fg, colors.sceneryTertiary.bg);
+        var hills = [
+            { centerX: 12, height: 4, width: 20, color: hill1 },
+            { centerX: 35, height: 5, width: 24, color: hill2 },
+            { centerX: 58, height: 3, width: 18, color: hill1 },
+            { centerX: 75, height: 4, width: 16, color: hill2 }
+        ];
+        for (var i = 0; i < hills.length; i++) {
+            var hill = hills[i];
+            for (var dx = -hill.width / 2; dx <= hill.width / 2; dx++) {
+                var x = Math.floor(hill.centerX + dx);
+                if (x < 0 || x >= this.width)
+                    continue;
+                var t = dx / (hill.width / 2);
+                var hillHeight = Math.round(hill.height * Math.cos(t * Math.PI / 2));
+                for (var h = 0; h < hillHeight; h++) {
+                    var y = this.horizonY - 1 - h;
+                    if (y < 0)
+                        continue;
+                    var char;
+                    if (h === hillHeight - 1) {
+                        char = (Math.abs(dx) < hill.width / 4) ? '@' : 'o';
+                    }
+                    else {
+                        char = ((x + h) % 3 === 0) ? '~' : GLYPH.MEDIUM_SHADE;
+                    }
+                    frame.setData(x, y, char, hill.color);
+                }
+            }
+        }
+        for (var sx = 2; sx < this.width - 2; sx += 5 + ((sx * 7) % 4)) {
+            var sy = this.horizonY - 2 - ((sx * 3) % 3);
+            if (sy > 0) {
+                frame.setData(sx, sy, '*', sparkle);
+            }
+        }
+    };
+    FrameRenderer.prototype.renderNebula = function () {
+        var frame = this.frameManager.getMountainsFrame();
+        if (!frame)
+            return;
+        var colors = this.activeTheme.colors;
+        var nebula1 = makeAttr(colors.sceneryPrimary.fg, colors.sceneryPrimary.bg);
+        var nebula2 = makeAttr(colors.scenerySecondary.fg, colors.scenerySecondary.bg);
+        var starAttr = makeAttr(colors.sceneryTertiary.fg, colors.sceneryTertiary.bg);
+        var clouds = [
+            { x: 5, y: this.horizonY - 5, w: 15, h: 4 },
+            { x: 25, y: this.horizonY - 7, w: 20, h: 5 },
+            { x: 50, y: this.horizonY - 4, w: 12, h: 3 },
+            { x: 65, y: this.horizonY - 6, w: 14, h: 4 }
+        ];
+        for (var c = 0; c < clouds.length; c++) {
+            var cloud = clouds[c];
+            var cloudAttr = (c % 2 === 0) ? nebula1 : nebula2;
+            for (var cy = 0; cy < cloud.h; cy++) {
+                for (var cx = 0; cx < cloud.w; cx++) {
+                    var px = cloud.x + cx;
+                    var py = cloud.y + cy;
+                    if (px < 0 || px >= this.width || py < 0 || py >= this.horizonY)
+                        continue;
+                    var distFromCenter = Math.abs(cx - cloud.w / 2) / (cloud.w / 2) +
+                        Math.abs(cy - cloud.h / 2) / (cloud.h / 2);
+                    var density = 1 - distFromCenter * 0.6;
+                    var hash = (px * 17 + py * 31) % 100;
+                    if (hash < density * 80) {
+                        var char;
+                        if (density > 0.7) {
+                            char = GLYPH.MEDIUM_SHADE;
+                        }
+                        else if (density > 0.4) {
+                            char = GLYPH.LIGHT_SHADE;
+                        }
+                        else {
+                            char = '.';
+                        }
+                        frame.setData(px, py, char, cloudAttr);
+                    }
+                }
+            }
+        }
+        for (var sx = 1; sx < this.width - 1; sx += 8 + ((sx * 5) % 6)) {
+            var sy = ((sx * 13) % (this.horizonY - 2)) + 1;
+            if (sy > 0 && sy < this.horizonY - 1) {
+                frame.setData(sx, sy, '*', starAttr);
+            }
+        }
+    };
+    FrameRenderer.prototype.renderCastleFortress = function () {
+        var frame = this.frameManager.getMountainsFrame();
+        if (!frame)
+            return;
+        var colors = this.activeTheme.colors;
+        var stone = makeAttr(colors.sceneryPrimary.fg, colors.sceneryPrimary.bg);
+        var window = makeAttr(colors.scenerySecondary.fg, colors.scenerySecondary.bg);
+        var torch = makeAttr(colors.sceneryTertiary.fg, colors.sceneryTertiary.bg);
+        var sections = [
+            { type: 'tower', x: 5, h: 7, w: 5 },
+            { type: 'wall', x: 10, h: 4, w: 12 },
+            { type: 'tower', x: 22, h: 8, w: 6 },
+            { type: 'wall', x: 28, h: 4, w: 15 },
+            { type: 'tower', x: 43, h: 6, w: 5 },
+            { type: 'gate', x: 48, h: 5, w: 8 },
+            { type: 'tower', x: 56, h: 7, w: 5 },
+            { type: 'wall', x: 61, h: 4, w: 10 },
+            { type: 'tower', x: 71, h: 5, w: 5 }
+        ];
+        for (var i = 0; i < sections.length; i++) {
+            var sec = sections[i];
+            var baseY = this.horizonY - 1;
+            if (sec.type === 'tower') {
+                for (var h = 0; h < sec.h; h++) {
+                    var y = baseY - h;
+                    if (y < 0)
+                        continue;
+                    for (var dx = 0; dx < sec.w; dx++) {
+                        var x = sec.x + dx;
+                        if (x >= this.width)
+                            continue;
+                        if (h === sec.h - 1) {
+                            frame.setData(x, y, (dx % 2 === 0) ? GLYPH.FULL_BLOCK : ' ', stone);
+                        }
+                        else if (h === sec.h - 2 && dx === Math.floor(sec.w / 2)) {
+                            frame.setData(x, y, '.', window);
+                        }
+                        else if (h === 1 && dx === Math.floor(sec.w / 2)) {
+                            frame.setData(x, y, '*', torch);
+                        }
+                        else {
+                            frame.setData(x, y, GLYPH.FULL_BLOCK, stone);
+                        }
+                    }
+                }
+                var roofX = sec.x + Math.floor(sec.w / 2);
+                frame.setData(roofX, baseY - sec.h, GLYPH.TRIANGLE_UP, stone);
+            }
+            else if (sec.type === 'wall') {
+                for (var h = 0; h < sec.h; h++) {
+                    var y = baseY - h;
+                    if (y < 0)
+                        continue;
+                    for (var dx = 0; dx < sec.w; dx++) {
+                        var x = sec.x + dx;
+                        if (x >= this.width)
+                            continue;
+                        if (h === sec.h - 1) {
+                            frame.setData(x, y, (dx % 3 === 0) ? GLYPH.FULL_BLOCK : ' ', stone);
+                        }
+                        else {
+                            frame.setData(x, y, GLYPH.MEDIUM_SHADE, stone);
+                        }
+                    }
+                }
+            }
+            else if (sec.type === 'gate') {
+                for (var h = 0; h < sec.h; h++) {
+                    var y = baseY - h;
+                    if (y < 0)
+                        continue;
+                    for (var dx = 0; dx < sec.w; dx++) {
+                        var x = sec.x + dx;
+                        if (x >= this.width)
+                            continue;
+                        var inArch = (dx > 1 && dx < sec.w - 2 && h < sec.h - 2);
+                        if (inArch) {
+                            frame.setData(x, y, (h % 2 === 0) ? '-' : '#', stone);
+                        }
+                        else {
+                            frame.setData(x, y, GLYPH.FULL_BLOCK, stone);
+                        }
+                    }
+                }
+            }
+        }
+    };
+    FrameRenderer.prototype.renderVolcanic = function () {
+        var frame = this.frameManager.getMountainsFrame();
+        if (!frame)
+            return;
+        var colors = this.activeTheme.colors;
+        var rock = makeAttr(colors.sceneryPrimary.fg, colors.sceneryPrimary.bg);
+        var lava = makeAttr(colors.scenerySecondary.fg, colors.scenerySecondary.bg);
+        var smoke = makeAttr(colors.sceneryTertiary.fg, colors.sceneryTertiary.bg);
+        var peaks = [
+            { x: 8, h: 5, w: 14, hasLava: false },
+            { x: 28, h: 8, w: 20, hasLava: true },
+            { x: 55, h: 6, w: 16, hasLava: true },
+            { x: 72, h: 4, w: 10, hasLava: false }
+        ];
+        for (var i = 0; i < peaks.length; i++) {
+            var peak = peaks[i];
+            var peakX = peak.x + Math.floor(peak.w / 2);
+            for (var h = 0; h < peak.h; h++) {
+                var y = this.horizonY - 1 - h;
+                if (y < 0)
+                    continue;
+                var rowWidth = Math.floor((peak.h - h) * peak.w / peak.h / 2);
+                for (var dx = -rowWidth; dx <= rowWidth; dx++) {
+                    var x = peakX + dx;
+                    if (x < 0 || x >= this.width)
+                        continue;
+                    var edgeDist = Math.abs(dx) - rowWidth + 1;
+                    if (edgeDist >= 0 && ((x * 7 + h * 3) % 3 === 0)) {
+                        continue;
+                    }
+                    var char;
+                    if (h === peak.h - 1 && peak.hasLava) {
+                        char = '^';
+                        frame.setData(x, y, char, lava);
+                    }
+                    else if (dx < 0) {
+                        char = '/';
+                        frame.setData(x, y, char, rock);
+                    }
+                    else if (dx > 0) {
+                        char = '\\';
+                        frame.setData(x, y, char, rock);
+                    }
+                    else {
+                        char = GLYPH.BOX_V;
+                        frame.setData(x, y, char, rock);
+                    }
+                }
+            }
+            if (peak.hasLava) {
+                var craterY = this.horizonY - peak.h;
+                if (craterY >= 0) {
+                    frame.setData(peakX - 1, craterY, '*', lava);
+                    frame.setData(peakX, craterY, GLYPH.FULL_BLOCK, lava);
+                    frame.setData(peakX + 1, craterY, '*', lava);
+                }
+                for (var sy = 1; sy <= 2; sy++) {
+                    var smokeY = craterY - sy;
+                    if (smokeY >= 0) {
+                        frame.setData(peakX + (sy % 2), smokeY, '~', smoke);
+                        frame.setData(peakX - (sy % 2), smokeY, '~', smoke);
+                    }
+                }
+            }
+        }
+        for (var lx = 0; lx < this.width; lx += 12 + ((lx * 5) % 7)) {
+            var ly = this.horizonY - 1;
+            frame.setData(lx, ly, '~', lava);
+            if (lx + 1 < this.width)
+                frame.setData(lx + 1, ly, '*', lava);
+        }
+    };
+    FrameRenderer.prototype.renderPyramids = function () {
+        var frame = this.frameManager.getMountainsFrame();
+        if (!frame)
+            return;
+        var colors = this.activeTheme.colors;
+        var stone = makeAttr(colors.sceneryPrimary.fg, colors.sceneryPrimary.bg);
+        var gold = makeAttr(colors.scenerySecondary.fg, colors.scenerySecondary.bg);
+        var pyramids = [
+            { x: 15, h: 6 },
+            { x: 40, h: 8 },
+            { x: 62, h: 5 }
+        ];
+        for (var i = 0; i < pyramids.length; i++) {
+            var pyr = pyramids[i];
+            var baseY = this.horizonY - 1;
+            for (var h = 0; h < pyr.h; h++) {
+                var y = baseY - h;
+                if (y < 0)
+                    continue;
+                var halfWidth = pyr.h - h - 1;
+                for (var dx = -halfWidth; dx <= halfWidth; dx++) {
+                    var x = pyr.x + dx;
+                    if (x < 0 || x >= this.width)
+                        continue;
+                    var char;
+                    var attr = stone;
+                    if (h === pyr.h - 1) {
+                        char = GLYPH.TRIANGLE_UP;
+                        attr = gold;
+                    }
+                    else if (dx === -halfWidth) {
+                        char = '/';
+                    }
+                    else if (dx === halfWidth) {
+                        char = '\\';
+                    }
+                    else {
+                        char = ((h + dx) % 4 === 0) ? '-' : GLYPH.LIGHT_SHADE;
+                    }
+                    frame.setData(x, y, char, attr);
+                }
+            }
+        }
+        var sphinxX = 2;
+        var sphinxY = this.horizonY - 1;
+        frame.setData(sphinxX, sphinxY, GLYPH.MEDIUM_SHADE, stone);
+        frame.setData(sphinxX + 1, sphinxY, GLYPH.MEDIUM_SHADE, stone);
+        frame.setData(sphinxX + 2, sphinxY, GLYPH.MEDIUM_SHADE, stone);
+        frame.setData(sphinxX + 3, sphinxY, '_', stone);
+        frame.setData(sphinxX, sphinxY - 1, ')', stone);
+        frame.setData(sphinxX + 1, sphinxY - 1, GLYPH.FULL_BLOCK, stone);
+        frame.setData(sphinxX + 1, sphinxY - 2, GLYPH.TRIANGLE_UP, gold);
+        var obeliskPositions = [28, 52, 75];
+        for (var oi = 0; oi < obeliskPositions.length; oi++) {
+            var ox = obeliskPositions[oi];
+            frame.setData(ox, this.horizonY - 1, '|', stone);
+            frame.setData(ox, this.horizonY - 2, '|', stone);
+            frame.setData(ox, this.horizonY - 3, GLYPH.TRIANGLE_UP, gold);
+        }
+    };
+    FrameRenderer.prototype.renderDunes = function () {
+        var frame = this.frameManager.getMountainsFrame();
+        if (!frame)
+            return;
+        var colors = this.activeTheme.colors;
+        var sandLight = makeAttr(colors.sceneryPrimary.fg, colors.sceneryPrimary.bg);
+        var sandDark = makeAttr(colors.scenerySecondary.fg, colors.scenerySecondary.bg);
+        for (var x = 0; x < this.width; x++) {
+            var wave1 = Math.sin(x * 0.08) * 2;
+            var wave2 = Math.sin(x * 0.15 + 1) * 1.5;
+            var wave3 = Math.sin(x * 0.04 + 2) * 2.5;
+            var duneHeight = Math.round(2 + wave1 + wave2 + wave3);
+            for (var h = 0; h < duneHeight; h++) {
+                var y = this.horizonY - 1 - h;
+                if (y < 0)
+                    continue;
+                var char;
+                var attr = (h % 2 === 0) ? sandLight : sandDark;
+                if (h === duneHeight - 1) {
+                    char = '~';
+                }
+                else {
+                    char = GLYPH.LIGHT_SHADE;
+                }
+                frame.setData(x, y, char, attr);
+            }
+        }
+    };
+    FrameRenderer.prototype.renderStadium = function () {
+        var frame = this.frameManager.getMountainsFrame();
+        if (!frame)
+            return;
+        var colors = this.activeTheme.colors;
+        var structure = makeAttr(colors.sceneryPrimary.fg, colors.sceneryPrimary.bg);
+        var lights = makeAttr(colors.scenerySecondary.fg, colors.scenerySecondary.bg);
+        var crowd1 = makeAttr(LIGHTRED, BG_BLACK);
+        var crowd2 = makeAttr(YELLOW, BG_BLACK);
+        var crowd3 = makeAttr(LIGHTCYAN, BG_BLACK);
+        var crowdColors = [crowd1, crowd2, crowd3];
+        this.drawGrandstand(frame, 0, 18, structure, crowdColors);
+        this.drawGrandstand(frame, 62, 18, structure, crowdColors);
+        this.drawScoreboard(frame, 30, lights, structure);
+        this.drawFloodlight(frame, 20, lights, structure);
+        this.drawFloodlight(frame, 59, lights, structure);
+        for (var beamX = 22; beamX < 28; beamX++) {
+            for (var beamY = 4; beamY < this.horizonY - 2; beamY += 3) {
+                frame.setData(beamX, beamY, '|', makeAttr(YELLOW, BG_BLACK));
+            }
+        }
+        for (var beamX2 = 52; beamX2 < 58; beamX2++) {
+            for (var beamY2 = 4; beamY2 < this.horizonY - 2; beamY2 += 3) {
+                frame.setData(beamX2, beamY2, '|', makeAttr(YELLOW, BG_BLACK));
+            }
+        }
+    };
+    FrameRenderer.prototype.drawGrandstand = function (frame, startX, width, structure, crowdColors) {
+        var standHeight = 6;
+        for (var tier = 0; tier < standHeight; tier++) {
+            var y = this.horizonY - 1 - tier;
+            if (y < 0)
+                continue;
+            var tierWidth = width - tier * 2;
+            var tierStart = startX + tier;
+            for (var x = tierStart; x < tierStart + tierWidth && x < this.width; x++) {
+                if (x < 0)
+                    continue;
+                if (tier === 0) {
+                    frame.setData(x, y, '=', structure);
+                }
+                else if (x === tierStart || x === tierStart + tierWidth - 1) {
+                    frame.setData(x, y, GLYPH.FULL_BLOCK, structure);
+                }
+                else {
+                    var colorIdx = (x * 3 + tier * 7) % crowdColors.length;
+                    var crowdChars = ['o', 'O', '@', 'o', '*'];
+                    var charIdx = (x * 5 + tier * 11) % crowdChars.length;
+                    frame.setData(x, y, crowdChars[charIdx], crowdColors[colorIdx]);
+                }
+            }
+        }
+        var roofY = this.horizonY - 1 - standHeight;
+        if (roofY >= 0) {
+            for (var rx = startX + standHeight; rx < startX + width - standHeight && rx < this.width; rx++) {
+                if (rx >= 0) {
+                    frame.setData(rx, roofY, '_', structure);
+                }
+            }
+        }
+    };
+    FrameRenderer.prototype.drawScoreboard = function (frame, centerX, lights, structure) {
+        var boardWidth = 20;
+        var boardHeight = 4;
+        var boardTop = 1;
+        var startX = centerX - Math.floor(boardWidth / 2);
+        for (var y = boardTop; y < boardTop + boardHeight; y++) {
+            for (var x = startX; x < startX + boardWidth; x++) {
+                if (x < 0 || x >= this.width)
+                    continue;
+                if (y === boardTop || y === boardTop + boardHeight - 1) {
+                    frame.setData(x, y, '-', structure);
+                }
+                else if (x === startX || x === startX + boardWidth - 1) {
+                    frame.setData(x, y, '|', structure);
+                }
+                else {
+                    var displayChars = [GLYPH.FULL_BLOCK, GLYPH.DARK_SHADE, GLYPH.MEDIUM_SHADE];
+                    var charIdx = (x + y * 3) % displayChars.length;
+                    frame.setData(x, y, displayChars[charIdx], lights);
+                }
+            }
+        }
+        var poleY1 = boardTop + boardHeight;
+        var poleY2 = this.horizonY - 1;
+        for (var py = poleY1; py < poleY2; py++) {
+            frame.setData(startX + 3, py, '|', structure);
+            frame.setData(startX + boardWidth - 4, py, '|', structure);
+        }
+    };
+    FrameRenderer.prototype.drawFloodlight = function (frame, centerX, lights, structure) {
+        for (var y = 0; y < this.horizonY - 1; y++) {
+            frame.setData(centerX, y, '|', structure);
+        }
+        var lightBank = ['[', '*', '*', '*', ']'];
+        for (var i = 0; i < lightBank.length; i++) {
+            var lx = centerX - 2 + i;
+            if (lx >= 0 && lx < this.width) {
+                frame.setData(lx, 0, lightBank[i], lights);
+            }
+        }
+        for (var i2 = 0; i2 < 3; i2++) {
+            var lx2 = centerX - 1 + i2;
+            if (lx2 >= 0 && lx2 < this.width) {
+                frame.setData(lx2, 1, '*', lights);
+            }
+        }
+    };
     FrameRenderer.prototype.drawMountainToFrame = function (frame, baseX, baseY, height, width, attr, highlightAttr) {
         var peakX = baseX + Math.floor(width / 2);
         for (var h = 0; h < height; h++) {
@@ -5967,6 +9990,260 @@ var FrameRenderer = (function () {
             }
         }
     };
+    FrameRenderer.prototype.renderLavaGround = function (trackPosition) {
+        var frame = this.frameManager.getGroundGridFrame();
+        if (!frame)
+            return;
+        var ground = this.activeTheme.ground;
+        if (!ground)
+            return;
+        frame.clear();
+        var rockAttr = makeAttr(ground.primary.fg, ground.primary.bg);
+        var lavaAttr = makeAttr(ground.secondary.fg, ground.secondary.bg);
+        var frameHeight = this.height - this.horizonY;
+        for (var y = 0; y < frameHeight - 1; y++) {
+            for (var x = 0; x < this.width; x++) {
+                frame.setData(x, y, GLYPH.DARK_SHADE, rockAttr);
+            }
+        }
+        var flowPhase = Math.floor(trackPosition / 20) % 8;
+        for (var y = 0; y < frameHeight - 1; y++) {
+            var distFromHorizon = y + 1;
+            for (var crack = 0; crack < 4; crack++) {
+                var baseX = crack * 20 + 5;
+                var waveOffset = Math.sin((y + flowPhase + crack * 3) * 0.5) * 3;
+                var x = Math.floor(baseX + waveOffset);
+                if (x >= 0 && x < this.width) {
+                    var intensity = ((y + flowPhase * 2 + crack) % 4);
+                    var char = (intensity < 2) ? '*' : '~';
+                    frame.setData(x, y, char, lavaAttr);
+                    if (x > 0)
+                        frame.setData(x - 1, y, GLYPH.LIGHT_SHADE, rockAttr);
+                    if (x < this.width - 1)
+                        frame.setData(x + 1, y, GLYPH.LIGHT_SHADE, rockAttr);
+                }
+            }
+            if (distFromHorizon > frameHeight / 2) {
+                var poolChance = ((y * 17 + flowPhase) % 11);
+                if (poolChance === 0) {
+                    var poolX = (y * 13 + flowPhase * 5) % this.width;
+                    frame.setData(poolX, y, GLYPH.MEDIUM_SHADE, lavaAttr);
+                }
+            }
+        }
+    };
+    FrameRenderer.prototype.renderCandyGround = function (trackPosition) {
+        var frame = this.frameManager.getGroundGridFrame();
+        if (!frame)
+            return;
+        var ground = this.activeTheme.ground;
+        if (!ground)
+            return;
+        frame.clear();
+        var candy1 = makeAttr(ground.primary.fg, ground.primary.bg);
+        var candy2 = makeAttr(ground.secondary.fg, ground.secondary.bg);
+        var frameHeight = this.height - this.horizonY;
+        var sparklePhase = Math.floor(trackPosition / 30) % 6;
+        for (var y = 0; y < frameHeight - 1; y++) {
+            for (var x = 0; x < this.width; x++) {
+                var swirl = Math.sin(x * 0.2 + y * 0.3) + Math.cos(x * 0.15 - y * 0.25);
+                var char;
+                var attr;
+                if (swirl > 0.5) {
+                    char = '@';
+                    attr = candy1;
+                }
+                else if (swirl > -0.5) {
+                    char = GLYPH.LIGHT_SHADE;
+                    attr = candy2;
+                }
+                else {
+                    char = '.';
+                    attr = candy1;
+                }
+                var isSprinkle = ((x * 7 + y * 13 + sparklePhase) % 17) === 0;
+                if (isSprinkle) {
+                    var sprinkleColors = [LIGHTRED, LIGHTGREEN, LIGHTCYAN, YELLOW, LIGHTMAGENTA];
+                    var colorIdx = (x + y) % sprinkleColors.length;
+                    char = '*';
+                    attr = makeAttr(sprinkleColors[colorIdx], BG_BLACK);
+                }
+                frame.setData(x, y, char, attr);
+            }
+        }
+    };
+    FrameRenderer.prototype.renderVoidGround = function (trackPosition) {
+        var frame = this.frameManager.getGroundGridFrame();
+        if (!frame)
+            return;
+        var ground = this.activeTheme.ground;
+        if (!ground)
+            return;
+        frame.clear();
+        var voidAttr = makeAttr(ground.primary.fg, ground.primary.bg);
+        var starAttr = makeAttr(ground.secondary.fg, ground.secondary.bg);
+        var frameHeight = this.height - this.horizonY;
+        var twinklePhase = Math.floor(trackPosition / 15) % 4;
+        for (var y = 0; y < frameHeight - 1; y++) {
+            for (var x = 0; x < this.width; x++) {
+                var hash = (x * 31 + y * 17) % 100;
+                if (hash < 3) {
+                    var twinkle = ((x + y + twinklePhase) % 4) === 0;
+                    frame.setData(x, y, twinkle ? '*' : '+', starAttr);
+                }
+                else if (hash < 8) {
+                    frame.setData(x, y, '.', voidAttr);
+                }
+                else if (hash < 15) {
+                    frame.setData(x, y, GLYPH.LIGHT_SHADE, voidAttr);
+                }
+            }
+        }
+        var vanishX = Math.floor(this.width / 2);
+        var colors = [LIGHTRED, YELLOW, LIGHTGREEN, LIGHTCYAN, LIGHTBLUE, LIGHTMAGENTA];
+        for (var y = 0; y < frameHeight - 1; y++) {
+            var distFromHorizon = y + 1;
+            for (var ci = 0; ci < colors.length; ci++) {
+                var offset = (ci - 2.5) * 8;
+                var lineX = Math.floor(vanishX + offset * distFromHorizon / 5);
+                if (lineX >= 0 && lineX < this.width) {
+                    var glowPhase = (trackPosition / 10 + ci) % colors.length;
+                    var colorIdx = Math.floor(glowPhase + ci) % colors.length;
+                    frame.setData(lineX, y, GLYPH.BOX_V, makeAttr(colors[colorIdx], BG_BLACK));
+                }
+            }
+        }
+    };
+    FrameRenderer.prototype.renderCobblestoneGround = function (trackPosition) {
+        var frame = this.frameManager.getGroundGridFrame();
+        if (!frame)
+            return;
+        var ground = this.activeTheme.ground;
+        if (!ground)
+            return;
+        frame.clear();
+        var stone = makeAttr(ground.primary.fg, ground.primary.bg);
+        var mortar = makeAttr(ground.secondary.fg, ground.secondary.bg);
+        var frameHeight = this.height - this.horizonY;
+        for (var y = 0; y < frameHeight - 1; y++) {
+            for (var x = 0; x < this.width; x++) {
+                var stoneSize = 3;
+                var inMortar = ((x % stoneSize) === 0) || (((y + Math.floor(x / stoneSize)) % 2 === 0) && ((y % stoneSize) === 0));
+                if (inMortar) {
+                    frame.setData(x, y, '+', mortar);
+                }
+                else {
+                    var texture = ((x * 7 + y * 11) % 5);
+                    var char = (texture === 0) ? GLYPH.MEDIUM_SHADE : GLYPH.DARK_SHADE;
+                    frame.setData(x, y, char, stone);
+                }
+            }
+        }
+        var puddlePhase = Math.floor(trackPosition / 50) % 10;
+        for (var py = frameHeight / 2; py < frameHeight - 1; py += 4) {
+            var px = (py * 13 + puddlePhase * 7) % this.width;
+            frame.setData(px, py, '~', makeAttr(DARKGRAY, BG_BLACK));
+        }
+    };
+    FrameRenderer.prototype.renderJungleGround = function (trackPosition) {
+        var frame = this.frameManager.getGroundGridFrame();
+        if (!frame)
+            return;
+        var ground = this.activeTheme.ground;
+        if (!ground)
+            return;
+        frame.clear();
+        var leaf = makeAttr(ground.primary.fg, ground.primary.bg);
+        var dirt = makeAttr(ground.secondary.fg, ground.secondary.bg);
+        var frameHeight = this.height - this.horizonY;
+        var rustlePhase = Math.floor(trackPosition / 25) % 4;
+        for (var y = 0; y < frameHeight - 1; y++) {
+            for (var x = 0; x < this.width; x++) {
+                var hash = (x * 23 + y * 19) % 20;
+                var char;
+                var attr;
+                if (hash < 8) {
+                    var leafChars = ['"', 'v', 'V', 'Y', 'y'];
+                    char = leafChars[(x + y + rustlePhase) % leafChars.length];
+                    attr = leaf;
+                }
+                else if (hash < 12) {
+                    char = GLYPH.LIGHT_SHADE;
+                    attr = dirt;
+                }
+                else if (hash < 15) {
+                    char = ',';
+                    attr = makeAttr(BROWN, BG_BLACK);
+                }
+                else {
+                    char = GLYPH.MEDIUM_SHADE;
+                    attr = leaf;
+                }
+                frame.setData(x, y, char, attr);
+            }
+        }
+        for (var mx = 5; mx < this.width - 5; mx += 15 + ((mx * 3) % 7)) {
+            var my = (mx * 7) % (frameHeight - 2) + 1;
+            frame.setData(mx, my, 'o', makeAttr(LIGHTRED, BG_BLACK));
+        }
+    };
+    FrameRenderer.prototype.renderDirtGround = function (trackPosition) {
+        var frame = this.frameManager.getGroundGridFrame();
+        if (!frame)
+            return;
+        var ground = this.activeTheme.ground;
+        if (!ground)
+            return;
+        frame.clear();
+        var dirt = makeAttr(ground.primary.fg, ground.primary.bg);
+        var dirtDark = makeAttr(ground.secondary.fg, ground.secondary.bg);
+        var tireTrack = makeAttr(DARKGRAY, BG_BLACK);
+        var frameHeight = this.height - this.horizonY;
+        var dustPhase = Math.floor(trackPosition / 20) % 8;
+        for (var y = 0; y < frameHeight - 1; y++) {
+            for (var x = 0; x < this.width; x++) {
+                var hash = (x * 37 + y * 23 + dustPhase) % 25;
+                var char;
+                var attr;
+                var inTireTrack = (x >= 5 && x <= 12) || (x >= this.width - 12 && x <= this.width - 5);
+                if (inTireTrack && y > 2 && ((y + dustPhase) % 3 === 0)) {
+                    char = '=';
+                    attr = tireTrack;
+                }
+                else if (hash < 8) {
+                    char = GLYPH.MEDIUM_SHADE;
+                    attr = dirt;
+                }
+                else if (hash < 14) {
+                    char = GLYPH.DARK_SHADE;
+                    attr = dirtDark;
+                }
+                else if (hash < 17) {
+                    char = '.';
+                    attr = makeAttr(LIGHTGRAY, BG_BLACK);
+                }
+                else if (hash < 20) {
+                    char = GLYPH.LIGHT_SHADE;
+                    attr = dirt;
+                }
+                else {
+                    var clumps = ['`', "'", ','];
+                    char = clumps[(x + y) % clumps.length];
+                    attr = dirtDark;
+                }
+                frame.setData(x, y, char, attr);
+            }
+        }
+        for (var px = 8; px < this.width - 8; px += 20 + ((px * 7) % 10)) {
+            var py = (px * 5) % (frameHeight - 3) + 1;
+            var pw = 3 + (px % 3);
+            for (var pox = 0; pox < pw; pox++) {
+                if (px + pox < this.width) {
+                    frame.setData(px + pox, py, '~', makeAttr(DARKGRAY, BG_BLACK));
+                }
+            }
+        }
+    };
     FrameRenderer.prototype.renderRoadSurface = function (trackPosition, cameraX, road) {
         var frame = this.frameManager.getRoadFrame();
         if (!frame)
@@ -5999,11 +10276,38 @@ var FrameRenderer = (function () {
     };
     FrameRenderer.prototype.renderRoadScanline = function (frame, y, centerX, leftEdge, rightEdge, distance, stripePhase, isFinishLine, curve) {
         var colors = this.activeTheme.colors;
-        var roadAttr = makeAttr(distance < 10 ? colors.roadSurfaceAlt.fg : colors.roadSurface.fg, distance < 10 ? colors.roadSurfaceAlt.bg : colors.roadSurface.bg);
-        var gridAttr = makeAttr(colors.roadGrid.fg, colors.roadGrid.bg);
-        var edgeAttr = makeAttr(colors.roadEdge.fg, colors.roadEdge.bg);
-        var stripeAttr = makeAttr(colors.roadStripe.fg, colors.roadStripe.bg);
-        var shoulderAttr = makeAttr(colors.shoulderPrimary.fg, colors.shoulderPrimary.bg);
+        var baseSurfaceFg = distance < 10 ? colors.roadSurfaceAlt.fg : colors.roadSurface.fg;
+        var baseSurfaceBg = distance < 10 ? colors.roadSurfaceAlt.bg : colors.roadSurface.bg;
+        var baseGridFg = colors.roadGrid.fg;
+        var baseGridBg = colors.roadGrid.bg;
+        var baseEdgeFg = colors.roadEdge.fg;
+        var baseEdgeBg = colors.roadEdge.bg;
+        var baseStripeFg = colors.roadStripe.fg;
+        var baseStripeBg = colors.roadStripe.bg;
+        var baseShoulderFg = colors.shoulderPrimary.fg;
+        var baseShoulderBg = colors.shoulderPrimary.bg;
+        if (this.activeTheme.name === 'glitch_circuit' && typeof GlitchState !== 'undefined' && GlitchState.roadColorGlitch !== 0) {
+            var surfaceGlitch = GlitchState.getGlitchedRoadColor(baseSurfaceFg, baseSurfaceBg, distance);
+            baseSurfaceFg = surfaceGlitch.fg;
+            baseSurfaceBg = surfaceGlitch.bg;
+            var gridGlitch = GlitchState.getGlitchedRoadColor(baseGridFg, baseGridBg, distance);
+            baseGridFg = gridGlitch.fg;
+            baseGridBg = gridGlitch.bg;
+            var edgeGlitch = GlitchState.getGlitchedRoadColor(baseEdgeFg, baseEdgeBg, distance);
+            baseEdgeFg = edgeGlitch.fg;
+            baseEdgeBg = edgeGlitch.bg;
+            var stripeGlitch = GlitchState.getGlitchedRoadColor(baseStripeFg, baseStripeBg, distance);
+            baseStripeFg = stripeGlitch.fg;
+            baseStripeBg = stripeGlitch.bg;
+            var shoulderGlitch = GlitchState.getGlitchedRoadColor(baseShoulderFg, baseShoulderBg, distance);
+            baseShoulderFg = shoulderGlitch.fg;
+            baseShoulderBg = shoulderGlitch.bg;
+        }
+        var roadAttr = makeAttr(baseSurfaceFg, baseSurfaceBg);
+        var gridAttr = makeAttr(baseGridFg, baseGridBg);
+        var edgeAttr = makeAttr(baseEdgeFg, baseEdgeBg);
+        var stripeAttr = makeAttr(baseStripeFg, baseStripeBg);
+        var shoulderAttr = makeAttr(baseShoulderFg, baseShoulderBg);
         for (var x = 0; x < this.width; x++) {
             if (x >= leftEdge && x <= rightEdge) {
                 if (isFinishLine) {
@@ -6130,6 +10434,9 @@ var FrameRenderer = (function () {
         objects.sort(function (a, b) { return b.distance - a.distance; });
         var poolSize = this.frameManager.getRoadsidePoolSize();
         var used = 0;
+        var applyGlitch = this.activeTheme.name === 'glitch_circuit' &&
+            typeof GlitchState !== 'undefined' &&
+            GlitchState.roadsideColorShift !== 0;
         for (var i = 0; i < objects.length && used < poolSize; i++) {
             var obj = objects[i];
             var spriteFrame = this.frameManager.getRoadsideFrame(used);
@@ -6146,6 +10453,9 @@ var FrameRenderer = (function () {
             }
             var scaleIndex = this.getScaleForDistance(obj.distance);
             renderSpriteToFrame(spriteFrame, sprite, scaleIndex);
+            if (applyGlitch) {
+                this.applyGlitchToSpriteFrame(spriteFrame, sprite, scaleIndex);
+            }
             var size = getSpriteSize(sprite, scaleIndex);
             var frameX = Math.round(obj.x - size.width / 2);
             var frameY = Math.round(obj.y - size.height + 1);
@@ -6154,6 +10464,27 @@ var FrameRenderer = (function () {
         }
         for (var j = used; j < poolSize; j++) {
             this.frameManager.positionRoadsideFrame(j, 0, 0, false);
+        }
+    };
+    FrameRenderer.prototype.applyGlitchToSpriteFrame = function (frame, sprite, scaleIndex) {
+        var variant = sprite.variants[scaleIndex];
+        if (!variant)
+            variant = sprite.variants[sprite.variants.length - 1];
+        for (var row = 0; row < variant.length; row++) {
+            for (var col = 0; col < variant[row].length; col++) {
+                var cell = variant[row][col];
+                if (cell !== null && cell !== undefined) {
+                    var fg = cell.attr & 0x0F;
+                    var bg = cell.attr & 0xF0;
+                    var glitched = GlitchState.getGlitchedSpriteColor(fg, bg);
+                    var newAttr = makeAttr(glitched.fg, glitched.bg);
+                    var char = cell.char;
+                    if (Math.random() < GlitchState.intensity * 0.15) {
+                        char = GlitchState.corruptChar(char);
+                    }
+                    frame.setData(col, row, char, newAttr);
+                }
+            }
         }
     };
     FrameRenderer.prototype.getScaleForDistance = function (distance) {
@@ -6468,7 +10799,15 @@ var Game = (function () {
             'forest_night': 'twilight_forest',
             'haunted_hollow': 'haunted_hollow',
             'winter_wonderland': 'winter_wonderland',
-            'cactus_canyon': 'cactus_canyon'
+            'cactus_canyon': 'cactus_canyon',
+            'tropical_jungle': 'tropical_jungle',
+            'candy_land': 'candy_land',
+            'rainbow_road': 'rainbow_road',
+            'dark_castle': 'dark_castle',
+            'villains_lair': 'villains_lair',
+            'ancient_ruins': 'ancient_ruins',
+            'thunder_stadium': 'thunder_stadium',
+            'glitch_circuit': 'glitch_circuit'
         };
         var themeName = themeMapping[trackDef.themeId] || 'synthwave';
         if (this.renderer.setTheme) {
@@ -6570,6 +10909,7 @@ var Game = (function () {
         this.state.time += dt;
         this.physicsSystem.update(this.state, dt);
         this.raceSystem.update(this.state, dt);
+        this.activateDormantNPCs();
         this.applyNPCPacing();
         this.itemSystem.update(dt);
         this.itemSystem.checkPickups(this.state.vehicles);
@@ -6584,15 +10924,68 @@ var Game = (function () {
             this.running = false;
         }
     };
+    Game.prototype.activateDormantNPCs = function () {
+        if (!this.state)
+            return;
+        var playerZ = this.state.playerVehicle.trackZ;
+        var roadLength = this.state.road.totalLength;
+        for (var i = 0; i < this.state.vehicles.length; i++) {
+            var npc = this.state.vehicles[i];
+            if (!npc.isNPC)
+                continue;
+            var driver = npc.driver;
+            if (driver.isActive())
+                continue;
+            var dist = npc.trackZ - playerZ;
+            if (dist < 0)
+                dist += roadLength;
+            if (dist < driver.getActivationRange()) {
+                driver.activate();
+                debugLog.info("NPC activated at distance " + dist.toFixed(0));
+            }
+        }
+    };
     Game.prototype.checkNPCRespawn = function () {
         if (!this.state)
             return;
         var playerZ = this.state.playerVehicle.trackZ;
-        var respawnDistance = 150;
+        var roadLength = this.state.road.totalLength;
+        var respawnDistance = 100;
+        var npcs = [];
         for (var i = 0; i < this.state.vehicles.length; i++) {
-            var vehicle = this.state.vehicles[i];
-            if (vehicle.isNPC && vehicle.trackZ < playerZ - respawnDistance) {
-                this.respawnNPCAhead(vehicle);
+            if (this.state.vehicles[i].isNPC) {
+                npcs.push(this.state.vehicles[i]);
+            }
+        }
+        if (npcs.length === 0)
+            return;
+        var idealSpacing = roadLength / npcs.length;
+        var respawnCount = 0;
+        for (var j = 0; j < npcs.length; j++) {
+            var npc = npcs[j];
+            var distBehind = playerZ - npc.trackZ;
+            if (distBehind > respawnDistance) {
+                var slotOffset = idealSpacing * (respawnCount + 1);
+                var newZ = (playerZ + slotOffset) % roadLength;
+                npc.trackZ = newZ;
+                npc.z = newZ;
+                var driver = npc.driver;
+                driver.deactivate();
+                npc.speed = 0;
+                var laneChoice = Math.random();
+                if (laneChoice < 0.4) {
+                    npc.playerX = -0.35 + (Math.random() - 0.5) * 0.2;
+                }
+                else if (laneChoice < 0.8) {
+                    npc.playerX = 0.35 + (Math.random() - 0.5) * 0.2;
+                }
+                else {
+                    npc.playerX = (Math.random() - 0.5) * 0.3;
+                }
+                npc.isCrashed = false;
+                npc.crashTimer = 0;
+                npc.flashTimer = 0;
+                respawnCount++;
             }
         }
     };
@@ -6600,30 +10993,25 @@ var Game = (function () {
         if (!this.state)
             return;
         var playerZ = this.state.playerVehicle.trackZ;
-        var playerSpeed = this.state.playerVehicle.speed;
+        var roadLength = this.state.road.totalLength;
         for (var i = 0; i < this.state.vehicles.length; i++) {
             var npc = this.state.vehicles[i];
             if (!npc.isNPC)
                 continue;
-            var distance = npc.trackZ - playerZ;
-            if (distance <= 0)
+            var driver = npc.driver;
+            if (!driver.isActive())
                 continue;
-            var commuterBaseSpeed = VEHICLE_PHYSICS.MAX_SPEED * 0.4;
-            var pacingSpeed;
-            if (distance > 150) {
-                pacingSpeed = Math.max(commuterBaseSpeed, playerSpeed * 0.75);
-            }
-            else if (distance > 80) {
-                var t = (distance - 80) / 70;
-                var fastSpeed = playerSpeed * 0.75;
-                pacingSpeed = commuterBaseSpeed + t * (fastSpeed - commuterBaseSpeed);
+            var distance = npc.trackZ - playerZ;
+            if (distance < 0)
+                distance += roadLength;
+            var commuterBaseSpeed = VEHICLE_PHYSICS.MAX_SPEED * driver.getSpeedFactor();
+            if (distance < 100) {
+                var slowFactor = 0.7 + (distance / 100) * 0.3;
+                npc.speed = commuterBaseSpeed * slowFactor;
             }
             else {
-                pacingSpeed = commuterBaseSpeed;
+                npc.speed = commuterBaseSpeed;
             }
-            var speedDiff = pacingSpeed - npc.speed;
-            npc.speed += speedDiff * 0.1;
-            npc.speed = clamp(npc.speed, commuterBaseSpeed * 0.5, VEHICLE_PHYSICS.MAX_SPEED * 0.85);
         }
     };
     Game.prototype.render = function () {
@@ -6656,10 +11044,7 @@ var Game = (function () {
         if (!this.state)
             return;
         var roadLength = road.totalLength;
-        var minSpawn = 150;
-        var maxSpawn = Math.min(roadLength * 0.8, 800);
-        var spawnRange = maxSpawn - minSpawn;
-        var spacing = spawnRange / (count + 1);
+        var spacing = roadLength / count;
         for (var i = 0; i < count; i++) {
             var npc = new Vehicle();
             npc.driver = new CommuterDriver();
@@ -6669,57 +11054,15 @@ var Game = (function () {
             npc.npcColorIndex = Math.floor(Math.random() * NPC_VEHICLE_COLORS.length);
             var colorPalette = NPC_VEHICLE_COLORS[npc.npcColorIndex];
             npc.color = colorPalette.body;
-            var baseZ = minSpawn + spacing * (i + 1);
-            var jitter = spacing * 0.3 * (Math.random() - 0.5);
-            npc.trackZ = baseZ + jitter;
+            var baseZ = spacing * i;
+            var jitter = spacing * 0.2 * (Math.random() - 0.5);
+            npc.trackZ = (baseZ + jitter + roadLength) % roadLength;
             npc.z = npc.trackZ;
             var laneOffset = (i % 2 === 0) ? -0.3 : 0.3;
             npc.playerX = laneOffset + (Math.random() - 0.5) * 0.4;
             this.state.vehicles.push(npc);
         }
         debugLog.info("Spawned " + count + " NPC commuters");
-    };
-    Game.prototype.respawnNPCAhead = function (npc) {
-        if (!this.state)
-            return;
-        var playerZ = this.state.playerVehicle.trackZ;
-        var roadLength = this.state.road.totalLength;
-        var minSeparation = 50;
-        var attempts = 0;
-        var maxAttempts = 10;
-        var validPosition = false;
-        var newZ = 0;
-        while (!validPosition && attempts < maxAttempts) {
-            var spawnDistance = 300 + Math.random() * 300;
-            newZ = (playerZ + spawnDistance) % roadLength;
-            validPosition = true;
-            for (var i = 0; i < this.state.vehicles.length; i++) {
-                var other = this.state.vehicles[i];
-                if (other === npc || !other.isNPC)
-                    continue;
-                var dist = Math.abs(other.trackZ - newZ);
-                if (dist < minSeparation) {
-                    validPosition = false;
-                    break;
-                }
-            }
-            attempts++;
-        }
-        npc.trackZ = newZ;
-        npc.z = npc.trackZ;
-        var laneChoice = Math.random();
-        if (laneChoice < 0.4) {
-            npc.playerX = -0.35 + (Math.random() - 0.5) * 0.2;
-        }
-        else if (laneChoice < 0.8) {
-            npc.playerX = 0.35 + (Math.random() - 0.5) * 0.2;
-        }
-        else {
-            npc.playerX = (Math.random() - 0.5) * 0.3;
-        }
-        npc.isCrashed = false;
-        npc.crashTimer = 0;
-        npc.flashTimer = 0;
     };
     Game.prototype.isRunning = function () {
         return this.running;
@@ -6737,9 +11080,7 @@ function showTrackSelector() {
     var selectedIndex = 0;
     var pageSize = 5;
     var scrollOffset = 0;
-    var oldPauseStatus = bbs.sys_status & SS_PAUSEON;
-    bbs.sys_status &= ~SS_PAUSEON;
-    console.clear();
+    console.clear(LIGHTGRAY, false);
     drawTrackSelectorScreen(tracks, selectedIndex, scrollOffset, pageSize);
     while (true) {
         var key = console.inkey(K_UPPER, 500);
@@ -6771,8 +11112,6 @@ function showTrackSelector() {
             needsRedraw = true;
         }
         else if (key === '\r' || key === '\n' || key === ' ') {
-            if (oldPauseStatus)
-                bbs.sys_status |= SS_PAUSEON;
             return {
                 selected: true,
                 track: tracks[selectedIndex]
@@ -6781,8 +11120,6 @@ function showTrackSelector() {
         else if (key >= '1' && key <= '9') {
             var quickIndex = parseInt(key, 10) - 1;
             if (quickIndex < tracks.length) {
-                if (oldPauseStatus)
-                    bbs.sys_status |= SS_PAUSEON;
                 return {
                     selected: true,
                     track: tracks[quickIndex]
@@ -6790,8 +11127,6 @@ function showTrackSelector() {
             }
         }
         else if (key === 'Q' || key === KEY_ESC) {
-            if (oldPauseStatus)
-                bbs.sys_status |= SS_PAUSEON;
             return {
                 selected: false,
                 track: null
@@ -6804,7 +11139,7 @@ function showTrackSelector() {
             if (selectedIndex >= scrollOffset + pageSize) {
                 scrollOffset = selectedIndex - pageSize + 1;
             }
-            console.clear();
+            console.clear(LIGHTGRAY, false);
             drawTrackSelectorScreen(tracks, selectedIndex, scrollOffset, pageSize);
         }
     }
