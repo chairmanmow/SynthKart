@@ -70,18 +70,6 @@ Add SynthKart as an external program in Synchronet's SCFG:
 
 The `synthkart.ini` file controls game behavior. Edit it with any text editor.
 
-### [general] Section
-
-```ini
-[general]
-; Game name displayed in menus
-game_name = SYNTHKART
-```
-
-| Option | Description | Default |
-|--------|-------------|---------|
-| `game_name` | Name shown in game menus | `SYNTHKART` |
-
 ### [highscores] Section
 
 ```ini
