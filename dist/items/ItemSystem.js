@@ -35,7 +35,7 @@ var ItemSystem = (function () {
                 var item = new Item(ItemType.NONE);
                 item.x = x;
                 item.z = z;
-                item.respawnTime = 8;
+                item.respawnTime = 2.5;
                 this.items.push(item);
             }
         }
@@ -67,6 +67,13 @@ var ItemSystem = (function () {
                 if (!item.isAvailable())
                     continue;
                 var dz = vehicle.trackZ - item.z;
+                var roadLen = road ? road.totalLength : 10000;
+                if (dz > roadLen / 2) {
+                    dz -= roadLen;
+                }
+                else if (dz < -roadLen / 2) {
+                    dz += roadLen;
+                }
                 if (dz < -5 || dz > 15)
                     continue;
                 var vehicleX = vehicle.x;

@@ -98,7 +98,7 @@ var Item = (function (_super) {
     function Item(type) {
         var _this = _super.call(this) || this;
         _this.type = type;
-        _this.respawnTime = 10;
+        _this.respawnTime = 2.5;
         _this.respawnCountdown = -1;
         _this.destructionTimer = 0;
         _this.destructionStartTime = 0;

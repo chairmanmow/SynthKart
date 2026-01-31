@@ -14,6 +14,8 @@ var FrameRenderer = (function () {
         this._currentCameraX = 0;
         this._lightningBolts = [];
         this._ansiTunnelRenderer = null;
+        this._ansiDebugLogged = false;
+        this._ansiFrameLogged = false;
         this.frameManager = new FrameManager(width, height, this.horizonY);
         this.composer = new SceneComposer(width, height);
         this.activeTheme = SynthwaveTheme;
@@ -189,13 +191,26 @@ var FrameRenderer = (function () {
         this._currentRoad = road;
         this._currentTrackPosition = trackPosition;
         this._currentCameraX = cameraX;
-        if (this._ansiTunnelRenderer && this.activeTheme.background.type === 'ansi') {
+        var bgType = this.activeTheme.background ? this.activeTheme.background.type : 'none';
+        if (!this._ansiDebugLogged) {
+            this._ansiDebugLogged = true;
+            logInfo('renderRoad check: bgType=' + bgType + ' hasRenderer=' + (this._ansiTunnelRenderer ? 'yes' : 'no') + ' theme=' + this.activeTheme.name);
+        }
+        if (this._ansiTunnelRenderer && bgType === 'ansi') {
             this._ansiTunnelRenderer.updateScroll(trackPosition, road.totalLength);
+            var skyFrame = this.frameManager.getSkyGridFrame();
             var roadFrame = this.frameManager.getRoadFrame();
-            if (roadFrame) {
-                this._ansiTunnelRenderer.renderTunnel(roadFrame, this.horizonY, this.height - 3, this.width);
+            var roadFrameHeight = this.height - this.horizonY;
+            var ansiRoadHeight = roadFrameHeight;
+            if (!this._ansiFrameLogged) {
+                this._ansiFrameLogged = true;
+                logInfo('ANSI frames: sky=' + (skyFrame ? 'ok' : 'null') + ' road=' + (roadFrame ? 'ok' : 'null') + ' horizonY=' + this.horizonY + ' roadFrameHeight=' + roadFrameHeight + ' ansiRoadHeight=' + ansiRoadHeight);
             }
-            this.renderRoadSurface(trackPosition, cameraX, road);
+            if (roadFrame) {
+                roadFrame.clear();
+            }
+            this._ansiTunnelRenderer.renderTunnel(skyFrame, roadFrame, this.horizonY, ansiRoadHeight, this.width, trackPosition, cameraX, road, road.totalLength);
+            this.renderANSIRoadStripes(trackPosition, cameraX, road, ansiRoadHeight);
             var roadsideObjects = this.buildRoadsideObjects(trackPosition, cameraX, road);
             this.renderRoadsideSprites(roadsideObjects);
             return;
@@ -1393,16 +1408,13 @@ var FrameRenderer = (function () {
         frame.setData(55, 2, 'o', makeAttr(WHITE, BG_BLUE));
     };
     FrameRenderer.prototype.renderANSITunnelStatic = function () {
-        var frame = this.frameManager.getMountainsFrame();
-        if (!frame)
-            return;
-        var darkAttr = makeAttr(BLACK, BG_BLACK);
-        var hintAttr = makeAttr(DARKGRAY, BG_BLACK);
-        for (var y = 0; y < this.horizonY; y++) {
-            for (var x = 0; x < this.width; x++) {
-                var ch = (x + y * 7) % 47 === 0 ? '.' : ' ';
-                frame.setData(x, y, ch, ch === '.' ? hintAttr : darkAttr);
-            }
+        var mtnsFrame = this.frameManager.getMountainsFrame();
+        if (mtnsFrame) {
+            mtnsFrame.clear();
+        }
+        var sunFrame = this.frameManager.getSunFrame();
+        if (sunFrame) {
+            sunFrame.clear();
         }
     };
     FrameRenderer.prototype.renderMountains = function () {
@@ -2831,6 +2843,38 @@ var FrameRenderer = (function () {
             }
         }
     };
+    FrameRenderer.prototype.renderANSIRoadStripes = function (trackPosition, cameraX, road, roadHeight) {
+        var frame = this.frameManager.getRoadFrame();
+        if (!frame)
+            return;
+        var roadBottom = roadHeight ? roadHeight - 1 : this.height - this.horizonY - 4;
+        var accumulatedCurve = 0;
+        for (var screenY = roadBottom; screenY >= 0; screenY--) {
+            var t = (roadBottom - screenY) / Math.max(1, roadBottom);
+            var distance = 1 / (1 - t * 0.95);
+            var worldZ = trackPosition + distance * 5;
+            var segment = road.getSegment(worldZ);
+            if (segment) {
+                accumulatedCurve += segment.curve * 0.5;
+            }
+            var roadWidth = Math.round(40 / distance);
+            var halfWidth = Math.floor(roadWidth / 2);
+            var curveOffset = accumulatedCurve * distance * 0.8;
+            var centerX = 40 + Math.round(curveOffset) - Math.round(cameraX * 0.5);
+            var stripePhase = Math.floor((trackPosition + distance * 5) / 15) % 2;
+            if (stripePhase === 0 && halfWidth > 2) {
+                frame.setData(centerX, screenY, '-', makeAttr(YELLOW, BG_BLACK));
+            }
+            var leftEdge = centerX - halfWidth;
+            var rightEdge = centerX + halfWidth;
+            if (leftEdge >= 0 && leftEdge < this.width) {
+                frame.setData(leftEdge, screenY, '|', makeAttr(WHITE, BG_BLACK));
+            }
+            if (rightEdge >= 0 && rightEdge < this.width) {
+                frame.setData(rightEdge, screenY, '|', makeAttr(WHITE, BG_BLACK));
+            }
+        }
+    };
     FrameRenderer.prototype.renderRoadSurface = function (trackPosition, cameraX, road) {
         var frame = this.frameManager.getRoadFrame();
         if (!frame)
@@ -3575,6 +3619,12 @@ var FrameRenderer = (function () {
     };
     FrameRenderer.prototype.cycle = function () {
         this.frameManager.cycle();
+    };
+    FrameRenderer.prototype.getRootFrame = function () {
+        return this.frameManager ? this.frameManager.getRootFrame() : null;
+    };
+    FrameRenderer.prototype.getHudFrame = function () {
+        return this.frameManager ? this.frameManager.getHudFrame() : null;
     };
     FrameRenderer.prototype.shutdown = function () {
         this.frameManager.shutdown();

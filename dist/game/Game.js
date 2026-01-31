@@ -464,7 +464,61 @@ var Game = (function () {
         this.renderer.renderEntities(this.state.playerVehicle, this.state.vehicles, this.itemSystem.getItemBoxes(), this.itemSystem.getProjectiles());
         var hudData = this.hud.compute(this.state.playerVehicle, this.state.track, this.state.road, this.state.vehicles, this.state.time, this.state.countdown, this.state.raceMode);
         this.renderer.renderHud(hudData);
+        if (this.paused) {
+            this.renderPauseOverlay();
+        }
         this.renderer.endFrame();
+    };
+    Game.prototype.renderPauseOverlay = function () {
+        var pausedArt = [
+            ' ####   ###  #   # ### #### ####  ',
+            ' #   # #   # #   # #   #    #   # ',
+            ' ####  ##### #   # ### #### #   # ',
+            ' #     #   # #   #   # #    #   # ',
+            ' #     #   #  ###  ### #### ####  '
+        ];
+        var rainbowColors = [LIGHTRED, YELLOW, LIGHTGREEN, LIGHTCYAN, LIGHTBLUE, LIGHTMAGENTA];
+        var colorIndex = Math.floor((system.timer * 8)) % rainbowColors.length;
+        var textColor = rainbowColors[colorIndex];
+        var attr = makeAttr(textColor, BG_BLACK);
+        var textWidth = pausedArt[0].length;
+        var textHeight = pausedArt.length;
+        var startX = Math.floor((80 - textWidth) / 2);
+        var startY = Math.floor((24 - textHeight) / 2);
+        var hudFrame = this.renderer.getHudFrame ? this.renderer.getHudFrame() : null;
+        if (!hudFrame)
+            return;
+        var boxPadding = 2;
+        var boxAttr = makeAttr(DARKGRAY, BG_BLACK);
+        for (var by = startY - boxPadding; by < startY + textHeight + boxPadding; by++) {
+            for (var bx = startX - boxPadding; bx < startX + textWidth + boxPadding; bx++) {
+                if (bx >= 0 && bx < 80 && by >= 0 && by < 24) {
+                    hudFrame.setData(bx + 1, by + 1, GLYPH.MEDIUM_SHADE, boxAttr);
+                }
+            }
+        }
+        for (var row = 0; row < textHeight; row++) {
+            var line = pausedArt[row];
+            for (var col = 0; col < line.length; col++) {
+                var ch = line.charAt(col);
+                var x = startX + col;
+                var y = startY + row;
+                if (x >= 0 && x < 80 && y >= 0 && y < 24) {
+                    if (ch !== ' ') {
+                        hudFrame.setData(x + 1, y + 1, GLYPH.FULL_BLOCK, attr);
+                    }
+                }
+            }
+        }
+        var resumeText = 'Press P to resume';
+        var resumeX = Math.floor((80 - resumeText.length) / 2);
+        var resumeY = startY + textHeight + 2;
+        var resumeAttr = makeAttr(WHITE, BG_BLACK);
+        for (var i = 0; i < resumeText.length; i++) {
+            if (resumeX + i >= 0 && resumeX + i < 80 && resumeY >= 0 && resumeY < 24) {
+                hudFrame.setData(resumeX + i + 1, resumeY + 1, resumeText.charAt(i), resumeAttr);
+            }
+        }
     };
     Game.prototype.togglePause = function () {
         this.paused = !this.paused;

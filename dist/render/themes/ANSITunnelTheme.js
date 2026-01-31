@@ -1,10 +1,14 @@
 "use strict";
-var ANSITunnelConfig = {
-    directory: '/sbbs/text/futureland',
-    scrollSpeed: 1.0,
-    mirrorSky: true,
-    colorShift: true
-};
+function getANSITunnelConfig() {
+    return {
+        directory: OUTRUN_CONFIG.ansiTunnel.directory,
+        scrollSpeed: OUTRUN_CONFIG.ansiTunnel.scrollSpeed,
+        mirrorSky: true,
+        colorShift: true,
+        maxRowsToLoad: OUTRUN_CONFIG.ansiTunnel.maxRows
+    };
+}
+var ANSITunnelConfig = getANSITunnelConfig();
 var ANSITunnelTheme = {
     name: 'ansi_tunnel',
     description: 'Race through scrolling ANSI art - a digital cyberspace tunnel',
@@ -104,10 +108,12 @@ var ANSITunnelTheme = {
 registerTheme(ANSITunnelTheme);
 var ANSITunnelRenderer = (function () {
     function ANSITunnelRenderer() {
-        this.ansiImages = [];
-        this.currentImageIndex = 0;
+        this.combinedCells = [];
+        this.combinedWidth = 80;
+        this.combinedHeight = 0;
         this.scrollOffset = 0;
         this.loaded = false;
+        this._renderDebugLogged = false;
         this.loadANSIFiles();
     }
     ANSITunnelRenderer.prototype.loadANSIFiles = function () {
@@ -116,125 +122,169 @@ var ANSITunnelRenderer = (function () {
             logWarning("ANSITunnelRenderer: No ANSI files found in " + ANSITunnelConfig.directory);
             return;
         }
-        var maxFiles = Math.min(files.length, 5);
-        for (var i = 0; i < maxFiles; i++) {
-            var img = ANSILoader.load(files[i], ANSITunnelConfig.directory);
-            if (img) {
-                this.ansiImages.push(img);
-                logInfo("ANSITunnelRenderer: Loaded " + files[i] + " (" + img.width + "x" + img.height + ")");
-            }
+        for (var i = files.length - 1; i > 0; i--) {
+            var j = Math.floor(Math.random() * (i + 1));
+            var temp = files[i];
+            files[i] = files[j];
+            files[j] = temp;
         }
-        this.loaded = this.ansiImages.length > 0;
-        logInfo("ANSITunnelRenderer: Loaded " + this.ansiImages.length + " ANSI images");
-    };
-    ANSITunnelRenderer.prototype.getCurrentImage = function () {
-        if (!this.loaded || this.ansiImages.length === 0)
-            return null;
-        return this.ansiImages[this.currentImageIndex % this.ansiImages.length];
-    };
-    ANSITunnelRenderer.prototype.updateScroll = function (trackZ, trackLength) {
-        var img = this.getCurrentImage();
-        if (!img)
-            return;
-        var progress = (trackZ % trackLength) / trackLength;
-        this.scrollOffset = progress * img.height;
-        var lapNumber = Math.floor(trackZ / trackLength);
-        if (lapNumber !== this.currentImageIndex && this.ansiImages.length > 1) {
-            this.currentImageIndex = lapNumber % this.ansiImages.length;
-        }
-    };
-    ANSITunnelRenderer.prototype.renderTunnel = function (frame, horizonY, roadBottom, screenWidth) {
-        var img = this.getCurrentImage();
-        if (!img) {
-            this.renderFallback(frame, horizonY, roadBottom, screenWidth);
-            return;
-        }
-        if (ANSITunnelConfig.mirrorSky) {
-            this.renderSkyReflection(frame, img, horizonY, screenWidth);
-        }
-        this.renderRoadSurface(frame, img, horizonY, roadBottom, screenWidth);
-    };
-    ANSITunnelRenderer.prototype.renderSkyReflection = function (frame, img, horizonY, screenWidth) {
-        for (var screenY = 0; screenY < horizonY; screenY++) {
-            var distFromHorizon = horizonY - screenY;
-            var t = distFromHorizon / horizonY;
-            var ansiRow = Math.floor(this.scrollOffset + t * 20) % img.height;
-            if (ansiRow < 0)
-                ansiRow += img.height;
-            var compression = 0.3 + t * 0.7;
-            var centerX = screenWidth / 2;
-            for (var screenX = 0; screenX < screenWidth; screenX++) {
-                var offsetFromCenter = screenX - centerX;
-                var ansiX = Math.floor(centerX + offsetFromCenter / compression);
-                if (ansiX >= 0 && ansiX < img.width && ansiRow >= 0 && ansiRow < img.height) {
-                    var cell = img.cells[ansiRow][ansiX];
-                    var attr = cell.attr;
-                    if (ANSITunnelConfig.colorShift) {
-                        attr = this.shiftColorForSky(attr, t);
+        var maxRows = ANSITunnelConfig.maxRowsToLoad || 2000;
+        var filesLoaded = 0;
+        logInfo("ANSITunnelRenderer: Loading ANSI files (max " + maxRows + " rows)...");
+        this.combinedCells = [];
+        this.combinedHeight = 0;
+        for (var i = 0; i < files.length && this.combinedHeight < maxRows; i++) {
+            var img = ANSILoader.load(files[i]);
+            if (img && img.height > 0) {
+                var rowsToAdd = Math.min(img.height, maxRows - this.combinedHeight);
+                for (var row = 0; row < rowsToAdd; row++) {
+                    var newRow = [];
+                    for (var col = 0; col < this.combinedWidth; col++) {
+                        if (col < img.width && img.cells[row] && img.cells[row][col]) {
+                            var cell = img.cells[row][col];
+                            var ch = cell.char;
+                            var code = ch.charCodeAt(0);
+                            if (ANSITunnelRenderer.CONTROL_CHARS[code]) {
+                                ch = ' ';
+                            }
+                            newRow.push({ char: ch, attr: cell.attr });
+                        }
+                        else {
+                            newRow.push({ char: ' ', attr: 7 });
+                        }
                     }
-                    frame.setData(screenX, screenY, cell.char, attr);
+                    this.combinedCells.push(newRow);
+                    this.combinedHeight++;
+                }
+                filesLoaded++;
+                logInfo("ANSITunnelRenderer: Loaded " + files[i].split('/').pop() + " (" + img.height + " rows, total: " + this.combinedHeight + ")");
+            }
+        }
+        this.loaded = this.combinedHeight > 0;
+        var estimatedKB = Math.round(this.combinedHeight * this.combinedWidth * 10 / 1024);
+        logInfo("ANSITunnelRenderer: Loaded " + filesLoaded + "/" + files.length + " files, " + this.combinedHeight + " rows (~" + estimatedKB + "KB)");
+    };
+    ANSITunnelRenderer.prototype.getCell = function (row, col) {
+        if (!this.loaded || this.combinedHeight === 0) {
+            return { char: ' ', attr: 7 };
+        }
+        var wrappedRow = Math.floor(row) % this.combinedHeight;
+        if (wrappedRow < 0)
+            wrappedRow += this.combinedHeight;
+        var clampedCol = Math.max(0, Math.min(Math.floor(col), this.combinedWidth - 1));
+        if (this.combinedCells[wrappedRow] && this.combinedCells[wrappedRow][clampedCol]) {
+            return this.combinedCells[wrappedRow][clampedCol];
+        }
+        return { char: ' ', attr: 7 };
+    };
+    ANSITunnelRenderer.prototype.updateScroll = function (trackZ, _trackLength) {
+        if (!this.loaded || this.combinedHeight === 0)
+            return;
+        var scrollMultiplier = 0.5;
+        this.scrollOffset = (trackZ * scrollMultiplier) % this.combinedHeight;
+        if (this.scrollOffset < 0)
+            this.scrollOffset += this.combinedHeight;
+    };
+    ANSITunnelRenderer.prototype.renderTunnel = function (skyFrame, roadFrame, horizonY, roadHeight, screenWidth, trackPosition, cameraX, road, roadLength) {
+        if (!this._renderDebugLogged) {
+            this._renderDebugLogged = true;
+            logInfo('ANSITunnelRenderer.renderTunnel: canvas=' + this.combinedWidth + 'x' + this.combinedHeight + ' horizonY=' + horizonY + ' roadHeight=' + roadHeight);
+        }
+        if (!this.loaded || this.combinedHeight === 0) {
+            this.renderFallback(skyFrame, roadFrame, horizonY, roadHeight, screenWidth);
+            return;
+        }
+        var startRow = (this.combinedHeight - 1) - Math.floor(this.scrollOffset);
+        if (skyFrame) {
+            for (var frameY = 0; frameY < horizonY; frameY++) {
+                var ansiRow = startRow + frameY;
+                for (var frameX = 0; frameX < screenWidth; frameX++) {
+                    var cell = this.getCell(ansiRow, frameX);
+                    skyFrame.setData(frameX, frameY, cell.char, cell.attr);
+                }
+            }
+        }
+        if (roadFrame) {
+            var roadBottom = roadHeight - 1;
+            var blackAttr = makeAttr(BLACK, BG_BLACK);
+            var accumulatedCurve = 0;
+            for (var screenY = roadBottom; screenY >= 0; screenY--) {
+                var ansiRow = startRow + horizonY + screenY;
+                var t = (roadBottom - screenY) / Math.max(1, roadBottom);
+                var distance = 1 / (1 - t * 0.95);
+                var worldZ = trackPosition + distance * 5;
+                var segment = road.getSegment(worldZ);
+                if (segment) {
+                    accumulatedCurve += segment.curve * 0.5;
+                }
+                var roadWidth = Math.round(40 / distance);
+                var halfWidth = Math.floor(roadWidth / 2);
+                var curveOffset = accumulatedCurve * distance * 0.8;
+                var centerX = 40 + Math.round(curveOffset) - Math.round(cameraX * 0.5);
+                var leftEdge = centerX - halfWidth;
+                var rightEdge = centerX + halfWidth;
+                var wrappedZ = worldZ % roadLength;
+                if (wrappedZ < 0)
+                    wrappedZ += roadLength;
+                var isFinishLine = (wrappedZ < 200) || (wrappedZ > roadLength - 200);
+                for (var frameX = 0; frameX < screenWidth; frameX++) {
+                    var onRoad = frameX >= leftEdge && frameX <= rightEdge;
+                    if (onRoad) {
+                        if (isFinishLine) {
+                            var checkerSize = Math.max(1, Math.floor(3 / distance));
+                            var checkerX = Math.floor((frameX - centerX) / checkerSize);
+                            var checkerY = Math.floor(screenY / 2);
+                            var isWhite = ((checkerX + checkerY) % 2) === 0;
+                            if (isWhite) {
+                                roadFrame.setData(frameX, screenY, GLYPH.FULL_BLOCK, makeAttr(WHITE, BG_LIGHTGRAY));
+                            }
+                            else {
+                                roadFrame.setData(frameX, screenY, ' ', makeAttr(BLACK, BG_BLACK));
+                            }
+                        }
+                        else {
+                            roadFrame.setData(frameX, screenY, ' ', blackAttr);
+                        }
+                    }
+                    else {
+                        var cell = this.getCell(ansiRow, frameX);
+                        roadFrame.setData(frameX, screenY, cell.char, cell.attr);
+                    }
                 }
             }
         }
     };
-    ANSITunnelRenderer.prototype.renderRoadSurface = function (frame, img, horizonY, roadBottom, screenWidth) {
-        var roadHeight = roadBottom - horizonY;
-        for (var screenY = horizonY; screenY < roadBottom; screenY++) {
-            var rowInRoad = screenY - horizonY;
-            var t = rowInRoad / roadHeight;
-            var ansiRow = Math.floor(this.scrollOffset + (1 - t) * 30) % img.height;
-            if (ansiRow < 0)
-                ansiRow += img.height;
-            var expansion = 0.5 + t * 1.5;
-            var centerX = screenWidth / 2;
-            for (var screenX = 0; screenX < screenWidth; screenX++) {
-                var offsetFromCenter = screenX - centerX;
-                var ansiX = Math.floor(centerX + offsetFromCenter / expansion);
-                if (ansiX >= 0 && ansiX < img.width && ansiRow >= 0 && ansiRow < img.height) {
-                    var cell = img.cells[ansiRow][ansiX];
-                    frame.setData(screenX, screenY, cell.char, cell.attr);
-                }
-            }
-        }
-    };
-    ANSITunnelRenderer.prototype.shiftColorForSky = function (attr, t) {
-        var fg = attr & 0x0F;
-        var bg = (attr >> 4) & 0x0F;
-        if (t > 0.3) {
-            if (fg === RED || fg === LIGHTRED)
-                fg = MAGENTA;
-            if (fg === YELLOW || fg === BROWN)
-                fg = CYAN;
-            if (fg === LIGHTGREEN || fg === GREEN)
-                fg = LIGHTCYAN;
-            if (fg === WHITE)
-                fg = LIGHTCYAN;
-            if (bg > 0 && bg < 8)
-                bg = 0;
-        }
-        if (t > 0.7) {
-            if (fg >= 8)
-                fg = fg - 8;
-        }
-        return makeAttr(fg, bg << 4);
-    };
-    ANSITunnelRenderer.prototype.renderFallback = function (frame, horizonY, roadBottom, screenWidth) {
+    ANSITunnelRenderer.prototype.renderFallback = function (skyFrame, roadFrame, horizonY, roadHeight, screenWidth) {
         var gridAttr = makeAttr(DARKGRAY, BG_BLACK);
-        for (var y = 0; y < horizonY; y++) {
-            var skyAttr = y < 2 ? makeAttr(BLACK, BG_BLACK) : makeAttr(DARKGRAY, BG_BLACK);
-            for (var x = 0; x < screenWidth; x++) {
-                frame.setData(x, y, ' ', skyAttr);
+        if (skyFrame) {
+            for (var y = 0; y < horizonY; y++) {
+                var attr = y < 2 ? makeAttr(BLACK, BG_BLACK) : makeAttr(DARKGRAY, BG_BLACK);
+                for (var x = 0; x < screenWidth; x++) {
+                    skyFrame.setData(x, y, ' ', attr);
+                }
             }
         }
-        for (var y = horizonY; y < roadBottom; y++) {
-            for (var x = 0; x < screenWidth; x++) {
-                var ch = (y + x) % 4 === 0 ? '.' : ' ';
-                frame.setData(x, y, ch, gridAttr);
+        if (roadFrame) {
+            for (var y = 0; y < roadHeight; y++) {
+                for (var x = 0; x < screenWidth; x++) {
+                    var ch = (y + x) % 4 === 0 ? '.' : ' ';
+                    roadFrame.setData(x, y, ch, gridAttr);
+                }
             }
         }
     };
     ANSITunnelRenderer.prototype.isLoaded = function () {
         return this.loaded;
+    };
+    ANSITunnelRenderer.CONTROL_CHARS = {
+        0: true,
+        7: true,
+        8: true,
+        9: true,
+        10: true,
+        12: true,
+        13: true,
+        27: true
     };
     return ANSITunnelRenderer;
 }());

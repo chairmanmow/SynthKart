@@ -135,6 +135,9 @@ var FrameManager = (function () {
             frame.clear();
         }
     };
+    FrameManager.prototype.getRootFrame = function () {
+        return this.rootFrame;
+    };
     FrameManager.prototype.shutdown = function () {
         if (this.hudFrame)
             this.hudFrame.close();

@@ -5,6 +5,9 @@ node_modules/
 dist/*.js
 !dist/outrun.js
 
+# Score data
+synthkart.json
+
 # Debug logs
 *.log
 debug.log
@@ -21,3 +24,5 @@ Thumbs.db
 # Temp files
 *.tmp
 print('MAGENTA=' + MAGENTA)
+
+

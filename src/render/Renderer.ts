@@ -28,6 +28,10 @@ interface IRenderer {
   
   // Optional lightning bolt visual effect
   triggerLightningStrike?(hitCount: number): void;
+  
+  // Get root frame for overlays
+  getRootFrame?(): Frame | null;
+  getHudFrame?(): Frame | null;
 }
 
 class Renderer implements IRenderer {
@@ -172,6 +176,13 @@ class Renderer implements IRenderer {
         }
       }
     }
+  }
+
+  /**
+   * Get root frame for overlays.
+   */
+  getRootFrame(): Frame | null {
+    return this.frame;
   }
 
   /**

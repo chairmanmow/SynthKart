@@ -10,12 +10,20 @@
  */
 
 // Configuration for ANSI loading
-var ANSITunnelConfig = {
-  directory: '/sbbs/text/futureland',
-  scrollSpeed: 1.0,
-  mirrorSky: true,
-  colorShift: true
-};
+// Track math: Data Highway = 35 segments × 200 = 7000 units/lap × 0.75 scroll = 5250 rows/lap
+// 2000 rows = ~38% of a lap (repeats ~3x per lap vs 10+ times with old 6-file limit)
+// Configuration is now loaded from outrun.ini
+function getANSITunnelConfig() {
+  return {
+    directory: OUTRUN_CONFIG.ansiTunnel.directory,
+    scrollSpeed: OUTRUN_CONFIG.ansiTunnel.scrollSpeed,
+    mirrorSky: true,
+    colorShift: true,
+    maxRowsToLoad: OUTRUN_CONFIG.ansiTunnel.maxRows
+  };
+}
+
+var ANSITunnelConfig = getANSITunnelConfig();
 
 var ANSITunnelTheme: Theme = {
   name: 'ansi_tunnel',
@@ -150,19 +158,35 @@ registerTheme(ANSITunnelTheme);
 
 /**
  * ANSI Tunnel renderer - handles the perspective road surface and sky reflection.
+ * Pre-loads a fixed set of ANSI files at startup and loops through them seamlessly.
  */
 class ANSITunnelRenderer {
-  private ansiImages: ANSIImage[] = [];
-  private currentImageIndex: number = 0;
+  // Combined ANSI canvas (files concatenated vertically)
+  private combinedCells: ANSICell[][] = [];
+  private combinedWidth: number = 80;
+  private combinedHeight: number = 0;
   private scrollOffset: number = 0;
   private loaded: boolean = false;
+  private _renderDebugLogged: boolean = false;
+  
+  // Characters that cause beeps or display issues - filter these out
+  private static CONTROL_CHARS: { [key: number]: boolean } = {
+    0: true,   // NUL
+    7: true,   // BEL (beep!)
+    8: true,   // BS
+    9: true,   // TAB
+    10: true,  // LF
+    12: true,  // FF
+    13: true,  // CR
+    27: true   // ESC
+  };
   
   constructor() {
     this.loadANSIFiles();
   }
   
   /**
-   * Load ANSI files from the configured directory.
+   * Load ANSI files at startup and concatenate into one canvas.
    */
   private loadANSIFiles(): void {
     var files = ANSILoader.scanDirectory(ANSITunnelConfig.directory);
@@ -172,193 +196,218 @@ class ANSITunnelRenderer {
       return;
     }
     
-    // Load a few files for variety
-    var maxFiles = Math.min(files.length, 5);
-    for (var i = 0; i < maxFiles; i++) {
-      var img = ANSILoader.load(files[i], ANSITunnelConfig.directory);
-      if (img) {
-        this.ansiImages.push(img);
-        logInfo("ANSITunnelRenderer: Loaded " + files[i] + " (" + img.width + "x" + img.height + ")");
+    // Shuffle randomly for variety each race
+    for (var i = files.length - 1; i > 0; i--) {
+      var j = Math.floor(Math.random() * (i + 1));
+      var temp = files[i];
+      files[i] = files[j];
+      files[j] = temp;
+    }
+    
+    // Load files until we hit row limit (not file count)
+    var maxRows = ANSITunnelConfig.maxRowsToLoad || 2000;
+    var filesLoaded = 0;
+    
+    logInfo("ANSITunnelRenderer: Loading ANSI files (max " + maxRows + " rows)...");
+    
+    // Load and concatenate until we hit the row limit
+    this.combinedCells = [];
+    this.combinedHeight = 0;
+    
+    for (var i = 0; i < files.length && this.combinedHeight < maxRows; i++) {
+      var img = ANSILoader.load(files[i]);
+      if (img && img.height > 0) {
+        // Check if adding this file would exceed limit
+        var rowsToAdd = Math.min(img.height, maxRows - this.combinedHeight);
+        
+        for (var row = 0; row < rowsToAdd; row++) {
+          var newRow: ANSICell[] = [];
+          for (var col = 0; col < this.combinedWidth; col++) {
+            if (col < img.width && img.cells[row] && img.cells[row][col]) {
+              var cell = img.cells[row][col];
+              var ch = cell.char;
+              var code = ch.charCodeAt(0);
+              if (ANSITunnelRenderer.CONTROL_CHARS[code]) {
+                ch = ' ';
+              }
+              newRow.push({ char: ch, attr: cell.attr });
+            } else {
+              newRow.push({ char: ' ', attr: 7 });
+            }
+          }
+          this.combinedCells.push(newRow);
+          this.combinedHeight++;
+        }
+        filesLoaded++;
+        logInfo("ANSITunnelRenderer: Loaded " + files[i].split('/').pop() + " (" + img.height + " rows, total: " + this.combinedHeight + ")");
       }
     }
     
-    this.loaded = this.ansiImages.length > 0;
-    logInfo("ANSITunnelRenderer: Loaded " + this.ansiImages.length + " ANSI images");
+    this.loaded = this.combinedHeight > 0;
+    var estimatedKB = Math.round(this.combinedHeight * this.combinedWidth * 10 / 1024); // ~10 bytes per cell estimate
+    logInfo("ANSITunnelRenderer: Loaded " + filesLoaded + "/" + files.length + " files, " + this.combinedHeight + " rows (~" + estimatedKB + "KB)");
   }
   
   /**
-   * Get the current ANSI image.
+   * Get a cell from the combined canvas at the given coordinates.
+   * Wraps vertically for seamless looping.
    */
-  getCurrentImage(): ANSIImage | null {
-    if (!this.loaded || this.ansiImages.length === 0) return null;
-    return this.ansiImages[this.currentImageIndex % this.ansiImages.length];
+  getCell(row: number, col: number): ANSICell {
+    if (!this.loaded || this.combinedHeight === 0) {
+      return { char: ' ', attr: 7 };
+    }
+    // Wrap row for seamless looping
+    var wrappedRow = Math.floor(row) % this.combinedHeight;
+    if (wrappedRow < 0) wrappedRow += this.combinedHeight;
+    // Clamp column
+    var clampedCol = Math.max(0, Math.min(Math.floor(col), this.combinedWidth - 1));
+    
+    if (this.combinedCells[wrappedRow] && this.combinedCells[wrappedRow][clampedCol]) {
+      return this.combinedCells[wrappedRow][clampedCol];
+    }
+    return { char: ' ', attr: 7 };
   }
   
   /**
    * Update scroll position based on track progress.
-   * @param trackZ - Current position on track
-   * @param trackLength - Total track length
    */
-  updateScroll(trackZ: number, trackLength: number): void {
-    var img = this.getCurrentImage();
-    if (!img) return;
+  updateScroll(trackZ: number, _trackLength: number): void {
+    if (!this.loaded || this.combinedHeight === 0) return;
     
-    // Map track position to ANSI row
-    // One full lap = one full scroll through the ANSI
-    var progress = (trackZ % trackLength) / trackLength;
-    this.scrollOffset = progress * img.height;
-    
-    // Switch images at lap boundaries (optional variety)
-    var lapNumber = Math.floor(trackZ / trackLength);
-    if (lapNumber !== this.currentImageIndex && this.ansiImages.length > 1) {
-      this.currentImageIndex = lapNumber % this.ansiImages.length;
-    }
+    var scrollMultiplier = 0.5;
+    this.scrollOffset = (trackZ * scrollMultiplier) % this.combinedHeight;
+    if (this.scrollOffset < 0) this.scrollOffset += this.combinedHeight;
   }
   
   /**
-   * Render the ANSI tunnel effect to a frame.
-   * @param frame - The frame to render to
-   * @param horizonY - Y position of the horizon line
-   * @param roadBottom - Y position of the road bottom
-   * @param screenWidth - Width of the screen
+   * Render the ANSI tunnel effect using separate frames for sky and road.
+   * Displays 24 continuous rows of ANSI - just like opening it in a viewer.
+   * 
+   * NEW: Road surface is black with white dividers, ANSI shows only on roadsides.
    */
-  renderTunnel(frame: Frame, horizonY: number, roadBottom: number, screenWidth: number): void {
-    var img = this.getCurrentImage();
-    if (!img) {
-      // Fallback: render simple gradient
-      this.renderFallback(frame, horizonY, roadBottom, screenWidth);
+  renderTunnel(skyFrame: Frame | null, roadFrame: Frame | null, horizonY: number, roadHeight: number, screenWidth: number, trackPosition: number, cameraX: number, road: Road, roadLength: number): void {
+    // Debug: log once per session
+    if (!this._renderDebugLogged) {
+      this._renderDebugLogged = true;
+      logInfo('ANSITunnelRenderer.renderTunnel: canvas=' + this.combinedWidth + 'x' + this.combinedHeight + ' horizonY=' + horizonY + ' roadHeight=' + roadHeight);
+    }
+    
+    if (!this.loaded || this.combinedHeight === 0) {
+      this.renderFallback(skyFrame, roadFrame, horizonY, roadHeight, screenWidth);
       return;
     }
     
-    // Render sky (mirrored ANSI reflection)
-    if (ANSITunnelConfig.mirrorSky) {
-      this.renderSkyReflection(frame, img, horizonY, screenWidth);
+    // Reverse scroll: show bottom of ANSI first, scroll upward through it
+    // This makes the car feel like it's driving "up" through the ANSI
+    // - startRow is the ANSI row that appears at the top of our 24-row window
+    // - As scrollOffset increases, startRow decreases, revealing earlier ANSI rows at top
+    // - Content shifts DOWN on screen, like driving forward into the image
+    var startRow = (this.combinedHeight - 1) - Math.floor(this.scrollOffset);
+    
+    // Render sky (8 rows starting from startRow)
+    if (skyFrame) {
+      for (var frameY = 0; frameY < horizonY; frameY++) {
+        var ansiRow = startRow + frameY;
+        for (var frameX = 0; frameX < screenWidth; frameX++) {
+          var cell = this.getCell(ansiRow, frameX);
+          skyFrame.setData(frameX, frameY, cell.char, cell.attr);
+        }
+      }
     }
     
-    // Render road surface (ANSI with perspective)
-    this.renderRoadSurface(frame, img, horizonY, roadBottom, screenWidth);
-  }
-  
-  /**
-   * Render the sky area with mirrored ANSI content.
-   */
-  private renderSkyReflection(frame: Frame, img: ANSIImage, horizonY: number, screenWidth: number): void {
-    // Sky goes from row 0 to horizonY
-    for (var screenY = 0; screenY < horizonY; screenY++) {
-      // Calculate which ANSI row to sample (inverted for mirror effect)
-      var distFromHorizon = horizonY - screenY;
-      var t = distFromHorizon / horizonY;  // 0 at horizon, 1 at top
+    // Render road (16 rows continuing from where sky left off)
+    // Road surface is black, ANSI shows only on roadsides
+    if (roadFrame) {
+      var roadBottom = roadHeight - 1;
+      var blackAttr = makeAttr(BLACK, BG_BLACK);
+      var accumulatedCurve = 0;
       
-      // Sample from ANSI - rows closer to horizon are from current scroll position
-      // Rows at top are from further ahead in the ANSI
-      var ansiRow = Math.floor(this.scrollOffset + t * 20) % img.height;
-      if (ansiRow < 0) ansiRow += img.height;
-      
-      // Render with horizontal compression toward center (tunnel effect)
-      var compression = 0.3 + t * 0.7;  // More compressed near horizon
-      var centerX = screenWidth / 2;
-      
-      for (var screenX = 0; screenX < screenWidth; screenX++) {
-        // Map screen X to ANSI X with compression
-        var offsetFromCenter = screenX - centerX;
-        var ansiX = Math.floor(centerX + offsetFromCenter / compression);
+      // Iterate from bottom to top (like renderANSIRoadStripes) to accumulate curves correctly
+      for (var screenY = roadBottom; screenY >= 0; screenY--) {
+        var ansiRow = startRow + horizonY + screenY;
         
-        if (ansiX >= 0 && ansiX < img.width && ansiRow >= 0 && ansiRow < img.height) {
-          var cell = img.cells[ansiRow][ansiX];
-          var attr = cell.attr;
+        // Calculate perspective road boundaries for this scanline
+        // This MUST match the logic in renderANSIRoadStripes for alignment
+        var t = (roadBottom - screenY) / Math.max(1, roadBottom);
+        var distance = 1 / (1 - t * 0.95);
+        
+        // Get road segment and accumulate curvature
+        var worldZ = trackPosition + distance * 5;
+        var segment = road.getSegment(worldZ);
+        if (segment) {
+          accumulatedCurve += segment.curve * 0.5;
+        }
+        
+        var roadWidth = Math.round(40 / distance);
+        var halfWidth = Math.floor(roadWidth / 2);
+        
+        // Apply curve offset and camera position (matches renderANSIRoadStripes exactly)
+        var curveOffset = accumulatedCurve * distance * 0.8;
+        var centerX = 40 + Math.round(curveOffset) - Math.round(cameraX * 0.5);
+        
+        var leftEdge = centerX - halfWidth;
+        var rightEdge = centerX + halfWidth;
+        
+        // Check if this is the finish line
+        var wrappedZ = worldZ % roadLength;
+        if (wrappedZ < 0) wrappedZ += roadLength;
+        var isFinishLine = (wrappedZ < 200) || (wrappedZ > roadLength - 200);
+        
+        for (var frameX = 0; frameX < screenWidth; frameX++) {
+          // Check if this pixel is on the road surface
+          var onRoad = frameX >= leftEdge && frameX <= rightEdge;
           
-          // Color shift for sky - make it more blue/cyan tinted
-          if (ANSITunnelConfig.colorShift) {
-            attr = this.shiftColorForSky(attr, t);
+          if (onRoad) {
+            if (isFinishLine) {
+              // Checkered finish line pattern
+              var checkerSize = Math.max(1, Math.floor(3 / distance));
+              var checkerX = Math.floor((frameX - centerX) / checkerSize);
+              var checkerY = Math.floor(screenY / 2);
+              var isWhite = ((checkerX + checkerY) % 2) === 0;
+              
+              if (isWhite) {
+                roadFrame.setData(frameX, screenY, GLYPH.FULL_BLOCK, makeAttr(WHITE, BG_LIGHTGRAY));
+              } else {
+                roadFrame.setData(frameX, screenY, ' ', makeAttr(BLACK, BG_BLACK));
+              }
+            } else {
+              // Road surface: black background
+              roadFrame.setData(frameX, screenY, ' ', blackAttr);
+            }
+          } else {
+            // Roadside: show ANSI art
+            var cell = this.getCell(ansiRow, frameX);
+            roadFrame.setData(frameX, screenY, cell.char, cell.attr);
           }
-          
-          frame.setData(screenX, screenY, cell.char, attr);
         }
       }
     }
-  }
-  
-  /**
-   * Render the road surface with ANSI content and perspective.
-   */
-  private renderRoadSurface(frame: Frame, img: ANSIImage, horizonY: number, roadBottom: number, screenWidth: number): void {
-    // Road goes from horizonY to roadBottom
-    var roadHeight = roadBottom - horizonY;
-    
-    for (var screenY = horizonY; screenY < roadBottom; screenY++) {
-      var rowInRoad = screenY - horizonY;
-      var t = rowInRoad / roadHeight;  // 0 at horizon, 1 at bottom
-      
-      // Perspective: rows near bottom are from current scroll position
-      // Rows near horizon are from further ahead
-      var ansiRow = Math.floor(this.scrollOffset + (1 - t) * 30) % img.height;
-      if (ansiRow < 0) ansiRow += img.height;
-      
-      // Horizontal expansion for perspective (wider at bottom)
-      var expansion = 0.5 + t * 1.5;  // More expanded near car
-      var centerX = screenWidth / 2;
-      
-      for (var screenX = 0; screenX < screenWidth; screenX++) {
-        // Map screen X to ANSI X with expansion
-        var offsetFromCenter = screenX - centerX;
-        var ansiX = Math.floor(centerX + offsetFromCenter / expansion);
-        
-        if (ansiX >= 0 && ansiX < img.width && ansiRow >= 0 && ansiRow < img.height) {
-          var cell = img.cells[ansiRow][ansiX];
-          frame.setData(screenX, screenY, cell.char, cell.attr);
-        }
-      }
-    }
-  }
-  
-  /**
-   * Shift colors for the sky reflection effect.
-   */
-  private shiftColorForSky(attr: number, t: number): number {
-    var fg = attr & 0x0F;
-    var bg = (attr >> 4) & 0x0F;
-    
-    // Shift toward cyan/blue tones
-    // More shift further from horizon (higher t)
-    if (t > 0.3) {
-      // Make warm colors cooler
-      if (fg === RED || fg === LIGHTRED) fg = MAGENTA;
-      if (fg === YELLOW || fg === BROWN) fg = CYAN;
-      if (fg === LIGHTGREEN || fg === GREEN) fg = LIGHTCYAN;
-      if (fg === WHITE) fg = LIGHTCYAN;
-      
-      // Darken backgrounds
-      if (bg > 0 && bg < 8) bg = 0;
-    }
-    
-    // Fade more at the top
-    if (t > 0.7) {
-      if (fg >= 8) fg = fg - 8;  // Dim bright colors
-    }
-    
-    return makeAttr(fg, bg << 4);
   }
   
   /**
    * Fallback rendering when no ANSI is loaded.
    */
-  private renderFallback(frame: Frame, horizonY: number, roadBottom: number, screenWidth: number): void {
+  private renderFallback(skyFrame: Frame | null, roadFrame: Frame | null, horizonY: number, roadHeight: number, screenWidth: number): void {
     // Simple cyber grid fallback
     var gridAttr = makeAttr(DARKGRAY, BG_BLACK);
     
     // Sky - simple gradient
-    for (var y = 0; y < horizonY; y++) {
-      var skyAttr = y < 2 ? makeAttr(BLACK, BG_BLACK) : makeAttr(DARKGRAY, BG_BLACK);
-      for (var x = 0; x < screenWidth; x++) {
-        frame.setData(x, y, ' ', skyAttr);
+    if (skyFrame) {
+      for (var y = 0; y < horizonY; y++) {
+        var attr = y < 2 ? makeAttr(BLACK, BG_BLACK) : makeAttr(DARKGRAY, BG_BLACK);
+        for (var x = 0; x < screenWidth; x++) {
+          skyFrame.setData(x, y, ' ', attr);
+        }
       }
     }
     
     // Road - simple lines
-    for (var y = horizonY; y < roadBottom; y++) {
-      for (var x = 0; x < screenWidth; x++) {
-        var ch = (y + x) % 4 === 0 ? '.' : ' ';
-        frame.setData(x, y, ch, gridAttr);
+    if (roadFrame) {
+      for (var y = 0; y < roadHeight; y++) {
+        for (var x = 0; x < screenWidth; x++) {
+          var ch = (y + x) % 4 === 0 ? '.' : ' ';
+          roadFrame.setData(x, y, ch, gridAttr);
+        }
       }
     }
   }

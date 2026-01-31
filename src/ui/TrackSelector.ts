@@ -310,11 +310,11 @@ function showSecretTracksMenu(): TrackSelectionResult {
     console.clear(LIGHTGRAY, false);
     console.gotoxy(1, 10);
     console.attributes = LIGHTMAGENTA;
-    console.print('       ╔══════════════════════════════════════════╗\r\n');
-    console.print('       ║         NO SECRETS FOUND... YET          ║\r\n');
-    console.print('       ║                                          ║\r\n');
-    console.print('       ║  Keep racing to unlock hidden tracks!    ║\r\n');
-    console.print('       ╚══════════════════════════════════════════╝\r\n');
+    console.print('       ' + GLYPH.DBOX_TL + repeatChar(GLYPH.DBOX_H, 44) + GLYPH.DBOX_TR + '\r\n');
+    console.print('       ' + GLYPH.DBOX_V + '         NO SECRETS FOUND... YET          ' + GLYPH.DBOX_V + '\r\n');
+    console.print('       ' + GLYPH.DBOX_V + '                                          ' + GLYPH.DBOX_V + '\r\n');
+    console.print('       ' + GLYPH.DBOX_V + '  Keep racing to unlock hidden tracks!    ' + GLYPH.DBOX_V + '\r\n');
+    console.print('       ' + GLYPH.DBOX_BL + repeatChar(GLYPH.DBOX_H, 44) + GLYPH.DBOX_BR + '\r\n');
     console.print('\r\n');
     console.attributes = DARKGRAY;
     console.print('                 Press any key to return...\r\n');
@@ -328,16 +328,14 @@ function showSecretTracksMenu(): TrackSelectionResult {
     // Draw secret tracks menu
     console.clear(LIGHTGRAY, false);
     
-    // Header with spooky ASCII art
+    // Header with CP437 ASCII art
     console.gotoxy(1, 1);
     console.attributes = LIGHTRED;
-    console.print('═══════════════════════════════════════════════════════════════════════════════\r\n');
+    console.print(repeatChar(GLYPH.DBOX_H, 79) + '\r\n');
     console.attributes = YELLOW;
-    console.print('    ╔═╗╔═╗╔═╗╦═╗╔═╗╔╦╗  ╔╦╗╦═╗╔═╗╔═╗╦╔═╔═╗\r\n');
-    console.print('    ╚═╗║╣ ║  ╠╦╝║╣  ║    ║ ╠╦╝╠═╣║  ╠╩╗╚═╗\r\n');
-    console.print('    ╚═╝╚═╝╚═╝╩╚═╚═╝ ╩    ╩ ╩╚═╩ ╩╚═╝╩ ╩╚═╝\r\n');
+    console.print('                     #### SECRET TRACKS ####\r\n');
     console.attributes = LIGHTRED;
-    console.print('═══════════════════════════════════════════════════════════════════════════════\r\n');
+    console.print(repeatChar(GLYPH.DBOX_H, 79) + '\r\n');
     console.print('\r\n');
     
     console.attributes = DARKGRAY;
@@ -372,7 +370,7 @@ function showSecretTracksMenu(): TrackSelectionResult {
     // Controls
     console.gotoxy(5, 20);
     console.attributes = DARKGRAY;
-    console.print('────────────────────────────────────────────────────────────────────\r\n');
+    console.print(repeatChar(GLYPH.BOX_H, 68) + '\r\n');
     console.gotoxy(5, 21);
     console.attributes = CYAN;
     console.print('[');

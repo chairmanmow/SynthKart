@@ -89,6 +89,9 @@ var Renderer = (function () {
             }
         }
     };
+    Renderer.prototype.getRootFrame = function () {
+        return this.frame;
+    };
     Renderer.prototype.shutdown = function () {
         if (this.frame) {
             this.frame.close();

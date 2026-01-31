@@ -9,12 +9,18 @@
  * Each record type stores top 10 scores.
  */
 
-// Type declaration for JSONdb (loaded from Synchronet)
+// Type declarations for Synchronet JSON libraries
 declare var JSONdb: any;
+declare var JSONClient: any;
 
-// Load json-db if not already loaded
+// Load json-db for local file storage
 if (typeof JSONdb === 'undefined') {
   load('json-db.js');
+}
+
+// Load json-client for network storage
+if (typeof JSONClient === 'undefined') {
+  load('json-client.js');
 }
 
 /**
@@ -38,23 +44,34 @@ enum HighScoreType {
 }
 
 class HighScoreManager {
-  private db: any;  // JSONdb instance
-  private dbPath: string;
+  private localDb: any;      // JSONdb for local file storage
+  private client: any;       // JSONClient for network storage  
+  private serviceName: string;
+  private useNetwork: boolean;
   private maxEntries: number = 10;
 
   constructor() {
-    // Store high scores in game directory
-    this.dbPath = js.exec_dir + 'highscores.json';
+    var config = OUTRUN_CONFIG.highscores;
+    this.serviceName = config.serviceName;
+    this.useNetwork = config.server !== 'file' && config.server !== '';
     
     try {
-      this.db = new JSONdb(this.dbPath, 'OUTRUN_SCORES');
-      this.db.settings.KEEP_READABLE = true;
-      
-      // Load existing data
-      this.db.load();
+      if (this.useNetwork) {
+        // Use JSONClient for network storage (local or remote json-service)
+        this.client = new JSONClient(config.server, config.port);
+        logInfo('High scores: connecting to ' + config.server + ':' + config.port + 
+                ' service=' + this.serviceName);
+      } else {
+        // Use JSONdb for local file storage
+        this.localDb = new JSONdb(config.filePath);
+        this.localDb.settings.KEEP_READABLE = true;
+        this.localDb.load();
+        logInfo('High scores: using local file ' + config.filePath);
+      }
     } catch (e) {
-      logError("Failed to initialize high score database: " + e);
-      this.db = null;
+      logError("Failed to initialize high score storage: " + e);
+      this.localDb = null;
+      this.client = null;
     }
   }
 
@@ -62,38 +79,53 @@ class HighScoreManager {
    * Generate a key for storing/retrieving high scores
    */
   private getKey(type: HighScoreType, identifier: string): string {
-    // Sanitize identifier (track or circuit name)
     var sanitized = identifier.replace(/\s+/g, '_').toLowerCase();
     return type + '.' + sanitized;
+  }
+  
+  /**
+   * Get scores from local file storage
+   */
+  private getScoresLocal(key: string): IHighScoreEntry[] {
+    if (!this.localDb) return [];
+    try {
+      this.localDb.load();
+      var data = this.localDb.masterData.data || {};
+      var scores = data[key];
+      return (scores && Array.isArray(scores)) ? scores : [];
+    } catch (e) {
+      logError("Failed to read local scores: " + e);
+      return [];
+    }
+  }
+  
+  /**
+   * Get scores from network json-service
+   */
+  private getScoresNetwork(key: string): IHighScoreEntry[] {
+    if (!this.client) return [];
+    try {
+      var scores = this.client.read(this.serviceName, key, 1);  // 1=LOCK_READ like gooble
+      return (scores && Array.isArray(scores)) ? scores : [];
+    } catch (e) {
+      logError("Failed to read network scores: " + e);
+      return [];
+    }
   }
 
   /**
    * Get high score list for a specific record type and identifier
    */
   getScores(type: HighScoreType, identifier: string): IHighScoreEntry[] {
-    if (!this.db) return [];
+    var key = this.getKey(type, identifier);
+    var scores = this.useNetwork ? this.getScoresNetwork(key) : this.getScoresLocal(key);
     
-    try {
-      // Reload to ensure we have latest data
-      this.db.load();
-      
-      var key = this.getKey(type, identifier);
-      var data = this.db.masterData.data || {};
-      var scores = data[key];
-      
-      if (scores && Array.isArray(scores)) {
-        // Always sort by time ascending (lowest/fastest time first)
-        scores.sort(function(a: IHighScoreEntry, b: IHighScoreEntry) {
-          return a.time - b.time;
-        });
-        return scores;
-      }
-      
-      return [];
-    } catch (e) {
-      logError("Failed to get high scores: " + e);
-      return [];
-    }
+    // Sort by time ascending (fastest first)
+    scores.sort(function(a: IHighScoreEntry, b: IHighScoreEntry) {
+      return a.time - b.time;
+    });
+    
+    return scores;
   }
 
   /**
@@ -147,76 +179,76 @@ class HighScoreManager {
     trackName?: string,
     circuitName?: string
   ): number {
-    if (!this.db) return 0;
+    var key = this.getKey(type, identifier);
+    var scores = this.getScores(type, identifier);
     
-    try {
-      // Reload to ensure we have latest data
-      this.db.load();
-      
-      var key = this.getKey(type, identifier);
-      var scores = this.getScores(type, identifier);
-      
-      // Create new entry
-      var entry: IHighScoreEntry = {
-        playerName: playerName,
-        time: time,
-        date: Date.now()
-      };
-      
-      if (trackName) entry.trackName = trackName;
-      if (circuitName) entry.circuitName = circuitName;
-      
-      // Add entry to scores
-      scores.push(entry);
-      
-      // Sort by time ascending (fastest first)
-      scores.sort(function(a: IHighScoreEntry, b: IHighScoreEntry) {
-        return a.time - b.time;
-      });
-      
-      // Trim to max entries
-      if (scores.length > this.maxEntries) {
-        scores = scores.slice(0, this.maxEntries);
+    // Create new entry
+    var entry: IHighScoreEntry = {
+      playerName: playerName,
+      time: time,
+      date: Date.now()
+    };
+    
+    if (trackName) entry.trackName = trackName;
+    if (circuitName) entry.circuitName = circuitName;
+    
+    // Add entry to scores
+    scores.push(entry);
+    
+    // Sort by time ascending (fastest first)
+    scores.sort(function(a: IHighScoreEntry, b: IHighScoreEntry) {
+      return a.time - b.time;
+    });
+    
+    // Trim to max entries
+    if (scores.length > this.maxEntries) {
+      scores = scores.slice(0, this.maxEntries);
+    }
+    
+    // Find the position of the new entry (1-based)
+    var position = 0;
+    for (var i = 0; i < scores.length; i++) {
+      if (scores[i].time === time && scores[i].date === entry.date) {
+        position = i + 1;
+        break;
       }
-      
-      // Find the position of the new entry (1-based)
-      var position = 0;
-      for (var i = 0; i < scores.length; i++) {
-        if (scores[i].time === time && scores[i].date === entry.date) {
-          position = i + 1;
-          break;
-        }
-      }
-      
-      // If not in the list after trimming, it didn't qualify
-      if (position === 0) {
-        return 0;
-      }
-      
-      // Write back to database
-      var data = this.db.masterData.data || {};
-      data[key] = scores;
-      this.db.masterData.data = data;
-      
-      // Save to disk
-      this.db.save();
-      
-      return position + 1;  // Return 1-based position
-    } catch (e) {
-      logError("Failed to submit high score: " + e);
+    }
+    
+    // If not in the list after trimming, it didn't qualify
+    if (position === 0) {
       return 0;
     }
+    
+    // Save scores
+    try {
+      if (this.useNetwork) {
+        this.client.write(this.serviceName, key, scores, 2);  // 2 = LOCK_WRITE
+      } else if (this.localDb) {
+        var data = this.localDb.masterData.data || {};
+        data[key] = scores;
+        this.localDb.masterData.data = data;
+        this.localDb.save();
+      }
+    } catch (e) {
+      logError("Failed to save high score: " + e);
+      return 0;
+    }
+    
+    return position;
   }
 
   /**
    * Clear all high scores (for testing/admin)
    */
   clearAll(): void {
-    if (!this.db) return;
-    
     try {
-      this.db.masterData.data = {};
-      this.db.save();
+      if (this.useNetwork) {
+        // For network, we'd need to clear each key individually or have server support
+        logWarning("Cannot clear all scores on network storage");
+      } else if (this.localDb) {
+        this.localDb.masterData.data = {};
+        this.localDb.save();
+      }
     } catch (e) {
       logError("Failed to clear high scores: " + e);
     }
@@ -226,15 +258,18 @@ class HighScoreManager {
    * Clear high scores for a specific record type and identifier
    */
   clear(type: HighScoreType, identifier: string): void {
-    if (!this.db) return;
+    var key = this.getKey(type, identifier);
     
     try {
-      this.db.load();
-      var key = this.getKey(type, identifier);
-      var data = this.db.masterData.data || {};
-      delete data[key];
-      this.db.masterData.data = data;
-      this.db.save();
+      if (this.useNetwork) {
+        this.client.write(this.serviceName, key, [], 2);  // Write empty array
+      } else if (this.localDb) {
+        this.localDb.load();
+        var data = this.localDb.masterData.data || {};
+        delete data[key];
+        this.localDb.masterData.data = data;
+        this.localDb.save();
+      }
     } catch (e) {
       logError("Failed to clear high scores: " + e);
     }

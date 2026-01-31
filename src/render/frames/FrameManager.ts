@@ -268,6 +268,13 @@ class FrameManager {
   }
   
   /**
+   * Get the root frame for overlays.
+   */
+  getRootFrame(): Frame {
+    return this.rootFrame;
+  }
+
+  /**
    * Shutdown - close all frames.
    */
   shutdown(): void {

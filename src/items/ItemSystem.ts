@@ -105,7 +105,7 @@ class ItemSystem {
         var item = new Item(ItemType.NONE);
         item.x = x;
         item.z = z;
-        item.respawnTime = 8;  // Respawn after 8 seconds
+        item.respawnTime = 2.5;  // Respawn after 2.5 seconds
         this.items.push(item);
       }
     }
@@ -155,7 +155,18 @@ class ItemSystem {
         if (!item.isAvailable()) continue;
 
         // Distance check using track coordinates
+        // Handle track wrap-around for looping courses
         var dz = vehicle.trackZ - item.z;
+        var roadLen = road ? road.totalLength : 10000;
+        
+        // Normalize dz to handle wrap-around
+        // If player is near end of track and item is near start, dz would be large positive
+        // but actually the item is just ahead
+        if (dz > roadLen / 2) {
+          dz -= roadLen;  // Item is actually behind (wrapped)
+        } else if (dz < -roadLen / 2) {
+          dz += roadLen;  // Item is actually ahead (wrapped)
+        }
         
         // Only check items that are slightly ahead or right at the vehicle
         // This prevents NPCs behind you from "stealing" boxes you're about to hit

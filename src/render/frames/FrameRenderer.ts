@@ -47,6 +47,10 @@ class FrameRenderer implements IRenderer {
   // ANSI tunnel renderer for ansi_tunnel theme
   private _ansiTunnelRenderer: ANSITunnelRenderer | null;
   
+  // Debug flags for one-time logging
+  private _ansiDebugLogged: boolean;
+  private _ansiFrameLogged: boolean;
+  
   constructor(width: number, height: number) {
     this.width = width;
     this.height = height;
@@ -67,6 +71,8 @@ class FrameRenderer implements IRenderer {
     
     // Initialize ANSI tunnel renderer (lazy - created when theme is set)
     this._ansiTunnelRenderer = null;
+    this._ansiDebugLogged = false;
+    this._ansiFrameLogged = false;
     
     this.frameManager = new FrameManager(width, height, this.horizonY);
     this.composer = new SceneComposer(width, height);
@@ -306,19 +312,54 @@ class FrameRenderer implements IRenderer {
     this._currentCameraX = cameraX;
     
     // Special handling for ANSI tunnel theme - render entire tunnel effect
-    if (this._ansiTunnelRenderer && this.activeTheme.background.type === 'ansi') {
+    var bgType = this.activeTheme.background ? this.activeTheme.background.type : 'none';
+    
+    // Debug: log once when game starts
+    if (!this._ansiDebugLogged) {
+      this._ansiDebugLogged = true;
+      logInfo('renderRoad check: bgType=' + bgType + ' hasRenderer=' + (this._ansiTunnelRenderer ? 'yes' : 'no') + ' theme=' + this.activeTheme.name);
+    }
+    
+    if (this._ansiTunnelRenderer && bgType === 'ansi') {
       this._ansiTunnelRenderer.updateScroll(trackPosition, road.totalLength);
+      
+      // Get both sky and road frames
+      var skyFrame = this.frameManager.getSkyGridFrame();
       var roadFrame = this.frameManager.getRoadFrame();
-      if (roadFrame) {
-        this._ansiTunnelRenderer.renderTunnel(
-          roadFrame,
-          this.horizonY,
-          this.height - 3,  // Leave room for HUD
-          this.width
-        );
+      
+      // Road frame height calculation:
+      // Total road is height - horizonY (16 rows for 24-8 layout)
+      // Combined with sky (8 rows) this gives full 24 rows of ANSI
+      var roadFrameHeight = this.height - this.horizonY;  // Full road frame height
+      var ansiRoadHeight = roadFrameHeight;  // Use full road height - HUD overlays on top
+      
+      // Debug: log frame info once
+      if (!this._ansiFrameLogged) {
+        this._ansiFrameLogged = true;
+        logInfo('ANSI frames: sky=' + (skyFrame ? 'ok' : 'null') + ' road=' + (roadFrame ? 'ok' : 'null') + ' horizonY=' + this.horizonY + ' roadFrameHeight=' + roadFrameHeight + ' ansiRoadHeight=' + ansiRoadHeight);
       }
-      // Still render road surface for proper road markings
-      this.renderRoadSurface(trackPosition, cameraX, road);
+      
+      // Clear road frame first to avoid artifacts
+      if (roadFrame) {
+        roadFrame.clear();
+      }
+      
+      // Render ANSI tunnel to both frames
+      this._ansiTunnelRenderer.renderTunnel(
+        skyFrame,
+        roadFrame,
+        this.horizonY,
+        ansiRoadHeight,
+        this.width,
+        trackPosition,
+        cameraX,
+        road,
+        road.totalLength
+      );
+      
+      // Skip renderRoadSurface for ANSI theme - it would clear our ANSI content!
+      // Just render road stripes on top of ANSI if needed
+      this.renderANSIRoadStripes(trackPosition, cameraX, road, ansiRoadHeight);
       
       // Build roadside objects from track/road
       var roadsideObjects = this.buildRoadsideObjects(trackPosition, cameraX, road);
@@ -2067,24 +2108,25 @@ class FrameRenderer implements IRenderer {
   }
 
   /**
-   * Render ANSI tunnel static elements - minimal since the tunnel is dynamic.
-   * Just renders a dark backdrop that will be overwritten by the dynamic tunnel.
+   * Render ANSI tunnel static elements - clear all overlapping frames.
+   * The ANSI tunnel renders dynamically to sky and road frames,
+   * so we need to ensure mountains/sun frames are clear (transparent).
    */
   private renderANSITunnelStatic(): void {
-    var frame = this.frameManager.getMountainsFrame();
-    if (!frame) return;
-    
-    var darkAttr = makeAttr(BLACK, BG_BLACK);
-    var hintAttr = makeAttr(DARKGRAY, BG_BLACK);
-    
-    // Fill sky area with dark
-    for (var y = 0; y < this.horizonY; y++) {
-      for (var x = 0; x < this.width; x++) {
-        // Occasional dim dots for depth
-        var ch = (x + y * 7) % 47 === 0 ? '.' : ' ';
-        frame.setData(x, y, ch, ch === '.' ? hintAttr : darkAttr);
-      }
+    // Clear the mountains frame completely so it doesn't obscure the sky
+    var mtnsFrame = this.frameManager.getMountainsFrame();
+    if (mtnsFrame) {
+      mtnsFrame.clear();  // Make fully transparent
     }
+    
+    // Clear the sun frame completely  
+    var sunFrame = this.frameManager.getSunFrame();
+    if (sunFrame) {
+      sunFrame.clear();  // Make fully transparent
+    }
+    
+    // Sky grid frame will be rendered dynamically by ANSITunnelRenderer
+    // Road frame will be rendered dynamically by ANSITunnelRenderer
   }
 
   /**
@@ -3992,6 +4034,57 @@ class FrameRenderer implements IRenderer {
   }
 
   /**
+   * Render just road stripes and center line for ANSI tunnel theme.
+   * Unlike renderRoadSurface, this doesn't clear the frame or render the entire road.
+   * @param roadHeight - The height of the ANSI road area (to avoid drawing into HUD)
+   */
+  private renderANSIRoadStripes(trackPosition: number, cameraX: number, road: Road, roadHeight?: number): void {
+    var frame = this.frameManager.getRoadFrame();
+    if (!frame) return;
+    
+    // DON'T clear the frame - ANSI content is already there!
+    
+    // Use provided roadHeight or calculate default
+    var roadBottom = roadHeight ? roadHeight - 1 : this.height - this.horizonY - 4;
+    var accumulatedCurve = 0;
+    
+    // Render just the lane stripes on top of ANSI
+    for (var screenY = roadBottom; screenY >= 0; screenY--) {
+      var t = (roadBottom - screenY) / Math.max(1, roadBottom);
+      var distance = 1 / (1 - t * 0.95);
+      var worldZ = trackPosition + distance * 5;
+      var segment = road.getSegment(worldZ);
+      
+      if (segment) {
+        accumulatedCurve += segment.curve * 0.5;
+      }
+      
+      var roadWidth = Math.round(40 / distance);
+      var halfWidth = Math.floor(roadWidth / 2);
+      var curveOffset = accumulatedCurve * distance * 0.8;
+      var centerX = 40 + Math.round(curveOffset) - Math.round(cameraX * 0.5);
+      
+      // Only render center stripe
+      var stripePhase = Math.floor((trackPosition + distance * 5) / 15) % 2;
+      if (stripePhase === 0 && halfWidth > 2) {
+        // Yellow center stripe
+        frame.setData(centerX, screenY, '-', makeAttr(YELLOW, BG_BLACK));
+      }
+      
+      // Render edge lines (left and right)
+      var leftEdge = centerX - halfWidth;
+      var rightEdge = centerX + halfWidth;
+      
+      if (leftEdge >= 0 && leftEdge < this.width) {
+        frame.setData(leftEdge, screenY, '|', makeAttr(WHITE, BG_BLACK));
+      }
+      if (rightEdge >= 0 && rightEdge < this.width) {
+        frame.setData(rightEdge, screenY, '|', makeAttr(WHITE, BG_BLACK));
+      }
+    }
+  }
+
+  /**
    * Render the road surface to its frame (internal method).
    */
   private renderRoadSurface(trackPosition: number, cameraX: number, road: Road): void {
@@ -5133,6 +5226,20 @@ class FrameRenderer implements IRenderer {
     this.frameManager.cycle();
   }
   
+  /**
+   * Get root frame for overlays.
+   */
+  getRootFrame(): Frame | null {
+    return this.frameManager ? this.frameManager.getRootFrame() : null;
+  }
+
+  /**
+   * Get HUD frame for top-layer overlays.
+   */
+  getHudFrame(): Frame | null {
+    return this.frameManager ? this.frameManager.getHudFrame() : null;
+  }
+
   /**
    * Shutdown renderer.
    */

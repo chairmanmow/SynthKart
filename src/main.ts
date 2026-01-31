@@ -109,14 +109,15 @@ function showTitleScreen(): void {
   
   // Try to load custom title screen (.bin preferred, .ans fallback)
   var titleFile = "";
-  var f = new File(js.exec_dir + "title.bin");
+  var assetsDir = js.exec_dir + "assets/";
+  var f = new File(assetsDir + "title.bin");
   
   if (f.exists) {
-    titleFile = js.exec_dir + "title.bin";
+    titleFile = assetsDir + "title.bin";
   } else {
-    f = new File(js.exec_dir + "title.ans");
+    f = new File(assetsDir + "title.ans");
     if (f.exists) {
-      titleFile = js.exec_dir + "title.ans";
+      titleFile = assetsDir + "title.ans";
     }
   }
   
@@ -192,6 +193,54 @@ function showTitleScreen(): void {
 
     console.attributes = LIGHTGRAY;
   }
+}
+
+/**
+ * Display the exit screen.
+ * Tries to load custom ANSI art from exit.bin, falls back to simple text message.
+ */
+function showExitScreen(): void {
+  console.clear(BG_BLACK, false);
+  
+  // Try to load custom exit screen (.bin preferred, .ans fallback)
+  var exitFile = "";
+  var assetsDir = js.exec_dir + "assets/";
+  var f = new File(assetsDir + "exit.bin");
+  
+  if (f.exists) {
+    exitFile = assetsDir + "exit.bin";
+  } else {
+    f = new File(assetsDir + "exit.ans");
+    if (f.exists) {
+      exitFile = assetsDir + "exit.ans";
+    }
+  }
+  
+  if (exitFile !== "") {
+    try {
+      // Load frame.js library
+      load('frame.js');
+      
+      // Display custom art using Frame
+      var exitFrame = new Frame(1, 1, console.screen_columns, console.screen_rows, BG_BLACK);
+      exitFrame.open();
+      exitFrame.load(exitFile);
+      exitFrame.draw();
+      exitFrame.close();
+    } catch (e) {
+      logError("Error loading custom exit screen: " + e);
+      // Fall through to built-in message
+      console.attributes = LIGHTGRAY;
+      console.print("Thanks for playing SynthKart!\r\n");
+    }
+  } else {
+    // Fallback to simple text message
+    console.attributes = LIGHTGRAY;
+    console.print("Thanks for playing SynthKart!\r\n");
+  }
+  
+  // Wait for a keystroke before exiting
+  console.pause();
 }
 
 /**
@@ -322,9 +371,7 @@ function main(): void {
     }
 
     // Final exit
-    console.clear(BG_BLACK, false);
-    console.attributes = LIGHTGRAY;
-    console.print("Thanks for playing OutRun ANSI!\r\n");
+    showExitScreen();
 
   } catch (e) {
     // Error handling - capture to debug log

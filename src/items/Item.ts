@@ -152,7 +152,7 @@ class Item extends Entity implements IItem {
   constructor(type: ItemType) {
     super();
     this.type = type;
-    this.respawnTime = 10;
+    this.respawnTime = 2.5;  // Default respawn time in seconds
     this.respawnCountdown = -1;
     this.destructionTimer = 0;
     this.destructionStartTime = 0;

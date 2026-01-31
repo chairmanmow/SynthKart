@@ -295,7 +295,7 @@ function logError(message) {
 }
 "use strict";
 function loadConfig() {
-    var configPath = js.exec_dir + 'outrun.ini';
+    var configPath = js.exec_dir + 'synthkart.ini';
     var config = {
         general: {
             gameName: 'OUTRUN'
@@ -303,7 +303,7 @@ function loadConfig() {
         highscores: {
             server: 'file',
             port: 10088,
-            serviceName: 'outrun',
+            serviceName: 'synthkart',
             filePath: 'highscores.json'
         },
         ansiTunnel: {
@@ -18214,6 +18214,41 @@ function showTitleScreen() {
         console.attributes = LIGHTGRAY;
     }
 }
+function showExitScreen() {
+    console.clear(BG_BLACK, false);
+    var exitFile = "";
+    var assetsDir = js.exec_dir + "assets/";
+    var f = new File(assetsDir + "exit.bin");
+    if (f.exists) {
+        exitFile = assetsDir + "exit.bin";
+    }
+    else {
+        f = new File(assetsDir + "exit.ans");
+        if (f.exists) {
+            exitFile = assetsDir + "exit.ans";
+        }
+    }
+    if (exitFile !== "") {
+        try {
+            load('frame.js');
+            var exitFrame = new Frame(1, 1, console.screen_columns, console.screen_rows, BG_BLACK);
+            exitFrame.open();
+            exitFrame.load(exitFile);
+            exitFrame.draw();
+            exitFrame.close();
+        }
+        catch (e) {
+            logError("Error loading custom exit screen: " + e);
+            console.attributes = LIGHTGRAY;
+            console.print("Thanks for playing SynthKart!\r\n");
+        }
+    }
+    else {
+        console.attributes = LIGHTGRAY;
+        console.print("Thanks for playing SynthKart!\r\n");
+    }
+    console.pause();
+}
 function waitForTitleInput() {
     while (true) {
         var key = console.inkey(K_UPPER, 1000);
@@ -18283,9 +18318,7 @@ function main() {
             }
             debugLog.info("Returning to splash screen");
         }
-        console.clear(BG_BLACK, false);
-        console.attributes = LIGHTGRAY;
-        console.print("Thanks for playing OutRun ANSI!\r\n");
+        showExitScreen();
     }
     catch (e) {
         debugLog.separator("FATAL ERROR");
